@@ -12,6 +12,7 @@ Plateforme de vente de chevaux et poneys pour quatre publics : **éleveurs**, **
 | Messagerie et téléphone | Réservés aux abonnés **Contact** (9,90 €/mois) et **Pro** (29 €/mois) via Stripe ; les vendeurs répondent gratuitement ; révélation du téléphone journalisée et contrôlée en base (RLS + fonction `reveal_phone`) |
 | Contrats | Générateur en ligne (formulaire + aperçu + impression PDF) : contrat de vente, mandat de dépôt-vente, convention d'essai. Fondés sur le Code civil, le Code rural (vices rédhibitoires, SIRE) et le modèle IDE/IFCE |
 | Guides | 10 guides par public (acheteur, vendeur particulier, éleveur, dépôt-vente, arnaques, visite et essai, visite vétérinaire, prix, annonce, après la vente) |
+| Back-office | `/admin` : validation des annonces (modération a priori avec check-list SIRE / prix / photos / mots-clés), signalements, badge « Professionnel vérifié » (lien annuaire des entreprises), blocage de comptes, journal `moderation_log` |
 | Confiance | Pacte de bonne conduite accepté à l'inscription, statut du vendeur affiché, badge « Professionnel vérifié » (SIRET), signalement, favoris, annuaire des pros |
 
 Les recherches qui ont servi de base sont dans `docs/` : `benchmark-plateformes.md` (Equirodi, Cheval Annonce, ehorses, Leboncoin, HorseTelex, Fences, Arqana, SHF Market…), `recherche-bonnes-pratiques.md` (forums, presse, IFCE) et `cadre-juridique.md` (textes, jurisprudence, clauses, points à faire valider par un juriste).
@@ -32,11 +33,12 @@ Sans variables Supabase, le site affiche des annonces fictives (`src/lib/demo-da
 
 ## Mise en production
 
-1. **Supabase** : créez un projet, puis exécutez dans l'ordre `supabase/migrations/0001_schema.sql` et `0002_rls.sql` (SQL editor ou `supabase db push`). Le bucket `listing-photos` est créé par la migration. Activez l'authentification par email (confirmation conseillée) et renseignez l'URL de redirection `https://votre-domaine/auth/callback`.
+1. **Supabase** : créez un projet, puis exécutez dans l'ordre `supabase/migrations/0001_schema.sql`, `0002_rls.sql` et `0003_admin.sql` (SQL editor ou `supabase db push`). Le bucket `listing-photos` est créé par la migration. Activez l'authentification par email (confirmation conseillée) et renseignez l'URL de redirection `https://votre-domaine/auth/callback`.
 2. **Variables** : `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (serveur uniquement), `NEXT_PUBLIC_SITE_URL`.
 3. **Stripe** : créez deux prix récurrents mensuels (Contact 9,90 €, Pro 29 €), renseignez `STRIPE_SECRET_KEY`, `STRIPE_PRICE_CONTACT`, `STRIPE_PRICE_PRO`, puis un webhook vers `/api/stripe/webhook` avec les événements `checkout.session.completed`, `customer.subscription.created|updated|deleted` et `STRIPE_WEBHOOK_SECRET`. Activez le portail client Stripe pour la résiliation.
 4. **Déploiement** : Vercel ou tout hébergeur Node. `npm run build` puis `npm start`.
-5. **Badge vérifié** : passez `profiles.is_verified = true` après contrôle du SIRET (interface d'administration à venir).
+5. **Premier administrateur** : après votre inscription, exécutez `update public.profiles set is_admin = true where email = 'votre@email';` puis ouvrez `/admin`. Les administrateurs suivants se nomment depuis le back-office.
+6. **Modération** : toute nouvelle annonce publiée passe en « En attente de validation » et apparaît dans `/admin/annonces` ; le vendeur voit le motif en cas de refus.
 
 ## Structure
 

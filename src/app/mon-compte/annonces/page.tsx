@@ -10,13 +10,14 @@ import { deleteListing, setListingStatus } from "@/app/actions/listings";
 
 export const metadata: Metadata = { title: "Mes annonces" };
 
-export default async function MesAnnoncesPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  const { saved } = await searchParams;
+export default async function MesAnnoncesPage({ searchParams }: { searchParams: Promise<{ saved?: string; pending?: string }> }) {
+  const { saved, pending } = await searchParams;
   const { profile, plan, userId } = await requireAccount();
   const listings = await getSellerListings(userId, true);
   return (
     <AccountShell profile={profile} plan={plan} title="Mes annonces">
       {saved && <p className="mb-4 rounded-lg bg-primary-soft p-3 text-sm text-primary">Annonce enregistrée.</p>}
+      {pending && <p className="mb-4 rounded-lg bg-primary-soft p-3 text-sm text-primary">Annonce envoyée à la modération : elle sera en ligne après validation (sous 24 h ouvrées).</p>}
       <div className="mb-4 flex justify-end">
         <Link href="/vendre" className="btn-primary">
           Nouvelle annonce
@@ -36,6 +37,7 @@ export default async function MesAnnoncesPage({ searchParams }: { searchParams: 
                 <p className="text-xs text-muted">
                   {formatPrice(l.price, { hidden: l.price_hidden })} · {l.views_count} vues · <span className="tag-neutral">{LISTING_STATUS[l.status]}</span>
                 </p>
+                {l.moderation_note && <p className="mt-1 text-xs text-red-700">Modération : {l.moderation_note}</p>}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link href={`/mon-compte/annonces/${l.id}/modifier`} className="btn-neutral !py-1.5 text-xs">

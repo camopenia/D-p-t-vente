@@ -16,6 +16,9 @@ export interface Profile {
   company_name: string | null;
   website: string | null;
   is_verified: boolean;
+  is_admin: boolean;
+  is_blocked: boolean;
+  verification_note: string | null;
   charter_accepted_at: string | null;
   created_at: string;
 }
@@ -62,6 +65,7 @@ export interface Listing {
   health_notes: string | null;
   known_vices: string | null;
   featured: boolean;
+  moderation_note: string | null;
   views_count: number;
   created_at: string;
   updated_at: string;

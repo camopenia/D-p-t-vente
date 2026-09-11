@@ -2,7 +2,8 @@ import { AccountNav } from "./AccountNav";
 import { signOut } from "@/app/actions/auth";
 import type { Profile } from "@/lib/types";
 import { ROLES, PLANS, type PlanId } from "@/lib/constants";
-import { LogOut } from "lucide-react";
+import { LogOut, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 export function AccountShell({ profile, plan, children, title }: { profile: Profile | null; plan: PlanId; title: string; children: React.ReactNode }) {
   return (
@@ -15,6 +16,11 @@ export function AccountShell({ profile, plan, children, title }: { profile: Prof
             <span className="tag-primary mt-2">Plan {PLANS[plan].name}</span>
           </div>
           <AccountNav />
+          {profile?.is_admin && (
+            <Link href="/admin" className="flex items-center gap-2 rounded-lg border border-pink bg-pink-soft/60 px-3 py-2 text-sm font-medium text-[#8a2f40]">
+              <ShieldCheck className="h-4 w-4" /> Administration
+            </Link>
+          )}
           <form action={signOut}>
             <button type="submit" className="btn-ghost w-full justify-start text-sm">
               <LogOut className="h-4 w-4" /> Se déconnecter

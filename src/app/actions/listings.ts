@@ -84,22 +84,27 @@ export async function saveListing(_prev: ActionState, formData: FormData): Promi
     seller_id: user.id,
   };
 
+  // Modération a priori : une publication passe d'abord en attente de validation,
+  // sauf si l'annonce est déjà en ligne (simple mise à jour).
+  let status: string = row.status;
+  if (status === "active") {
+    const { data: prev } = id ? await supabase.from("listings").select("status").eq("id", id).maybeSingle() : { data: null };
+    if (prev?.status !== "active" && prev?.status !== "reserved") status = "pending";
+  }
+  const rowWithStatus = { ...row, status };
+
   if (id) {
-    const { error } = await supabase.from("listings").update(row).eq("id", id).eq("seller_id", user.id);
+    const { error } = await supabase.from("listings").update(rowWithStatus).eq("id", id).eq("seller_id", user.id);
     if (error) return { ok: false, message: error.message };
     revalidatePath("/chevaux");
     revalidatePath("/mon-compte");
     redirect("/mon-compte/annonces?saved=1");
   }
   const slug = `${slugify(`${d.horse_name} ${d.breed} ${year - d.birth_year} ans`)}-${Math.random().toString(36).slice(2, 7)}`;
-  const { data, error } = await supabase
-    .from("listings")
-    .insert({ ...row, slug })
-    .select("slug")
-    .single();
+  const { error } = await supabase.from("listings").insert({ ...rowWithStatus, slug });
   if (error) return { ok: false, message: error.message };
   revalidatePath("/chevaux");
-  redirect(d.status === "active" ? `/chevaux/${data.slug}?published=1` : "/mon-compte/annonces?saved=1");
+  redirect(status === "pending" ? "/mon-compte/annonces?pending=1" : "/mon-compte/annonces?saved=1");
 }
 
 export async function setListingStatus(formData: FormData) {
@@ -108,7 +113,9 @@ export async function setListingStatus(formData: FormData) {
   const status = String(formData.get("status"));
   if (!["draft", "active", "reserved", "sold", "archived"].includes(status)) return;
   const supabase = (await createClient())!;
-  await supabase.from("listings").update({ status }).eq("id", id);
+  const { data: prev } = await supabase.from("listings").select("status").eq("id", id).maybeSingle();
+  const next = status === "active" && prev?.status !== "reserved" ? "pending" : status;
+  await supabase.from("listings").update({ status: next }).eq("id", id);
   revalidatePath("/mon-compte/annonces");
   revalidatePath("/chevaux");
 }
