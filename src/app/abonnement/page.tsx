@@ -1,0 +1,118 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Check } from "lucide-react";
+import { PLANS, type PlanId } from "@/lib/constants";
+import { getCurrentSubscription, getCurrentUser, planOf } from "@/lib/auth";
+import { isStripeConfigured } from "@/lib/supabase/config";
+
+export const metadata: Metadata = {
+  title: "Abonnement",
+  description: "Consultation, publication, visites et essais gratuits. Messagerie et téléphone des vendeurs avec l'abonnement Contact, sans engagement.",
+};
+
+export default async function AbonnementPage({ searchParams }: { searchParams: Promise<{ success?: string; cancel?: string }> }) {
+  const { success, cancel } = await searchParams;
+  const user = await getCurrentUser();
+  const sub = await getCurrentSubscription();
+  const plan = planOf(sub);
+  const stripeReady = isStripeConfigured();
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+      <div className="text-center">
+        <h1 className="text-3xl font-semibold">Une plateforme gratuite pour chercher, visiter et publier</h1>
+        <p className="mx-auto mt-3 max-w-2xl text-muted">
+          Les demandes de visite et d&apos;essai sont gratuites pour tous. Pour échanger directement par messagerie ou téléphone avec les vendeurs, choisissez l&apos;abonnement Contact, sans engagement.
+        </p>
+      </div>
+      {success && <p className="mx-auto mt-6 max-w-xl rounded-xl bg-primary-soft p-4 text-center text-sm text-primary">Merci ! Votre abonnement est en cours d&apos;activation (quelques secondes). Vous pouvez dès maintenant contacter les vendeurs.</p>}
+      {cancel && <p className="mx-auto mt-6 max-w-xl rounded-xl bg-sand p-4 text-center text-sm text-muted">Paiement annulé. Vous pouvez réessayer quand vous voulez.</p>}
+
+      <div className="mt-10 grid gap-6 md:grid-cols-3">
+        {(Object.keys(PLANS) as PlanId[]).map((id) => {
+          const p = PLANS[id];
+          const current = plan === id;
+          const highlight = id === "contact";
+          return (
+            <div key={id} className={`card relative flex flex-col p-6 ${highlight ? "border-primary ring-2 ring-primary-light" : ""}`}>
+              {highlight && <span className="tag-pink absolute -top-3 left-6">Le plus choisi</span>}
+              <h2 className="text-lg font-semibold">{p.name}</h2>
+              <p className="text-sm text-muted">{p.tagline}</p>
+              <p className="mt-4 text-3xl font-semibold text-primary">
+                {p.price === 0 ? "Gratuit" : `${p.price.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €`}
+                <span className="text-sm font-normal text-muted"> {p.period}</span>
+              </p>
+              <ul className="mt-5 flex-1 space-y-2 text-sm">
+                {p.features.map((f) => (
+                  <li key={f} className="flex gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {f}
+                  </li>
+                ))}
+                {p.limits.map((f) => (
+                  <li key={f} className="flex gap-2 text-muted">
+                    <span className="mt-0.5 h-4 w-4 shrink-0 text-center">–</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6">
+                {current ? (
+                  <span className="btn-neutral w-full cursor-default">Votre offre actuelle</span>
+                ) : id === "free" ? (
+                  <Link href={user ? "/chevaux" : "/inscription"} className="btn-neutral w-full">
+                    {user ? "Parcourir les annonces" : "Créer un compte gratuit"}
+                  </Link>
+                ) : !user ? (
+                  <Link href={`/connexion?next=/abonnement`} className="btn-primary w-full">
+                    Se connecter pour s&apos;abonner
+                  </Link>
+                ) : stripeReady ? (
+                  <form action="/api/stripe/checkout" method="post">
+                    <input type="hidden" name="plan" value={id} />
+                    <button type="submit" className={`w-full ${highlight ? "btn-primary" : "btn-neutral"}`}>
+                      Choisir {p.name}
+                    </button>
+                  </form>
+                ) : (
+                  <span className="btn-neutral w-full cursor-not-allowed opacity-70">Paiement bientôt disponible</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {sub?.stripe_customer_id && (
+        <form action="/api/stripe/portal" method="post" className="mt-8 text-center">
+          <button type="submit" className="btn-ghost text-sm">
+            Gérer mon abonnement (factures, résiliation)
+          </button>
+          {sub.cancel_at_period_end && sub.current_period_end && <p className="mt-2 text-xs text-muted">Résiliation programmée le {new Date(sub.current_period_end).toLocaleDateString("fr-FR")}.</p>}
+        </form>
+      )}
+
+      <section className="mx-auto mt-14 max-w-3xl">
+        <h2 className="text-xl font-semibold">Pourquoi ce modèle ?</h2>
+        <div className="prose-cv mt-2 text-sm">
+          <p>
+            Nous voulons que chaque cheval trouve le bon cavalier. Publier une annonce et demander une visite doivent rester gratuits pour ne pas freiner les rencontres. L&apos;abonnement Contact finance la modération des annonces, la vérification des professionnels et les outils (contrats, guides, messagerie sécurisée) sans faire payer les vendeurs à la commission.
+          </p>
+          <p>Pas de mise en avant payante qui noie les annonces des particuliers : le classement dépend de la fraîcheur et de la complétude de l&apos;annonce.</p>
+        </div>
+        <h2 className="mt-8 text-xl font-semibold">Questions fréquentes</h2>
+        <dl className="mt-3 space-y-4 text-sm">
+          {[
+            ["Puis-je résilier à tout moment ?", "Oui, depuis votre espace en un clic. L'abonnement reste actif jusqu'à la fin de la période payée."],
+            ["Un vendeur doit-il s'abonner pour répondre ?", "Non. Les vendeurs répondent gratuitement aux messages et aux demandes de visite qu'ils reçoivent."],
+            ["L'abonnement Pro est-il obligatoire pour un éleveur ?", "Non. Il apporte une page vitrine, des statistiques et le badge vérifié, mais la publication reste gratuite."],
+            ["Prenez-vous une commission sur la vente ?", "Non. La transaction se fait directement entre vendeur et acheteur, avec nos modèles de contrats."],
+          ].map(([q, a]) => (
+            <div key={q} className="card p-4">
+              <dt className="font-medium">{q}</dt>
+              <dd className="mt-1 text-muted">{a}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    </div>
+  );
+}

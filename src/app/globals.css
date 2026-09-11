@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* ---------- Charte Cavalons ----------
+   Police : Poppins
+   Principales : #155B57 (teal profond) · #99CBC7 (teal clair) · #FFFFFF · #000000
+   Complémentaires : #FFACB7 (rose) · #F8F7F2 (sable)
+---------------------------------------- */
+:root {
+  --cv-primary: #155b57;
+  --cv-primary-dark: #0f4441;
+  --cv-primary-light: #99cbc7;
+  --cv-primary-soft: #e6f2f1;
+  --cv-pink: #ffacb7;
+  --cv-pink-soft: #ffe4e8;
+  --cv-sand: #f8f7f2;
+  --cv-ink: #1a1a1a;
+  --cv-muted: #5f6b6a;
+  --cv-line: #e3e8e7;
+  --background: var(--cv-sand);
+  --foreground: var(--cv-ink);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--cv-primary);
+  --color-primary-dark: var(--cv-primary-dark);
+  --color-primary-light: var(--cv-primary-light);
+  --color-primary-soft: var(--cv-primary-soft);
+  --color-pink: var(--cv-pink);
+  --color-pink-soft: var(--cv-pink-soft);
+  --color-sand: var(--cv-sand);
+  --color-ink: var(--cv-ink);
+  --color-muted: var(--cv-muted);
+  --color-line: var(--cv-line);
+  --font-sans: var(--font-poppins), system-ui, sans-serif;
+  --radius-card: 1rem;
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+@layer components {
+/* Boutons & briques (reprise du design system Cavalons) */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-light disabled:opacity-50 disabled:pointer-events-none;
+}
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-light disabled:opacity-50 disabled:pointer-events-none bg-primary text-white hover:bg-primary-dark;
+}
+.btn-neutral {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-light disabled:opacity-50 disabled:pointer-events-none border border-line bg-white text-ink hover:border-primary hover:text-primary;
+}
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-light disabled:opacity-50 disabled:pointer-events-none text-primary hover:bg-primary-soft;
+}
+.btn-pink {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-light disabled:opacity-50 disabled:pointer-events-none bg-pink text-ink hover:bg-[#ff97a5];
+}
+.btn-destructive {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-light disabled:opacity-50 disabled:pointer-events-none border border-red-500 text-red-600 bg-white hover:bg-red-50;
+}
+.card {
+  @apply rounded-2xl border border-line bg-white shadow-[0_1px_2px_rgba(21,91,87,0.06)];
+}
+.input {
+  @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink placeholder:text-muted/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-light/60;
+}
+.label {
+  @apply mb-1.5 block text-sm font-medium text-ink;
+}
+.helper {
+  @apply mt-1 text-xs text-muted;
+}
+.tag {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+.tag-primary {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-primary-soft text-primary;
+}
+.tag-pink {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-pink-soft text-[#8a2f40];
+}
+.tag-neutral {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-sand text-muted border border-line;
+}
+.prose-cv h2 {
+  @apply mt-8 mb-3 text-xl font-semibold text-primary;
+}
+.prose-cv h3 {
+  @apply mt-6 mb-2 text-base font-semibold text-ink;
+}
+.prose-cv p {
+  @apply my-3 leading-relaxed text-ink/90;
+}
+.prose-cv ul {
+  @apply my-3 list-disc space-y-1.5 pl-5;
+}
+.prose-cv ol {
+  @apply my-3 list-decimal space-y-1.5 pl-5;
+}
+.prose-cv a {
+  @apply text-primary underline underline-offset-2;
+}
+.prose-cv blockquote {
+  @apply my-4 border-l-4 border-pink bg-pink-soft/40 px-4 py-2 rounded-r-lg;
+}
+.prose-cv table {
+  @apply my-4 w-full text-sm;
+}
+.prose-cv th, .prose-cv td {
+  @apply border border-line px-3 py-2 text-left align-top;
+}
+.prose-cv th {
+  @apply bg-primary-soft text-primary;
+}
+
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  .print-page { box-shadow: none !important; border: 0 !important; }
+}
