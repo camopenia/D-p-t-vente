@@ -16,12 +16,12 @@ export default async function AccountPage() {
   let pendingVisits = 0;
   let unread = 0;
   if (supabase) {
-    const { count } = await supabase.from("visit_requests").select("id", { count: "exact", head: true }).eq("seller_id", userId).eq("status", "pending");
+    const { count } = await supabase.from("ventes_visit_requests").select("id", { count: "exact", head: true }).eq("seller_id", userId).eq("status", "pending");
     pendingVisits = count ?? 0;
-    const { data: convs } = await supabase.from("conversations").select("id").or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+    const { data: convs } = await supabase.from("ventes_conversations").select("id").or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
     if (convs?.length) {
       const { count: c } = await supabase
-        .from("messages")
+        .from("ventes_messages")
         .select("id", { count: "exact", head: true })
         .in("conversation_id", convs.map((c) => c.id))
         .neq("sender_id", userId)

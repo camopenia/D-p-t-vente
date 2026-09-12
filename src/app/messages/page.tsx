@@ -15,8 +15,8 @@ export default async function MessagesPage() {
   let convs: Conversation[] = [];
   if (supabase) {
     const { data } = await supabase
-      .from("conversations")
-      .select("*, listing:listings(id, slug, title, horse_name, photos), buyer:public_profiles!conversations_buyer_id_fkey(id, display_name, role, avatar_url), seller:public_profiles!conversations_seller_id_fkey(id, display_name, role, avatar_url)")
+      .from("ventes_conversations")
+      .select("*, listing:ventes_listings(id, slug, title, horse_name, photos), buyer:ventes_public_profiles!ventes_conversations_buyer_id_fkey(id, display_name, role, avatar_url), seller:ventes_public_profiles!ventes_conversations_seller_id_fkey(id, display_name, role, avatar_url)")
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
       .order("last_message_at", { ascending: false });
     convs = (data ?? []) as unknown as Conversation[];

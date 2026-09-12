@@ -13,7 +13,7 @@ async function requireAdmin() {
 }
 
 async function log(ctx: NonNullable<Awaited<ReturnType<typeof requireAdmin>>>, target_type: string, target_id: string, action: string, note?: string) {
-  await ctx.supabase.from("moderation_log").insert({ admin_id: ctx.adminId, target_type, target_id, action, note: note || null });
+  await ctx.supabase.from("ventes_moderation_log").insert({ admin_id: ctx.adminId, target_type, target_id, action, note: note || null });
 }
 
 export async function moderateListing(formData: FormData) {
@@ -29,7 +29,7 @@ export async function moderateListing(formData: FormData) {
   else if (action === "feature") Object.assign(patch, { featured: true });
   else if (action === "unfeature") Object.assign(patch, { featured: false });
   else return;
-  await ctx.supabase.from("listings").update(patch).eq("id", id);
+  await ctx.supabase.from("ventes_listings").update(patch).eq("id", id);
   await log(ctx, "listing", id, action, note);
   revalidatePath("/admin");
   revalidatePath("/admin/annonces");
@@ -44,10 +44,10 @@ export async function resolveReport(formData: FormData) {
   const note = String(formData.get("note") ?? "").trim();
   const listingId = String(formData.get("listingId") ?? "");
   if (action === "archive_listing" && listingId) {
-    await ctx.supabase.from("listings").update({ status: "archived", moderation_note: note || "Retirée suite à un signalement." }).eq("id", listingId);
+    await ctx.supabase.from("ventes_listings").update({ status: "archived", moderation_note: note || "Retirée suite à un signalement." }).eq("id", listingId);
     await log(ctx, "listing", listingId, "archive", note);
   }
-  await ctx.supabase.from("reports").update({ status: action === "dismiss" ? "dismissed" : "resolved", resolved_by: ctx.adminId, resolved_at: new Date().toISOString(), resolution_note: note || null }).eq("id", id);
+  await ctx.supabase.from("ventes_reports").update({ status: action === "dismiss" ? "dismissed" : "resolved", resolved_by: ctx.adminId, resolved_at: new Date().toISOString(), resolution_note: note || null }).eq("id", id);
   await log(ctx, "report", id, action, note);
   revalidatePath("/admin");
   revalidatePath("/admin/signalements");
@@ -68,8 +68,8 @@ export async function moderateProfile(formData: FormData) {
   else if (action === "remove_admin") Object.assign(patch, { is_admin: false });
   else return;
   if (action === "remove_admin" && id === ctx.adminId) return;
-  await ctx.supabase.from("profiles").update(patch).eq("id", id);
-  if (action === "block") await ctx.supabase.from("listings").update({ status: "archived", moderation_note: "Compte suspendu." }).eq("seller_id", id).in("status", ["active", "pending", "reserved"]);
+  await ctx.supabase.from("ventes_profiles").update(patch).eq("id", id);
+  if (action === "block") await ctx.supabase.from("ventes_listings").update({ status: "archived", moderation_note: "Compte suspendu." }).eq("seller_id", id).in("status", ["active", "pending", "reserved"]);
   await log(ctx, "profile", id, action, note);
   revalidatePath("/admin");
   revalidatePath("/admin/professionnels");

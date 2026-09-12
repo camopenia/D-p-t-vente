@@ -40,7 +40,7 @@ export async function updateProfile(_prev: ActionState, formData: FormData): Pro
     postal_code: d.postal_code || null,
     slug: isPro ? `${slugify(d.company_name || d.display_name)}-${user.id.slice(0, 6)}` : null,
   };
-  const { error } = await supabase.from("profiles").update(update).eq("id", user.id);
+  const { error } = await supabase.from("ventes_profiles").update(update).eq("id", user.id);
   if (error) return { ok: false, message: error.message };
   revalidatePath("/mon-compte/profil");
   revalidatePath("/pros");

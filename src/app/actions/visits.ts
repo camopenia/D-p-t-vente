@@ -30,7 +30,7 @@ export async function requestVisit(_prev: ActionState, formData: FormData): Prom
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Connectez-vous pour demander une visite." };
   if (user.id === parsed.data.sellerId) return { ok: false, message: "Vous ne pouvez pas demander une visite de votre propre annonce." };
-  const { error } = await supabase.from("visit_requests").insert({
+  const { error } = await supabase.from("ventes_visit_requests").insert({
     listing_id: parsed.data.listingId,
     seller_id: parsed.data.sellerId,
     buyer_id: user.id,
@@ -50,7 +50,7 @@ export async function answerVisit(formData: FormData) {
   const reply = String(formData.get("reply") ?? "");
   if (!["accepted", "declined", "done", "cancelled"].includes(status)) return;
   const supabase = (await createClient())!;
-  await supabase.from("visit_requests").update({ status, seller_reply: reply || null }).eq("id", id);
+  await supabase.from("ventes_visit_requests").update({ status, seller_reply: reply || null }).eq("id", id);
   revalidatePath("/visites");
   revalidatePath("/mon-compte");
 }

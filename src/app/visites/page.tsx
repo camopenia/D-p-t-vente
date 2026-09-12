@@ -10,7 +10,7 @@ import { answerVisit } from "@/app/actions/visits";
 
 export const metadata: Metadata = { title: "Visites et essais" };
 
-const SELECT = "*, listing:listings(id, slug, title, horse_name, photos, city), buyer:public_profiles!visit_requests_buyer_id_fkey(id, display_name, role), seller:public_profiles!visit_requests_seller_id_fkey(id, display_name, role)";
+const SELECT = "*, listing:ventes_listings(id, slug, title, horse_name, photos, city), buyer:ventes_public_profiles!ventes_visit_requests_buyer_id_fkey(id, display_name, role), seller:ventes_public_profiles!ventes_visit_requests_seller_id_fkey(id, display_name, role)";
 
 export default async function VisitesPage() {
   const { profile, plan, userId } = await requireAccount();
@@ -19,8 +19,8 @@ export default async function VisitesPage() {
   let sent: VisitRequest[] = [];
   if (supabase) {
     const [{ data: r }, { data: s }] = await Promise.all([
-      supabase.from("visit_requests").select(SELECT).eq("seller_id", userId).order("created_at", { ascending: false }),
-      supabase.from("visit_requests").select(SELECT).eq("buyer_id", userId).order("created_at", { ascending: false }),
+      supabase.from("ventes_visit_requests").select(SELECT).eq("seller_id", userId).order("created_at", { ascending: false }),
+      supabase.from("ventes_visit_requests").select(SELECT).eq("buyer_id", userId).order("created_at", { ascending: false }),
     ]);
     received = (r ?? []) as unknown as VisitRequest[];
     sent = (s ?? []) as unknown as VisitRequest[];

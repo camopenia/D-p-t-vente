@@ -41,12 +41,12 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       }
       const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("listing-photos").upload(path, file, { cacheControl: "31536000", upsert: false });
+      const { error } = await supabase.storage.from("ventes-photos").upload(path, file, { cacheControl: "31536000", upsert: false });
       if (error) {
         setUploadError(error.message);
         continue;
       }
-      urls.push(supabase.storage.from("listing-photos").getPublicUrl(path).data.publicUrl);
+      urls.push(supabase.storage.from("ventes-photos").getPublicUrl(path).data.publicUrl);
     }
     setPhotos((p) => [...p, ...urls]);
     setUploading(false);

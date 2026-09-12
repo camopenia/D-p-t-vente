@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const price = STRIPE_PRICES[plan];
   if (!price) return NextResponse.json({ error: "Offre inconnue." }, { status: 400 });
 
-  const { data: existing } = await supabase.from("subscriptions").select("stripe_customer_id").eq("user_id", user.id).not("stripe_customer_id", "is", null).limit(1).maybeSingle();
+  const { data: existing } = await supabase.from("ventes_subscriptions").select("stripe_customer_id").eq("user_id", user.id).not("stripe_customer_id", "is", null).limit(1).maybeSingle();
   const origin = new URL(request.url).origin;
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",

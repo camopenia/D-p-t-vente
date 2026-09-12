@@ -10,9 +10,9 @@ export async function toggleFavorite(listingId: string, slug: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, auth: true };
-  const { data } = await supabase.from("favorites").select("listing_id").eq("user_id", user.id).eq("listing_id", listingId).maybeSingle();
-  if (data) await supabase.from("favorites").delete().eq("user_id", user.id).eq("listing_id", listingId);
-  else await supabase.from("favorites").insert({ user_id: user.id, listing_id: listingId });
+  const { data } = await supabase.from("ventes_favorites").select("listing_id").eq("user_id", user.id).eq("listing_id", listingId).maybeSingle();
+  if (data) await supabase.from("ventes_favorites").delete().eq("user_id", user.id).eq("listing_id", listingId);
+  else await supabase.from("ventes_favorites").insert({ user_id: user.id, listing_id: listingId });
   revalidatePath(`/chevaux/${slug}`);
   revalidatePath("/mon-compte");
   return { ok: true, favorite: !data };
@@ -25,7 +25,7 @@ export async function reportListing(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return;
-  await supabase.from("reports").insert({
+  await supabase.from("ventes_reports").insert({
     reporter_id: user.id,
     listing_id: String(formData.get("listingId")),
     reason: String(formData.get("reason")),

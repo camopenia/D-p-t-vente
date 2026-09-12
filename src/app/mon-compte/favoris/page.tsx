@@ -14,7 +14,7 @@ export default async function FavorisPage() {
   const supabase = await createClient();
   let listings: Listing[] = [];
   if (supabase) {
-    const { data } = await supabase.from("favorites").select("listing:listings(*, seller:public_profiles!listings_seller_id_fkey(id, display_name, role, is_verified, city, region, avatar_url, slug, company_name))").eq("user_id", userId).order("created_at", { ascending: false });
+    const { data } = await supabase.from("ventes_favorites").select("listing:ventes_listings(*, seller:ventes_public_profiles!ventes_listings_seller_id_fkey(id, display_name, role, is_verified, city, region, avatar_url, slug, company_name))").eq("user_id", userId).order("created_at", { ascending: false });
     listings = ((data ?? []) as unknown as { listing: Listing | null }[]).map((r) => r.listing).filter((l): l is Listing => Boolean(l));
   } else listings = demoListings.slice(0, 2);
   return (

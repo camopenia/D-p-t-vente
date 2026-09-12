@@ -16,15 +16,15 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
   const supabase = await createClient();
   if (!supabase) notFound();
   const { data: conv } = await supabase
-    .from("conversations")
-    .select("*, listing:listings(id, slug, title, horse_name, photos), buyer:public_profiles!conversations_buyer_id_fkey(id, display_name, role, avatar_url), seller:public_profiles!conversations_seller_id_fkey(id, display_name, role, avatar_url)")
+    .from("ventes_conversations")
+    .select("*, listing:ventes_listings(id, slug, title, horse_name, photos), buyer:ventes_public_profiles!ventes_conversations_buyer_id_fkey(id, display_name, role, avatar_url), seller:ventes_public_profiles!ventes_conversations_seller_id_fkey(id, display_name, role, avatar_url)")
     .eq("id", id)
     .maybeSingle();
   if (!conv) notFound();
   const c = conv as unknown as Conversation;
-  const { data: msgs } = await supabase.from("messages").select("*").eq("conversation_id", id).order("created_at");
+  const { data: msgs } = await supabase.from("ventes_messages").select("*").eq("conversation_id", id).order("created_at");
   const messages = (msgs ?? []) as Message[];
-  await supabase.from("messages").update({ read_at: new Date().toISOString() }).eq("conversation_id", id).neq("sender_id", userId).is("read_at", null);
+  await supabase.from("ventes_messages").update({ read_at: new Date().toISOString() }).eq("conversation_id", id).neq("sender_id", userId).is("read_at", null);
   const other = c.buyer_id === userId ? c.seller : c.buyer;
   const isSeller = c.seller_id === userId;
   const canWrite = isSeller || canContact(plan);

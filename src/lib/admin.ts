@@ -44,11 +44,11 @@ export async function getAdminStats(): Promise<AdminStats> {
     return { users: demoProfiles.length, pros: 2, pros_to_verify: 0, listings_pending: 1, listings_active: demoListings.length - 1, listings_sold: 0, reports_open: 1, paid_subscriptions: 0, visits_30d: 3 };
   }
   const supabase = (await createClient())!;
-  const { data } = await supabase.from("admin_stats").select("*").single();
+  const { data } = await supabase.from("ventes_admin_stats").select("*").single();
   return (data as AdminStats) ?? { users: 0, pros: 0, pros_to_verify: 0, listings_pending: 0, listings_active: 0, listings_sold: 0, reports_open: 0, paid_subscriptions: 0, visits_30d: 0 };
 }
 
-const SELLER = "seller:public_profiles!listings_seller_id_fkey(id, display_name, role, is_verified, city, region, avatar_url, slug, company_name)";
+const SELLER = "seller:ventes_public_profiles!ventes_listings_seller_id_fkey(id, display_name, role, is_verified, city, region, avatar_url, slug, company_name)";
 
 export async function getListingsForModeration(status: string): Promise<Listing[]> {
   if (!isSupabaseConfigured()) {
@@ -56,7 +56,7 @@ export async function getListingsForModeration(status: string): Promise<Listing[
     return status === "all" ? items : items.filter((l) => l.status === status);
   }
   const supabase = (await createClient())!;
-  let q = supabase.from("listings").select(`*, ${SELLER}`).order("updated_at", { ascending: false }).limit(100);
+  let q = supabase.from("ventes_listings").select(`*, ${SELLER}`).order("updated_at", { ascending: false }).limit(100);
   if (status !== "all") q = q.eq("status", status);
   const { data } = await q;
   return (data ?? []) as unknown as Listing[];
@@ -69,7 +69,7 @@ export async function getReports(status: string): Promise<Report[]> {
     return status === "open" || status === "all" ? [r] : [];
   }
   const supabase = (await createClient())!;
-  let q = supabase.from("reports").select("*, reporter:public_profiles!reports_reporter_id_fkey(id, display_name), listing:listings(id, slug, title, horse_name, status, seller_id)").order("created_at", { ascending: false }).limit(100);
+  let q = supabase.from("ventes_reports").select("*, reporter:ventes_public_profiles!ventes_reports_reporter_id_fkey(id, display_name), listing:ventes_listings(id, slug, title, horse_name, status, seller_id)").order("created_at", { ascending: false }).limit(100);
   if (status !== "all") q = q.eq("status", status);
   const { data } = await q;
   return (data ?? []) as unknown as Report[];
@@ -82,7 +82,7 @@ export async function getProfilesForAdmin(filter: "pros" | "to_verify" | "all" |
     return demoProfiles.filter((p) => p.role === "eleveur" || p.role === "pro_depot");
   }
   const supabase = (await createClient())!;
-  let q = supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(200);
+  let q = supabase.from("ventes_profiles").select("*").order("created_at", { ascending: false }).limit(200);
   if (filter === "pros") q = q.in("role", ["eleveur", "pro_depot"]);
   if (filter === "to_verify") q = q.in("role", ["eleveur", "pro_depot"]).eq("is_verified", false).not("siret", "is", null);
   if (filter === "blocked") q = q.eq("is_blocked", true);

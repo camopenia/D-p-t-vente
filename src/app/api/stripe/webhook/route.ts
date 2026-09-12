@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   }
 
   // Idempotence
-  const { error: dup } = await supabase.from("stripe_events").insert({ id: event.id, type: event.type });
+  const { error: dup } = await supabase.from("ventes_stripe_events").insert({ id: event.id, type: event.type });
   if (dup) return NextResponse.json({ received: true, duplicate: true });
 
   async function upsertFromSubscription(sub: Stripe.Subscription) {
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const plan = (sub.metadata.plan as "contact" | "pro") ?? "contact";
     if (!userId) return;
     const periodEnd = sub.items.data[0]?.current_period_end;
-    await supabase!.from("subscriptions").upsert(
+    await supabase!.from("ventes_subscriptions").upsert(
       {
         user_id: userId,
         plan,

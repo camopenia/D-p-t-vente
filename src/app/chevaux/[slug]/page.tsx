@@ -43,9 +43,9 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   let isFavorite = false;
   const supabase = await createClient();
   if (supabase && user) {
-    const { data } = await supabase.from("favorites").select("listing_id").eq("user_id", user.id).eq("listing_id", listing.id).maybeSingle();
+    const { data } = await supabase.from("ventes_favorites").select("listing_id").eq("user_id", user.id).eq("listing_id", listing.id).maybeSingle();
     isFavorite = Boolean(data);
-    if (!isOwner) await supabase.rpc("increment_listing_views", { p_listing: listing.id });
+    if (!isOwner) await supabase.rpc("ventes_increment_listing_views", { p_listing: listing.id });
   }
 
   const facts: [string, string | null][] = [

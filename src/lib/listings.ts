@@ -6,7 +6,7 @@ import { horseAge } from "./constants";
 
 export const PAGE_SIZE = 12;
 
-const SELLER_SELECT = "seller:public_profiles!listings_seller_id_fkey(id, display_name, role, is_verified, city, region, avatar_url, slug, company_name)";
+const SELLER_SELECT = "seller:ventes_public_profiles!ventes_listings_seller_id_fkey(id, display_name, role, is_verified, city, region, avatar_url, slug, company_name)";
 
 function applyDemoFilters(items: Listing[], f: ListingFilters) {
   let out = items.filter((l) => l.status === "active" || l.status === "reserved");
@@ -53,7 +53,7 @@ export async function searchListings(f: ListingFilters): Promise<{ items: Listin
     return { items: all.slice(start, start + PAGE_SIZE), total: all.length, page, pages: Math.max(1, Math.ceil(all.length / PAGE_SIZE)) };
   }
   const supabase = (await createClient())!;
-  let q = supabase.from("listings").select(`*, ${SELLER_SELECT}`, { count: "exact" }).in("status", ["active", "reserved"]);
+  let q = supabase.from("ventes_listings").select(`*, ${SELLER_SELECT}`, { count: "exact" }).in("status", ["active", "reserved"]);
   if (f.q) q = q.textSearch("search_vector", f.q, { type: "websearch", config: "simple" });
   if (f.breed) q = q.eq("breed", f.breed);
   if (f.sex) q = q.eq("sex", f.sex);
@@ -85,7 +85,10 @@ export async function searchListings(f: ListingFilters): Promise<{ items: Listin
   }
   const from = (page - 1) * PAGE_SIZE;
   const { data, count, error } = await q.range(from, from + PAGE_SIZE - 1);
-  if (error) throw error;
+  if (error) {
+    console.error("searchListings:", error.message);
+    return { items: [], total: 0, page, pages: 1 };
+  }
   let items = (data ?? []) as unknown as Listing[];
   if (f.sellerRole) items = items.filter((l) => l.seller?.role === f.sellerRole);
   const total = count ?? items.length;
@@ -100,21 +103,21 @@ export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
   if (!isSupabaseConfigured()) return demoListings.find((l) => l.slug === slug) ?? null;
   const supabase = (await createClient())!;
-  const { data } = await supabase.from("listings").select(`*, ${SELLER_SELECT}`).eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("ventes_listings").select(`*, ${SELLER_SELECT}`).eq("slug", slug).maybeSingle();
   return (data as unknown as Listing) ?? null;
 }
 
 export async function getListingById(id: string): Promise<Listing | null> {
   if (!isSupabaseConfigured()) return demoListings.find((l) => l.id === id) ?? null;
   const supabase = (await createClient())!;
-  const { data } = await supabase.from("listings").select(`*, ${SELLER_SELECT}`).eq("id", id).maybeSingle();
+  const { data } = await supabase.from("ventes_listings").select(`*, ${SELLER_SELECT}`).eq("id", id).maybeSingle();
   return (data as unknown as Listing) ?? null;
 }
 
 export async function getSellerListings(sellerId: string, includeAll = false): Promise<Listing[]> {
   if (!isSupabaseConfigured()) return demoListings.filter((l) => l.seller_id === sellerId);
   const supabase = (await createClient())!;
-  let q = supabase.from("listings").select(`*, ${SELLER_SELECT}`).eq("seller_id", sellerId).order("created_at", { ascending: false });
+  let q = supabase.from("ventes_listings").select(`*, ${SELLER_SELECT}`).eq("seller_id", sellerId).order("created_at", { ascending: false });
   if (!includeAll) q = q.in("status", ["active", "reserved", "sold"]);
   const { data } = await q;
   return ((data ?? []) as unknown as Listing[]) ?? [];
@@ -133,7 +136,7 @@ export type PublicProfile = Pick<Profile, "id" | "role" | "display_name" | "slug
 export async function getProfessionals(): Promise<PublicProfile[]> {
   if (!isSupabaseConfigured()) return demoProfiles.filter((p) => p.role === "eleveur" || p.role === "pro_depot");
   const supabase = (await createClient())!;
-  const { data } = await supabase.from("public_profiles").select("*").in("role", ["eleveur", "pro_depot"]).order("is_verified", { ascending: false }).order("created_at", { ascending: false });
+  const { data } = await supabase.from("ventes_public_profiles").select("*").in("role", ["eleveur", "pro_depot"]).order("is_verified", { ascending: false }).order("created_at", { ascending: false });
   return (data ?? []) as PublicProfile[];
 }
 
@@ -141,7 +144,7 @@ export async function getPublicProfile(idOrSlug: string): Promise<PublicProfile 
   if (!isSupabaseConfigured()) return demoProfiles.find((p) => p.slug === idOrSlug || p.id === idOrSlug) ?? null;
   const supabase = (await createClient())!;
   const isUuid = /^[0-9a-f-]{36}$/i.test(idOrSlug);
-  const { data } = await supabase.from("public_profiles").select("*").eq(isUuid ? "id" : "slug", idOrSlug).maybeSingle();
+  const { data } = await supabase.from("ventes_public_profiles").select("*").eq(isUuid ? "id" : "slug", idOrSlug).maybeSingle();
   return (data as PublicProfile) ?? null;
 }
 
