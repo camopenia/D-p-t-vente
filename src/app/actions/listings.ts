@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { slugify } from "@/lib/constants";
+import { friendlyDbError } from "@/lib/supabase/fetch";
 import type { ActionState } from "./visits";
 
 const year = new Date().getFullYear();
@@ -98,14 +99,18 @@ export async function saveListing(_prev: ActionState, formData: FormData): Promi
 
   if (id) {
     const { error } = await supabase.from("ventes_listings").update(rowWithStatus).eq("id", id).eq("seller_id", user.id);
-    if (error) return { ok: false, message: error.message };
+    if (error) return { ok: false, message: friendlyDbError(error.message) };
     revalidatePath("/chevaux");
     revalidatePath("/mon-compte");
     redirect("/mon-compte/annonces?saved=1");
   }
   const slug = `${slugify(`${d.horse_name} ${d.breed} ${year - d.birth_year} ans`)}-${Math.random().toString(36).slice(2, 7)}`;
   const { error } = await supabase.from("ventes_listings").insert({ ...rowWithStatus, slug });
-  if (error) return { ok: false, message: error.message };
+  if (error) {
+    // Si l'API a expiré (504) alors que l'insertion a abouti côté base, on vérifie avant de renvoyer une erreur.
+    const { data: check } = await supabase.from("ventes_listings").select("id").eq("slug", slug).maybeSingle();
+    if (!check) return { ok: false, message: friendlyDbError(error.message) };
+  }
   revalidatePath("/chevaux");
   redirect(status === "pending" ? "/mon-compte/annonces?pending=1" : "/mon-compte/annonces?saved=1");
 }

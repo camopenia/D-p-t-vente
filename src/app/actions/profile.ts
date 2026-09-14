@@ -1,4 +1,5 @@
 "use server";
+import { friendlyDbError } from "@/lib/supabase/fetch";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -41,7 +42,7 @@ export async function updateProfile(_prev: ActionState, formData: FormData): Pro
     slug: isPro ? `${slugify(d.company_name || d.display_name)}-${user.id.slice(0, 6)}` : null,
   };
   const { error } = await supabase.from("ventes_profiles").update(update).eq("id", user.id);
-  if (error) return { ok: false, message: error.message };
+  if (error) return { ok: false, message: friendlyDbError(error.message) };
   revalidatePath("/mon-compte/profil");
   revalidatePath("/pros");
   return { ok: true, message: "Profil enregistré." };

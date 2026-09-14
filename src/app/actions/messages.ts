@@ -1,4 +1,5 @@
 "use server";
+import { friendlyDbError } from "@/lib/supabase/fetch";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -29,7 +30,7 @@ export async function startConversation(_prev: ActionState, formData: FormData):
     conversationId = data.id;
   }
   const { error: mErr } = await supabase.from("ventes_messages").insert({ conversation_id: conversationId, sender_id: user.id, body });
-  if (mErr) return { ok: false, message: mErr.message };
+  if (mErr) return { ok: false, message: friendlyDbError(mErr.message) };
   redirect(`/messages/${conversationId}`);
 }
 

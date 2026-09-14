@@ -1,4 +1,5 @@
 "use server";
+import { friendlyDbError } from "@/lib/supabase/fetch";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -69,7 +70,7 @@ export async function requestVisit(_prev: ActionState, formData: FormData): Prom
     })
     .select("id")
     .single();
-  if (error || !created) return { ok: false, message: "Impossible d'envoyer la demande : " + (error?.message ?? "erreur inconnue") };
+  if (error || !created) return { ok: false, message: friendlyDbError(error?.message) };
   revalidatePath("/visites");
   if (!stripeReady) return { ok: true, message: "Demande envoyée ! Le vendeur a 48 h pour répondre et choisir un créneau parmi ceux que vous avez proposés. Suivez-la dans « Visites & essais »." };
   redirect(`/visites/payer/${created.id}`);
