@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isStripeConfigured, isSupabaseConfigured } from "@/lib/supabase/config";
 import { getStripe } from "@/lib/stripe";
 import { refundVisitFee } from "@/lib/visits";
+import { siteUrl } from "@/lib/site";
 import { VISIT_FEE_CENTS, VISIT_RESPONSE_HOURS, upcomingSlots, type VisitAvailability, type VisitSlot } from "@/lib/constants";
 
 const slotSchema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), period: z.enum(["matin", "apres_midi", "soiree"]) });
@@ -89,7 +90,7 @@ export async function payVisit(formData: FormData) {
   const { data: v } = await supabase.from("ventes_visit_requests").select("id, buyer_id, payment_status, fee_cents, kind, listing:ventes_listings(horse_name)").eq("id", id).maybeSingle();
   if (!v || v.buyer_id !== user.id) redirect("/visites");
   if (v.payment_status !== "unpaid") redirect("/visites");
-  const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const origin = (await headers()).get("origin") ?? siteUrl();
   const horse = (v.listing as unknown as { horse_name: string } | null)?.horse_name ?? "cheval";
   const session = await stripe.checkout.sessions.create({
     mode: "payment",

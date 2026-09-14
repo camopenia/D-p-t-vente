@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { DemoBanner } from "@/components/layout/DemoBanner";
+import { siteUrlObject } from "@/lib/site";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   },
   description:
     "Annonces de chevaux à vendre par des éleveurs, particuliers et professionnels du dépôt-vente. Visites et essais, contrats de vente, guides pour acheter et vendre sereinement.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://ventes.cavalons.fr"),
+  metadataBase: siteUrlObject(),
   openGraph: { siteName: "Cavalons Ventes", locale: "fr_FR", type: "website" },
 };
 

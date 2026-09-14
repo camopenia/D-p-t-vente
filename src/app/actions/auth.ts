@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { ActionState } from "./visits";
+import { siteUrl } from "@/lib/site";
 
 const safeNext = (n: unknown) => (typeof n === "string" && n.startsWith("/") && !n.startsWith("//") ? n : "/mon-compte");
 
@@ -37,7 +38,7 @@ export async function signUp(_prev: ActionState, formData: FormData): Promise<Ac
   });
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0].message };
   const supabase = (await createClient())!;
-  const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const origin = (await headers()).get("origin") ?? siteUrl();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
