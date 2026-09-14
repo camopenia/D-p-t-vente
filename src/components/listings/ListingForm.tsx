@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ImagePlus, Trash2, Info } from "lucide-react";
@@ -22,8 +22,55 @@ export function ListingForm({ userId, isPro, existing }: Props) {
   const [depot, setDepot] = useState(existing?.is_depot_vente ?? false);
   const [videos, setVideos] = useState<string>(existing?.video_urls.join("\n") ?? "");
   const [clientError, setClientError] = useState<string | null>(null);
+  const [allValid, setAllValid] = useState(false);
+  const [papers, setPapers] = useState<string>(existing?.papers ?? "sire_full");
+  const formRef = useRef<HTMLFormElement>(null);
 
   const steps = ["Le cheval", "Origines & papiers", "Description", "Photos & vidéos", "Prix & conditions"];
+
+  type Problem = { step: number; label: string };
+  const collectProblems = useCallback(
+    (form: HTMLFormElement, status: "draft" | "active"): Problem[] => {
+      const problems: Problem[] = [];
+      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("input, textarea, select").forEach((el) => {
+        if (el.type === "hidden" || el.type === "file") return;
+        const section = el.closest<HTMLElement>("[data-step]");
+        if (!section) return;
+        const stepIndex = Number(section.dataset.step);
+        if (status === "draft" && !["horse_name", "breed"].includes(el.name)) return;
+        if (!el.validity.valid) {
+          const raw = form.querySelector<HTMLLabelElement>(`label[for="${el.id}"]`)?.textContent || el.closest("label")?.textContent || el.name;
+          problems.push({ step: stepIndex, label: raw.replace(/\*/g, "").trim().slice(0, 60) });
+        }
+      });
+      if (status === "active" && disciplines.length === 0) problems.push({ step: 0, label: "Disciplines (au moins une)" });
+      if (status === "active" && photos.length === 0) problems.push({ step: 3, label: "Au moins une photo" });
+      return problems.sort((a, b) => a.step - b.step);
+    },
+    [disciplines, photos],
+  );
+
+  const refreshValidity = useCallback(() => {
+    if (formRef.current) setAllValid(collectProblems(formRef.current, "active").length === 0);
+  }, [collectProblems]);
+  useEffect(() => {
+    refreshValidity();
+  }, [refreshValidity, priceHidden, depot, papers, step]);
+
+  /** Navigation entre étapes : on ne peut avancer que si les étapes traversées sont complètes. */
+  function goTo(target: number) {
+    if (target < 0 || target >= steps.length) return;
+    if (target > step && formRef.current) {
+      const blocking = collectProblems(formRef.current, "active").filter((p) => p.step >= step && p.step < target);
+      if (blocking.length) {
+        setStep(blocking[0].step);
+        setClientError(`Pour passer à l'étape suivante, complétez : ${Array.from(new Set(blocking.map((p) => p.label))).join(" · ")}`);
+        return;
+      }
+    }
+    setClientError(null);
+    setStep(target);
+  }
 
   async function upload(files: FileList | null) {
     if (!files?.length) return;
@@ -104,32 +151,18 @@ export function ListingForm({ userId, isPro, existing }: Props) {
 
   return (
     <form
+      ref={formRef}
       action={action}
       noValidate
+      onInput={refreshValidity}
+      onChange={refreshValidity}
       onSubmit={(e) => {
         const form = e.currentTarget;
         const status = (form.querySelector<HTMLInputElement>("input[name=__status]")?.value as "draft" | "active") ?? "active";
         // Validation côté client sur toutes les étapes (les champs masqués ne bloquent plus l'envoi en silence).
-        const problems: { step: number; label: string }[] = [];
-        form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("input, textarea, select").forEach((el) => {
-          if (el.type === "hidden" || el.type === "file") return;
-          const section = el.closest<HTMLElement>("[data-step]");
-          if (!section) return;
-          const stepIndex = Number(section.dataset.step);
-          const isDraft = status === "draft";
-          // En brouillon, seuls le nom du cheval et la race sont exigés.
-          if (isDraft && !["horse_name", "breed"].includes(el.name)) return;
-          if (!el.validity.valid) {
-            const raw = form.querySelector<HTMLLabelElement>(`label[for="${el.id}"]`)?.textContent || el.closest("label")?.textContent || el.name;
-            const label = raw.replace(/\*/g, "").trim().slice(0, 60);
-            problems.push({ step: stepIndex, label });
-          }
-        });
-        if (status === "active" && disciplines.length === 0) problems.push({ step: 0, label: "Disciplines (au moins une)" });
-        if (status === "active" && photos.length === 0) problems.push({ step: 3, label: "Au moins une photo" });
+        const problems = collectProblems(form, status);
         if (problems.length) {
           e.preventDefault();
-          problems.sort((a, b) => a.step - b.step);
           setStep(problems[0].step);
           setClientError(`À compléter avant de ${status === "draft" ? "sauvegarder" : "publier"} : ${Array.from(new Set(problems.map((p) => p.label))).join(" · ")}`);
           window.scrollTo({ top: 0, behavior: "smooth" });
@@ -155,7 +188,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       <ol className="flex flex-wrap gap-2 text-xs">
         {steps.map((s, i) => (
           <li key={s}>
-            <button type="button" onClick={() => setStep(i)} className={`rounded-full px-3 py-1.5 font-medium ${i === step ? "bg-primary text-white" : "bg-white text-muted border border-line hover:text-primary"}`}>
+            <button type="button" onClick={() => goTo(i)} className={`rounded-full px-3 py-1.5 font-medium ${i === step ? "bg-primary text-white" : "bg-white text-muted border border-line hover:text-primary"}`}>
               {i + 1}. {s}
             </button>
           </li>
@@ -217,8 +250,8 @@ export function ListingForm({ userId, isPro, existing }: Props) {
           <Field label="Père de mère" name="dam_sire_name" defaultValue={existing?.dam_sire_name ?? undefined} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <SelectField label="Papiers" name="papers" options={Object.entries(PAPERS)} defaultValue={existing?.papers ?? "sire_full"} required />
-          <Field label="Numéro SIRE (obligatoire sauf ONC)" name="sire_number" defaultValue={existing?.sire_number ?? undefined} placeholder="Ex. 23000123456A" helper="Obligatoire pour publier (sauf ONC). Il n'est affiché que partiellement et sert à lutter contre les fausses annonces." />
+          <SelectField label="Papiers" name="papers" options={Object.entries(PAPERS)} defaultValue={existing?.papers ?? "sire_full"} required onChange={setPapers} />
+          <Field label="Numéro SIRE" name="sire_number" required={papers !== "onc"} defaultValue={existing?.sire_number ?? undefined} placeholder="Ex. 23000123456A" helper="Obligatoire pour publier (sauf ONC). Il n'est affiché que partiellement et sert à lutter contre les fausses annonces." />
         </div>
         <Check name="studbook_approved" label="Approuvé(e) à la reproduction dans son stud-book" defaultChecked={existing?.studbook_approved} />
         <div className="rounded-xl bg-primary-soft p-3 text-sm text-primary">
@@ -316,10 +349,10 @@ export function ListingForm({ userId, isPro, existing }: Props) {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
-          <button type="button" disabled={step === 0} onClick={() => setStep((s) => s - 1)} className="btn-neutral">
+          <button type="button" disabled={step === 0} onClick={() => goTo(step - 1)} className="btn-neutral">
             Précédent
           </button>
-          <button type="button" disabled={step === steps.length - 1} onClick={() => setStep((s) => s + 1)} className="btn-neutral">
+          <button type="button" disabled={step === steps.length - 1} onClick={() => goTo(step + 1)} className="btn-primary">
             Suivant
           </button>
         </div>
@@ -336,8 +369,9 @@ export function ListingForm({ userId, isPro, existing }: Props) {
           </button>
           <button
             type="submit"
-            disabled={pending}
-            className="btn-primary"
+            disabled={pending || !allValid}
+            title={allValid ? undefined : "Complétez toutes les étapes obligatoires pour publier"}
+            className="btn-primary disabled:bg-line disabled:text-muted"
             onClick={(e) => {
               (e.currentTarget.form!.querySelector("input[name=__status]") as HTMLInputElement).value = "active";
             }}
@@ -382,14 +416,14 @@ function TextArea({ label, name, helper, ...rest }: { label: string; name: strin
     </div>
   );
 }
-function SelectField({ label, name, options, defaultValue, allowEmpty, required }: { label: string; name: string; options: (readonly [string, string])[]; defaultValue?: string; allowEmpty?: boolean; required?: boolean }) {
+function SelectField({ label, name, options, defaultValue, allowEmpty, required, onChange }: { label: string; name: string; options: (readonly [string, string])[]; defaultValue?: string; allowEmpty?: boolean; required?: boolean; onChange?: (v: string) => void }) {
   return (
     <div>
       <label className="label" htmlFor={name}>
         {label}
         {required && <Req />}
       </label>
-      <select id={name} name={name} className="input" defaultValue={defaultValue ?? (allowEmpty ? "" : options[0][0])}>
+      <select id={name} name={name} className="input" defaultValue={defaultValue ?? (allowEmpty ? "" : options[0][0])} onChange={(e) => onChange?.(e.target.value)}>
         {allowEmpty && <option value="">—</option>}
         {options.map(([k, l]) => (
           <option key={k} value={k}>
