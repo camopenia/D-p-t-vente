@@ -33,7 +33,7 @@ Sans variables Supabase, le site affiche des annonces fictives (`src/lib/demo-da
 
 ## Base de données (état actuel)
 
-La limite de projets gratuits Supabase étant atteinte, Cavalons Ventes est hébergé **dans le projet Supabase existant `cavalons-platform`** (`ikrhxxamqffmlmxfhtwn`, région Paris), aux côtés de la plateforme demi-pension. Pour éviter toute collision, tous les objets de Ventes sont préfixés `ventes_` (tables, vues, types, fonctions) et les photos vont dans le bucket `ventes-photos`. Les comptes (`auth.users`) sont partagés : un membre Cavalons se connecte avec le même identifiant sur les deux plateformes, et son profil Ventes est créé automatiquement à la première visite.
+Cavalons Ventes est hébergé dans le projet Supabase **`cavalons-platform`** (`ikrhxxamqffmlmxfhtwn`, région Paris). Ce projet a été nettoyé le 14/09/2026 : il ne contient plus que les objets de Ventes, tous préfixés `ventes_` (tables, vues, types, fonctions), et le bucket `ventes-photos`. L'ancienne plateforme demi-pension de démonstration a été sauvegardée puis supprimée (voir `supabase/migrations/0005_nettoyage_demi_pension.sql`).
 
 Les migrations `supabase/migrations/0001` à `0004` ont été appliquées le 12/09/2026. Un compte de démonstration (`admin@demo.cavalons.fr`, administrateur Ventes) et une annonce de démonstration ont été créés.
 
