@@ -21,6 +21,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
   const [priceHidden, setPriceHidden] = useState(existing?.price_hidden ?? false);
   const [depot, setDepot] = useState(existing?.is_depot_vente ?? false);
   const [videos, setVideos] = useState<string>(existing?.video_urls.join("\n") ?? "");
+  const [clientError, setClientError] = useState<string | null>(null);
 
   const steps = ["Le cheval", "Origines & papiers", "Description", "Photos & vidéos", "Prix & conditions"];
 
@@ -104,14 +105,47 @@ export function ListingForm({ userId, isPro, existing }: Props) {
   return (
     <form
       action={action}
+      noValidate
       onSubmit={(e) => {
         const form = e.currentTarget;
         const status = (form.querySelector<HTMLInputElement>("input[name=__status]")?.value as "draft" | "active") ?? "active";
+        // Validation côté client sur toutes les étapes (les champs masqués ne bloquent plus l'envoi en silence).
+        const problems: { step: number; label: string }[] = [];
+        form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("input, textarea, select").forEach((el) => {
+          if (el.type === "hidden" || el.type === "file") return;
+          const section = el.closest<HTMLElement>("[data-step]");
+          if (!section) return;
+          const stepIndex = Number(section.dataset.step);
+          const isDraft = status === "draft";
+          // En brouillon, seuls le nom du cheval et la race sont exigés.
+          if (isDraft && !["horse_name", "breed"].includes(el.name)) return;
+          if (!el.validity.valid) {
+            const label = form.querySelector<HTMLLabelElement>(`label[for="${el.id}"]`)?.textContent?.trim() || el.closest("label")?.textContent?.trim().slice(0, 60) || el.name;
+            problems.push({ step: stepIndex, label });
+          }
+        });
+        if (status === "active" && disciplines.length === 0) problems.push({ step: 0, label: "Disciplines (au moins une)" });
+        if (status === "active" && photos.length === 0) problems.push({ step: 3, label: "Au moins une photo" });
+        if (status === "active" && !priceHidden && !(form.querySelector<HTMLInputElement>("input[name=price]")?.value)) problems.push({ step: 4, label: "Prix (ou cochez « prix sur demande »)" });
+        if (problems.length) {
+          e.preventDefault();
+          problems.sort((a, b) => a.step - b.step);
+          setStep(problems[0].step);
+          setClientError(`À compléter avant de ${status === "draft" ? "sauvegarder" : "publier"} : ${Array.from(new Set(problems.map((p) => p.label))).join(" · ")}`);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+        setClientError(null);
         const payload = form.querySelector<HTMLInputElement>("input[name=payload]")!;
         payload.value = JSON.stringify(buildPayload(form, status));
       }}
       className="space-y-6"
     >
+      {(clientError || (state && !state.ok)) && (
+        <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
+          {clientError ?? state?.message}
+        </p>
+      )}
       <input type="hidden" name="payload" />
       <input type="hidden" name="__status" defaultValue="active" />
 
@@ -126,7 +160,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       </ol>
 
       {/* Étape 1 */}
-      <section className={`card space-y-4 p-5 ${step === 0 ? "" : "hidden"}`}>
+      <section data-step="0" className={`card space-y-4 p-5 ${step === 0 ? "" : "hidden"}`}>
         <h2 className="font-semibold">Le cheval</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Nom du cheval" name="horse_name" required defaultValue={existing?.horse_name} />
@@ -168,7 +202,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       </section>
 
       {/* Étape 2 */}
-      <section className={`card space-y-4 p-5 ${step === 1 ? "" : "hidden"}`}>
+      <section data-step="1" className={`card space-y-4 p-5 ${step === 1 ? "" : "hidden"}`}>
         <h2 className="font-semibold">Origines et papiers</h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Père" name="sire_name" defaultValue={existing?.sire_name ?? undefined} />
@@ -190,7 +224,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       </section>
 
       {/* Étape 3 */}
-      <section className={`card space-y-4 p-5 ${step === 2 ? "" : "hidden"}`}>
+      <section data-step="2" className={`card space-y-4 p-5 ${step === 2 ? "" : "hidden"}`}>
         <h2 className="font-semibold">Description</h2>
         <Field label="Titre de l'annonce" name="title" required minLength={15} maxLength={120} defaultValue={existing?.title} placeholder="Ex. Quartz – SF 4 ans par Diamant de Semilly, avenir CSO" helper="Race, âge, discipline, niveau : un titre précis attire les bons acheteurs." />
         <div>
@@ -209,7 +243,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       </section>
 
       {/* Étape 4 */}
-      <section className={`card space-y-4 p-5 ${step === 3 ? "" : "hidden"}`}>
+      <section data-step="3" className={`card space-y-4 p-5 ${step === 3 ? "" : "hidden"}`}>
         <h2 className="font-semibold">Photos et vidéos</h2>
         <p className="text-sm text-muted">Recommandé : profil « modèle » entier, 3/4 avant, en mouvement, monté. Cheval propre, lumière du jour, fond dégagé. Pas de photo de groupe ni de cheval qui broute.</p>
         <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-line bg-sand p-6 text-sm text-muted hover:border-primary">
@@ -241,7 +275,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       </section>
 
       {/* Étape 5 */}
-      <section className={`card space-y-4 p-5 ${step === 4 ? "" : "hidden"}`}>
+      <section data-step="4" className={`card space-y-4 p-5 ${step === 4 ? "" : "hidden"}`}>
         <h2 className="font-semibold">Prix et conditions</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Prix (€)" name="price" type="number" min={0} step={100} defaultValue={existing?.price ?? undefined} disabled={priceHidden} helper="Un prix affiché et juste génère plus de contacts sérieux." />
@@ -268,8 +302,6 @@ export function ListingForm({ userId, isPro, existing }: Props) {
           </span>
         </label>
       </section>
-
-      {state && !state.ok && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{state.message}</p>}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
