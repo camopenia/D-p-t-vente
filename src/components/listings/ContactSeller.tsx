@@ -19,7 +19,7 @@ export function ContactSeller({ listingId, sellerId, loggedIn, canContact, isOwn
         <p className="flex items-center gap-2 font-medium text-ink">
           <Lock className="h-4 w-4 text-primary" /> Messagerie et téléphone
         </p>
-        <p className="mt-1 text-muted">Réservés aux abonnés Contact (9,90 €/mois, sans engagement). Les demandes de visite et d&apos;essai restent gratuites.</p>
+        <p className="mt-1 text-muted">Réservés aux abonnés Contact (9,90 €/mois, sans engagement). Les demandes de visite et d&apos;essai (10 €) ne nécessitent pas d&apos;abonnement.</p>
         <Link href={loggedIn ? "/abonnement" : "/connexion?next=/abonnement"} className="btn-neutral mt-3 w-full">
           {loggedIn ? "Découvrir l'abonnement Contact" : "Se connecter"}
         </Link>

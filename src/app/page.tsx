@@ -7,7 +7,7 @@ import { getFeaturedListings } from "@/lib/listings";
 import { ROLES } from "@/lib/constants";
 
 const AUDIENCES: { role: keyof typeof ROLES; href: string; text: string }[] = [
-  { role: "acheteur", href: "/guides/acheteurs", text: "Trouvez le bon cheval, demandez une visite ou un essai gratuitement, sécurisez l'achat avec la visite vétérinaire et le contrat type." },
+  { role: "acheteur", href: "/guides/acheteurs", text: "Trouvez le bon cheval, proposez vos créneaux de visite ou d'essai, sécurisez l'achat avec la visite vétérinaire et le contrat type." },
   { role: "particulier", href: "/guides/particuliers-vendeurs", text: "Publiez une annonce complète en 10 minutes, gérez les demandes de visite, vendez avec un contrat clair." },
   { role: "eleveur", href: "/guides/eleveurs", text: "Présentez vos foals et jeunes chevaux avec origines, vidéos et papiers. Page vitrine de votre élevage." },
   { role: "pro_depot", href: "/guides/professionnels-depot-vente", text: "Gérez vos chevaux en dépôt-vente pour le compte de propriétaires, avec mandat et commission transparents." },
@@ -26,7 +26,7 @@ export default async function HomePage() {
             <span className="tag bg-white/15 text-white">cavalons.ensemble</span>
             <h1 className="mt-4 text-3xl font-semibold leading-tight sm:text-5xl">Acheter ou vendre un cheval, en toute confiance.</h1>
             <p className="mt-5 max-w-xl text-base text-white/85 sm:text-lg">
-              La plateforme qui réunit éleveurs, particuliers, professionnels du dépôt-vente et acheteurs. Visites et essais gratuits, contrats de vente prêts à l&apos;emploi, guides pour chaque étape.
+              La plateforme qui réunit éleveurs, particuliers, professionnels du dépôt-vente et acheteurs. Visites et essais sur créneaux, contrats de vente prêts à l&apos;emploi, guides pour chaque étape.
             </p>
             <form action="/chevaux" className="mt-8 flex max-w-xl flex-col gap-2 sm:flex-row">
               <label htmlFor="hero-q" className="sr-only">
@@ -55,7 +55,7 @@ export default async function HomePage() {
       <section className="relative z-10 mx-auto -mt-10 max-w-7xl px-4 sm:px-6">
         <div className="card grid gap-6 p-6 sm:grid-cols-3">
           {[
-            { icon: CalendarCheck, title: "Visites et essais gratuits", text: "Demandez une visite ou un essai monté sans abonnement. Le vendeur répond dans son espace." },
+            { icon: CalendarCheck, title: "Visites et essais organisés", text: "Proposez vos créneaux parmi les disponibilités du vendeur, 10 € par demande remboursés s'il refuse ou ne répond pas sous 48 h." },
             { icon: FileText, title: "Contrats prêts à l'emploi", text: "Contrat de vente, mandat de dépôt-vente, convention d'essai : générés en ligne, imprimables." },
             { icon: ShieldCheck, title: "Vendeurs identifiés", text: "Statut déclaré (éleveur, particulier, pro), SIRET contrôlé pour les pros, charte de bonne conduite signée." },
           ].map((b) => (
@@ -114,7 +114,7 @@ export default async function HomePage() {
         <ol className="mt-8 grid gap-6 md:grid-cols-4">
           {[
             ["Cherchez ou publiez", "Annonces structurées : origines, niveau réel, papiers SIRE, radios, vidéos. Publication gratuite."],
-            ["Visitez, essayez", "Demande de visite ou d'essai gratuite. Le vendeur accepte et vous convenez d'une date."],
+            ["Visitez, essayez", "Choisissez vos créneaux parmi les disponibilités du vendeur (10 € par demande). Il confirme sous 48 h."],
             ["Échangez", "Messagerie et téléphone des vendeurs avec l'abonnement Contact, sans engagement."],
             ["Concluez sereinement", "Visite vétérinaire d'achat, contrat de vente type, déclaration SIRE sous 30 jours."],
           ].map(([t, d], i) => (

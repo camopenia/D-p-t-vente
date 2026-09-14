@@ -1,4 +1,5 @@
 import type { Listing, Profile } from "./types";
+import type { VisitAvailability } from "./constants";
 
 /**
  * Données de démonstration utilisées quand Supabase n'est pas configuré
@@ -127,6 +128,7 @@ const base = {
   xrays_available: false,
   trial_available: true,
   visit_available: true,
+  visit_availability: { "3": ["apres_midi", "soiree"], "6": ["matin", "apres_midi"], "7": ["matin"] } as VisitAvailability,
   competition_results: null,
   health_notes: null,
   known_vices: null,

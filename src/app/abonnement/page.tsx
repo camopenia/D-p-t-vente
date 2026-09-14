@@ -7,7 +7,7 @@ import { isStripeConfigured } from "@/lib/supabase/config";
 
 export const metadata: Metadata = {
   title: "Abonnement",
-  description: "Consultation, publication, visites et essais gratuits. Messagerie et téléphone des vendeurs avec l'abonnement Contact, sans engagement.",
+  description: "Consultation et publication gratuites, 10 € par demande de visite remboursés sans réponse du vendeur, messagerie et téléphone avec l'abonnement Contact.",
 };
 
 export default async function AbonnementPage({ searchParams }: { searchParams: Promise<{ success?: string; cancel?: string }> }) {
@@ -20,9 +20,9 @@ export default async function AbonnementPage({ searchParams }: { searchParams: P
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <div className="text-center">
-        <h1 className="text-3xl font-semibold">Une plateforme gratuite pour chercher, visiter et publier</h1>
+        <h1 className="text-3xl font-semibold">Gratuit pour chercher et publier, 10 € par visite, abonnement pour échanger</h1>
         <p className="mx-auto mt-3 max-w-2xl text-muted">
-          Les demandes de visite et d&apos;essai sont gratuites pour tous. Pour échanger directement par messagerie ou téléphone avec les vendeurs, choisissez l&apos;abonnement Contact, sans engagement.
+          Chaque demande de visite ou d&apos;essai coûte 10 € de frais de plateforme, remboursés si le vendeur refuse ou ne répond pas sous 48 h. Pour échanger directement par messagerie ou téléphone avec les vendeurs, choisissez l&apos;abonnement Contact, sans engagement.
         </p>
       </div>
       {success && <p className="mx-auto mt-6 max-w-xl rounded-xl bg-primary-soft p-4 text-center text-sm text-primary">Merci ! Votre abonnement est en cours d&apos;activation (quelques secondes). Vous pouvez dès maintenant contacter les vendeurs.</p>}
@@ -94,7 +94,7 @@ export default async function AbonnementPage({ searchParams }: { searchParams: P
         <h2 className="text-xl font-semibold">Pourquoi ce modèle ?</h2>
         <div className="prose-cv mt-2 text-sm">
           <p>
-            Nous voulons que chaque cheval trouve le bon cavalier. Publier une annonce et demander une visite doivent rester gratuits pour ne pas freiner les rencontres. L&apos;abonnement Contact finance la modération des annonces, la vérification des professionnels et les outils (contrats, guides, messagerie sécurisée) sans faire payer les vendeurs à la commission.
+            Nous voulons que chaque cheval trouve le bon cavalier. Publier une annonce reste gratuit pour ne pas freiner l&apos;offre. Les frais de visite (10 €) filtrent les demandes non sérieuses et rémunèrent la plateforme sans commission sur la vente ; ils sont remboursés quand le vendeur ne donne pas suite. L&apos;abonnement Contact finance la modération, la vérification des professionnels et les outils (contrats, guides, messagerie sécurisée).
           </p>
           <p>Pas de mise en avant payante qui noie les annonces des particuliers : le classement dépend de la fraîcheur et de la complétude de l&apos;annonce.</p>
         </div>
@@ -103,6 +103,7 @@ export default async function AbonnementPage({ searchParams }: { searchParams: P
           {[
             ["Puis-je résilier à tout moment ?", "Oui, depuis votre espace en un clic. L'abonnement reste actif jusqu'à la fin de la période payée."],
             ["Un vendeur doit-il s'abonner pour répondre ?", "Non. Les vendeurs répondent gratuitement aux messages et aux demandes de visite qu'ils reçoivent."],
+            ["Que se passe-t-il si le vendeur ne répond pas à ma demande de visite ?", "Il dispose de 48 h après votre paiement. Sans réponse, ou s'il refuse, les 10 € vous sont remboursés automatiquement sur votre carte."],
             ["L'abonnement Pro est-il obligatoire pour un éleveur ?", "Non. Il apporte une page vitrine, des statistiques et le badge vérifié, mais la publication reste gratuite."],
             ["Prenez-vous une commission sur la vente ?", "Non. La transaction se fait directement entre vendeur et acheteur, avec nos modèles de contrats."],
           ].map(([q, a]) => (

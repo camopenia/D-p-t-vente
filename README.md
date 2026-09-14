@@ -8,7 +8,7 @@ Plateforme de vente de chevaux et poneys pour quatre publics : **éleveurs**, **
 |---|---|
 | Annonces | Recherche et filtres (race, sexe, discipline, niveau, région, prix, âge, taille, papiers, radios, essai), fiche détaillée (origines, SIRE, santé déclarée, vidéos), annonces similaires |
 | Publication | Assistant en 5 étapes, photos vers Supabase Storage, numéro SIRE obligatoire, mention dépôt-vente, prix HT/TTC pour les pros, brouillon / en ligne / réservé / vendu |
-| Visites et essais | **Gratuits** : demande depuis l'annonce, réponse du vendeur depuis son espace, suivi des deux côtés |
+| Visites et essais | Le vendeur renseigne ses disponibilités hebdomadaires (jour × matin / après-midi / soirée) ; l'acheteur propose jusqu'à 6 créneaux et règle **10 € de frais de plateforme** (Stripe Checkout) ; le vendeur a **48 h** pour accepter en retenant un créneau ou refuser ; remboursement automatique en cas de refus ou d'absence de réponse (expiration calculée au chargement de l'espace visites). Sans Stripe configuré, les frais sont dispensés pour les tests |
 | Messagerie et téléphone | Réservés aux abonnés **Contact** (9,90 €/mois) et **Pro** (29 €/mois) via Stripe ; les vendeurs répondent gratuitement ; révélation du téléphone journalisée et contrôlée en base (RLS + fonction `reveal_phone`) |
 | Contrats | Générateur en ligne (formulaire + aperçu + impression PDF) : contrat de vente, mandat de dépôt-vente, convention d'essai. Fondés sur le Code civil, le Code rural (vices rédhibitoires, SIRE) et le modèle IDE/IFCE |
 | Guides | 10 guides par public (acheteur, vendeur particulier, éleveur, dépôt-vente, arnaques, visite et essai, visite vétérinaire, prix, annonce, après la vente) |
@@ -41,7 +41,7 @@ Les migrations `supabase/migrations/0001` à `0004` ont été appliquées le 12/
 
 1. **Supabase** : le schéma est déjà en place (voir ci-dessus). Pour un projet dédié plus tard, exécutez dans l'ordre `supabase/migrations/0001_schema.sql`, `0002_rls.sql`, `0003_admin.sql`, `0004_hardening.sql`. Activez l'authentification par email et ajoutez l'URL de redirection `https://votre-domaine/auth/callback` dans Authentication → URL Configuration.
 2. **Variables** : `NEXT_PUBLIC_SUPABASE_URL=https://ikrhxxamqffmlmxfhtwn.supabase.co`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (clé publique `sb_publishable_…` visible dans Project Settings → API Keys), `SUPABASE_SERVICE_ROLE_KEY` (serveur uniquement, pour le webhook Stripe), `NEXT_PUBLIC_SITE_URL`.
-3. **Stripe** : créez deux prix récurrents mensuels (Contact 9,90 €, Pro 29 €), renseignez `STRIPE_SECRET_KEY`, `STRIPE_PRICE_CONTACT`, `STRIPE_PRICE_PRO`, puis un webhook vers `/api/stripe/webhook` avec les événements `checkout.session.completed`, `customer.subscription.created|updated|deleted` et `STRIPE_WEBHOOK_SECRET`. Activez le portail client Stripe pour la résiliation.
+3. **Stripe** : créez deux prix récurrents mensuels (Contact 9,90 €, Pro 29 €), renseignez `STRIPE_SECRET_KEY`, `STRIPE_PRICE_CONTACT`, `STRIPE_PRICE_PRO`, puis un webhook vers `/api/stripe/webhook` avec les événements `checkout.session.completed`, `customer.subscription.created|updated|deleted` et `STRIPE_WEBHOOK_SECRET`. Activez le portail client Stripe pour la résiliation. Les frais de visite (10 €, montant dans `VISIT_FEE_CENTS`) utilisent le même webhook ; les remboursements sont émis par l'API Stripe.
 4. **Déploiement** : Vercel ou tout hébergeur Node. `npm run build` puis `npm start`.
 5. **Premier administrateur** : après votre inscription, exécutez `update public.ventes_profiles set is_admin = true where email = 'votre@email';` puis ouvrez `/admin`. Les administrateurs suivants se nomment depuis le back-office.
 6. **Modération** : toute nouvelle annonce publiée passe en « En attente de validation » et apparaît dans `/admin/annonces` ; le vendeur voit le motif en cas de refus.
@@ -62,7 +62,8 @@ public/brand/            logo (variantes teal / rose / blanc), mascottes
 
 ## Modèle économique (état actuel)
 
-- Consultation, publication, visites et essais : gratuits.
+- Consultation et publication : gratuites.
+- Demande de visite ou d'essai : 10 € de frais de plateforme, remboursés si le vendeur refuse ou ne répond pas sous 48 h.
 - Abonnement **Contact** : messagerie et téléphone des vendeurs.
 - Abonnement **Pro** : page vitrine, annonces mises en avant, statistiques, badge vérifié.
 - Aucune commission sur les ventes ; pas de mise en avant payante qui noie les annonces des particuliers.

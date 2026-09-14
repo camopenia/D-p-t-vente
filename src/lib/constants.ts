@@ -128,13 +128,66 @@ export const LISTING_STATUS = {
 export type ListingStatus = keyof typeof LISTING_STATUS;
 
 export const VISIT_STATUS = {
-  pending: "En attente",
+  pending: "En attente de réponse",
   accepted: "Acceptée",
   declined: "Refusée",
+  expired: "Sans réponse (expirée)",
   done: "Effectuée",
   cancelled: "Annulée",
 } as const;
 export type VisitStatus = keyof typeof VISIT_STATUS;
+
+/** Frais de plateforme par demande de visite ou d'essai, en centimes. */
+export const VISIT_FEE_CENTS = 1000;
+/** Délai de réponse du vendeur, en heures. */
+export const VISIT_RESPONSE_HOURS = 48;
+/** Nombre de semaines proposées à l'acheteur pour choisir ses créneaux. */
+export const VISIT_WEEKS_AHEAD = 4;
+
+export const WEEKDAYS = [
+  [1, "Lundi"],
+  [2, "Mardi"],
+  [3, "Mercredi"],
+  [4, "Jeudi"],
+  [5, "Vendredi"],
+  [6, "Samedi"],
+  [7, "Dimanche"],
+] as const;
+export const PERIODS = {
+  matin: "Matin",
+  apres_midi: "Après-midi",
+  soiree: "Soirée",
+} as const;
+export type Period = keyof typeof PERIODS;
+/** {"1": ["matin", "soiree"], …} : jour ISO (1 = lundi) → périodes disponibles */
+export type VisitAvailability = Partial<Record<string, Period[]>>;
+export interface VisitSlot {
+  date: string; // AAAA-MM-JJ
+  period: Period;
+}
+
+export function formatSlot(slot: VisitSlot | null | undefined) {
+  if (!slot) return "";
+  const d = new Date(slot.date + "T12:00:00");
+  return `${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} · ${PERIODS[slot.period]?.toLowerCase() ?? slot.period}`;
+}
+
+/** Créneaux concrets à venir correspondant aux disponibilités hebdomadaires du vendeur. */
+export function upcomingSlots(availability: VisitAvailability, weeks = VISIT_WEEKS_AHEAD, from = new Date()): VisitSlot[] {
+  const out: VisitSlot[] = [];
+  const start = new Date(from);
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() + 1); // à partir de demain
+  for (let i = 0; i < weeks * 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const iso = ((d.getDay() + 6) % 7) + 1; // 1 = lundi … 7 = dimanche
+    const periods = availability[String(iso)] ?? [];
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    for (const p of ["matin", "apres_midi", "soiree"] as Period[]) if (periods.includes(p)) out.push({ date, period: p });
+  }
+  return out;
+}
 
 export const PLANS = {
   free: {
@@ -146,7 +199,7 @@ export const PLANS = {
     features: [
       "Consultation illimitée des annonces",
       "Publication d'annonces gratuite",
-      "Demandes de visite et d'essai gratuites",
+      "Demandes de visite et d'essai : 10 € par demande, remboursés si le vendeur refuse ou ne répond pas sous 48 h",
       "Favoris et alertes",
       "Modèles de contrats et guides",
     ],

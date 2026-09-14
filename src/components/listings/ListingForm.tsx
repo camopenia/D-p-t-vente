@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ImagePlus, Trash2, Info } from "lucide-react";
 import { saveListing } from "@/app/actions/listings";
 import type { ActionState } from "@/app/actions/visits";
-import { BREEDS, COLORS, DISCIPLINES, LEVELS, PAPERS, REGIONS, SEXES } from "@/lib/constants";
+import { BREEDS, COLORS, DISCIPLINES, LEVELS, PAPERS, PERIODS, REGIONS, SEXES, WEEKDAYS, type Period, type VisitAvailability } from "@/lib/constants";
 import type { Listing } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 
@@ -24,6 +24,16 @@ export function ListingForm({ userId, isPro, existing }: Props) {
   const [clientError, setClientError] = useState<string | null>(null);
   const [allValid, setAllValid] = useState(false);
   const [papers, setPapers] = useState<string>(existing?.papers ?? "sire_full");
+  const [visitAvailable, setVisitAvailable] = useState(existing?.visit_available ?? true);
+  const [availability, setAvailability] = useState<VisitAvailability>(existing?.visit_availability ?? {});
+  const hasAvailability = Object.values(availability).some((p) => (p ?? []).length > 0);
+  function toggleAvailability(day: number, period: Period) {
+    setAvailability((cur) => {
+      const list = cur[String(day)] ?? [];
+      const next = list.includes(period) ? list.filter((x) => x !== period) : [...list, period];
+      return { ...cur, [String(day)]: next };
+    });
+  }
   const formRef = useRef<HTMLFormElement>(null);
 
   const steps = ["Le cheval", "Origines & papiers", "Description", "Photos & vidéos", "Prix & conditions"];
@@ -45,9 +55,10 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       });
       if (status === "active" && disciplines.length === 0) problems.push({ step: 0, label: "Disciplines (au moins une)" });
       if (status === "active" && photos.length === 0) problems.push({ step: 3, label: "Au moins une photo" });
+      if (status === "active" && visitAvailable && !hasAvailability) problems.push({ step: 4, label: "Disponibilités pour les visites (au moins un créneau)" });
       return problems.sort((a, b) => a.step - b.step);
     },
-    [disciplines, photos],
+    [disciplines, photos, visitAvailable, hasAvailability],
   );
 
   const refreshValidity = useCallback(() => {
@@ -55,7 +66,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
   }, [collectProblems]);
   useEffect(() => {
     refreshValidity();
-  }, [refreshValidity, priceHidden, depot, papers, step]);
+  }, [refreshValidity, priceHidden, depot, papers, step, availability, visitAvailable]);
 
   /** Navigation entre étapes : on ne peut avancer que si les étapes traversées sont complètes. */
   function goTo(target: number) {
@@ -139,6 +150,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       xrays_available: b("xrays_available"),
       trial_available: b("trial_available"),
       visit_available: b("visit_available"),
+      visit_availability: availability,
       is_depot_vente: depot,
       owner_name: g("owner_name") || undefined,
       competition_results: g("competition_results") || undefined,
@@ -329,11 +341,53 @@ export function ListingForm({ userId, isPro, existing }: Props) {
           </div>
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
-          <Check name="visit_available" label="Visite sur rendez-vous" defaultChecked={existing?.visit_available ?? true} />
+          <Check name="visit_available" label="Visite sur rendez-vous" defaultChecked={existing?.visit_available ?? true} onChange={setVisitAvailable} />
           <Check name="trial_available" label="Essai monté possible (en présence du vendeur)" defaultChecked={existing?.trial_available ?? true} />
           <Check name="vet_check_available" label="Visite vétérinaire d'achat acceptée (véto de l'acheteur)" defaultChecked={existing?.vet_check_available ?? true} />
           <Check name="xrays_available" label="Radios récentes disponibles" defaultChecked={existing?.xrays_available} />
         </div>
+        {visitAvailable && (
+          <fieldset className="rounded-xl border border-line p-4">
+            <legend className="label px-1">
+              Vos disponibilités pour les visites et essais
+              <Req />
+            </legend>
+            <p className="mb-3 text-xs text-muted">
+              Cochez les moments d&apos;une semaine type où vous pouvez recevoir. Les acheteurs choisiront leurs créneaux parmi ceux-ci ; vous confirmerez le créneau retenu au moment d&apos;accepter la demande.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs uppercase tracking-wider text-muted">
+                    <th className="py-1 text-left font-medium">Jour</th>
+                    {Object.entries(PERIODS).map(([k, l]) => (
+                      <th key={k} className="py-1 text-center font-medium">
+                        {l}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {WEEKDAYS.map(([d, label]) => (
+                    <tr key={d} className="border-t border-line">
+                      <td className="py-1.5 font-medium">{label}</td>
+                      {(Object.keys(PERIODS) as Period[]).map((p) => {
+                        const on = (availability[String(d)] ?? []).includes(p);
+                        return (
+                          <td key={p} className="py-1.5 text-center">
+                            <button type="button" onClick={() => toggleAvailability(d, p)} aria-pressed={on} aria-label={`${label} ${PERIODS[p]}`} className={`h-8 w-full max-w-[120px] rounded-lg border text-xs transition ${on ? "border-primary bg-primary text-white" : "border-line bg-white text-muted hover:border-primary"}`}>
+                              {on ? "Disponible" : "—"}
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </fieldset>
+        )}
         <label className="flex items-start gap-2 rounded-xl border border-pink/60 bg-pink-soft/40 p-3 text-sm">
           <input type="checkbox" name="honesty" required className="mt-0.5 h-4 w-4 accent-primary" />
           <span>

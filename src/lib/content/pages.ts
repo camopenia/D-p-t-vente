@@ -11,7 +11,7 @@ Cavalons Ventes met en relation des personnes qui vendent et achètent un être 
 4. **Informations exactes et complètes** : sexe, âge, taille, race, origines, niveau réel, tempérament, mode de vie, particularités et défauts connus, vaccins, antécédents.
 5. **Localisation réelle** du cheval. Les annonces de chevaux à l'étranger avec vendeur injoignable sont retirées.
 6. **Statut du vendeur déclaré** : particulier, éleveur, professionnel du dépôt-vente (avec mention du propriétaire).
-7. Une seule annonce par cheval ; mise à jour du statut (réservé, vendu) sous 48 h.
+7. Une seule annonce par cheval ; mise à jour du statut (réservé, vendu) et des disponibilités de visite sous 48 h.
 
 ## Pour les vendeurs
 
@@ -20,13 +20,13 @@ Cavalons Ventes met en relation des personnes qui vendent et achètent un être 
 10. **Ne jamais administrer de sédatif ou d'antalgique** avant une visite ou un essai ; accepter la prise de sang de contrôle.
 11. Déclarer par écrit tous les défauts, tics et antécédents connus.
 12. Ne livrer le cheval qu'après réception effective et irrévocable des fonds.
-13. Répondre aux demandes de visite sous 48 h, même pour refuser.
+13. Répondre aux demandes de visite sous 48 h, même pour refuser : sans réponse, la demande expire et l'acheteur est remboursé.
 
 ## Pour les acheteurs
 
-14. Ne verser aucun acompte, frais de réservation ou de transport avant d'avoir vu le cheval et lu sa puce.
+14. Ne verser aucun acompte, frais de réservation ou de transport avant d'avoir vu le cheval et lu sa puce. Les seuls frais réglés à Cavalons sont les 10 € par demande de visite, remboursés si le vendeur ne donne pas suite.
 15. Faire réaliser une visite vétérinaire d'achat avant tout paiement définitif, en condition suspensive du contrat.
-16. Porter un casque lors de tout essai ; venir accompagné ; respecter le temps du vendeur (prévenir en cas d'empêchement, donner une réponse après la visite).
+16. Porter un casque lors de tout essai ; venir accompagné ; respecter le temps du vendeur (honorer le créneau retenu, prévenir en cas d'empêchement, donner une réponse après la visite).
 17. Déclarer le changement de propriétaire au SIRE sous 30 jours et assurer le cheval dès le transfert des risques.
 
 ## Pour les professionnels du dépôt-vente
@@ -59,7 +59,7 @@ Le membre est seul responsable du contenu de ses annonces. Il garantit être pro
 
 ## 4. Visites, essais, messagerie et téléphone
 
-Les demandes de visite et d'essai sont gratuites. La messagerie et l'accès au numéro de téléphone des vendeurs sont réservés aux titulaires d'un abonnement Contact ou Pro. Les vendeurs répondent gratuitement aux messages reçus. Les membres s'engagent à ne pas utiliser la messagerie à des fins de démarchage, de spam ou d'échange de contenus illicites.
+Chaque demande de visite ou d'essai donne lieu à des frais de plateforme de 10 € TTC, réglés par carte au moment de la demande. Le vendeur dispose de 48 heures pour accepter en retenant l'un des créneaux proposés, ou refuser. En cas de refus ou d'absence de réponse dans ce délai, les frais sont intégralement remboursés sur le moyen de paiement utilisé. Ils ne sont pas remboursés si le membre annule sa demande ou ne se présente pas. La messagerie et l'accès au numéro de téléphone des vendeurs sont réservés aux titulaires d'un abonnement Contact ou Pro. Les vendeurs répondent gratuitement aux messages reçus. Les membres s'engagent à ne pas utiliser la messagerie à des fins de démarchage, de spam ou d'échange de contenus illicites.
 
 ## 5. Abonnements
 
@@ -136,7 +136,7 @@ export const COMMENT_CA_MARCHE = `
 ## Pour les acheteurs
 
 1. **Cherchez** parmi les annonces structurées : race, âge, discipline, niveau, prix, région, radios disponibles, essai possible.
-2. **Demandez une visite ou un essai** gratuitement depuis l'annonce, en présentant votre projet.
+2. **Demandez une visite ou un essai** depuis l'annonce : choisissez vos créneaux parmi les disponibilités du vendeur, présentez votre projet, réglez 10 € de frais de plateforme. Le vendeur a 48 h pour accepter en retenant un créneau ; sinon vous êtes remboursé.
 3. **Échangez** par messagerie et téléphone avec l'abonnement Contact (9,90 €/mois, sans engagement).
 4. **Sécurisez** l'achat : visite vétérinaire par votre vétérinaire, contrat de vente généré en ligne, paiement contre remise des papiers, déclaration SIRE sous 30 jours.
 
@@ -144,7 +144,7 @@ export const COMMENT_CA_MARCHE = `
 
 1. **Créez un compte gratuit** et acceptez le pacte de bonne conduite.
 2. **Publiez** en 5 étapes : le cheval, origines et papiers, description, photos et vidéos, prix et conditions. Le numéro SIRE est obligatoire.
-3. **Gérez les demandes** de visite depuis votre espace, répondez aux acheteurs gratuitement.
+3. **Gérez les demandes** de visite depuis votre espace : vous avez 48 h pour accepter en choisissant un créneau parmi ceux proposés, ou refuser. Répondre est gratuit.
 4. **Vendez** avec le contrat type, remettez la carte d'immatriculation endossée, passez l'annonce en « Vendu ».
 
 ## Pour les éleveurs
@@ -161,5 +161,5 @@ Pas de commission sur les ventes, pas de mise en avant payante qui noie les anno
 
 ## Rémunération
 
-La consultation, la publication, les visites et les essais sont gratuits. L'abonnement Contact donne accès à la messagerie et aux numéros de téléphone ; l'abonnement Pro ajoute la page vitrine et les statistiques. C'est ce qui finance la modération et les outils.
+La consultation et la publication sont gratuites. Chaque demande de visite ou d'essai coûte 10 € de frais de plateforme, remboursés si le vendeur refuse ou ne répond pas sous 48 h. L'abonnement Contact donne accès à la messagerie et aux numéros de téléphone ; l'abonnement Pro ajoute la page vitrine et les statistiques. C'est ce qui finance la modération et les outils, sans commission sur les ventes.
 `;

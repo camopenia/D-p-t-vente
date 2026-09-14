@@ -220,8 +220,8 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           {!isOwner && listing.status === "active" && listing.visit_available && (
             <div className="card p-5">
               <h2 className="font-semibold">Demander une visite ou un essai</h2>
-              <p className="mb-3 mt-1 text-xs text-muted">Gratuit et sans abonnement.</p>
-              <VisitRequestForm listingId={listing.id} sellerId={listing.seller_id} trialAvailable={listing.trial_available} loggedIn={Boolean(user)} />
+              <p className="mb-3 mt-1 text-xs text-muted">10 € par demande, sans abonnement. Le vendeur répond sous 48 h.</p>
+              <VisitRequestForm listingId={listing.id} sellerId={listing.seller_id} trialAvailable={listing.trial_available} loggedIn={Boolean(user)} availability={listing.visit_availability ?? {}} slug={listing.slug} />
             </div>
           )}
 

@@ -13,7 +13,7 @@ export default async function InscriptionPage({ searchParams }: { searchParams: 
   return (
     <div className="mx-auto max-w-lg px-4 py-12">
       <h1 className="text-2xl font-semibold">Créer un compte</h1>
-      <p className="mt-1 text-sm text-muted">Gratuit. Publiez des annonces, demandez des visites et essais, générez vos contrats.</p>
+      <p className="mt-1 text-sm text-muted">Gratuit. Publiez des annonces, proposez des créneaux de visite et d&apos;essai, générez vos contrats.</p>
       <div className="card mt-6 p-6">
         <SignUpForm defaultRole={valid.includes(role as Role) ? (role as Role) : "acheteur"} />
       </div>

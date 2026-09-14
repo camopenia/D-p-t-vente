@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/server";
+import { VISIT_RESPONSE_HOURS } from "@/lib/constants";
 
 export const runtime = "nodejs";
 
@@ -54,6 +55,22 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
+      if (session.metadata?.type === "visit" && session.metadata.visit_request_id) {
+        // Frais de visite réglés : le délai de réponse du vendeur (48 h) démarre maintenant
+        const expiresAt = new Date(Date.now() + VISIT_RESPONSE_HOURS * 3600 * 1000).toISOString();
+        await supabase
+          .from("ventes_visit_requests")
+          .update({
+            payment_status: "paid",
+            paid_at: new Date().toISOString(),
+            expires_at: expiresAt,
+            stripe_checkout_session_id: session.id,
+            stripe_payment_intent_id: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null,
+          })
+          .eq("id", session.metadata.visit_request_id)
+          .eq("payment_status", "unpaid");
+        break;
+      }
       if (session.subscription) {
         const sub = await stripe.subscriptions.retrieve(String(session.subscription));
         if (!sub.metadata.user_id && session.metadata?.user_id) {

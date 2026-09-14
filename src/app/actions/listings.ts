@@ -44,6 +44,7 @@ const listingSchema = z.object({
   xrays_available: z.boolean(),
   trial_available: z.boolean(),
   visit_available: z.boolean(),
+  visit_availability: z.record(z.string().regex(/^[1-7]$/), z.array(z.enum(["matin", "apres_midi", "soiree"]))).default({}),
   is_depot_vente: z.boolean(),
   owner_name: z.string().optional(),
   competition_results: z.string().optional(),
@@ -65,6 +66,8 @@ export async function saveListing(_prev: ActionState, formData: FormData): Promi
   if (d.status === "active" && d.photos.length < 1) return { ok: false, message: "Ajoutez au moins une photo pour publier (3 recommandées : profil, 3/4, mouvement)." };
   if (d.status === "active" && d.papers !== "onc" && !d.sire_number) return { ok: false, message: "Le numéro SIRE est requis pour publier (sauf ONC)." };
   if (d.is_depot_vente && !d.owner_name) return { ok: false, message: "Précisez pour le compte de qui le cheval est vendu (nom ou « propriétaire particulier »)." };
+  const hasAvailability = Object.values(d.visit_availability).some((p) => p.length > 0);
+  if (d.status === "active" && d.visit_available && !hasAvailability) return { ok: false, message: "Indiquez au moins un créneau de disponibilité pour les visites (ou décochez « Visite sur rendez-vous »)." };
 
   const supabase = (await createClient())!;
   const {

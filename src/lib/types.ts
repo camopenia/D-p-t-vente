@@ -1,4 +1,4 @@
-import type { Level, ListingStatus, Papers, PlanId, Role, Sex, VisitStatus } from "./constants";
+import type { Level, ListingStatus, Papers, PlanId, Role, Sex, VisitAvailability, VisitSlot, VisitStatus } from "./constants";
 
 export interface Profile {
   id: string;
@@ -61,6 +61,7 @@ export interface Listing {
   xrays_available: boolean;
   trial_available: boolean;
   visit_available: boolean;
+  visit_availability: VisitAvailability;
   competition_results: string | null;
   health_notes: string | null;
   known_vices: string | null;
@@ -82,6 +83,14 @@ export interface VisitRequest {
   seller?: Pick<Profile, "id" | "display_name" | "role"> | null;
   kind: "visite" | "essai";
   preferred_date: string | null;
+  slots: VisitSlot[];
+  chosen_slot: VisitSlot | null;
+  expires_at: string | null;
+  fee_cents: number;
+  payment_status: "unpaid" | "paid" | "waived" | "refunded";
+  stripe_checkout_session_id: string | null;
+  stripe_payment_intent_id: string | null;
+  paid_at: string | null;
   message: string;
   status: VisitStatus;
   seller_reply: string | null;

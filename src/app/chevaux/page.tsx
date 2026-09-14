@@ -29,7 +29,7 @@ export default async function ChevauxPage({ searchParams }: { searchParams: Prom
         <div>
           <h1 className="text-2xl font-semibold text-ink sm:text-3xl">Chevaux et poneys à vendre</h1>
           <p className="mt-1 text-sm text-muted">
-            {total} annonce{total > 1 ? "s" : ""} · visites et essais gratuits · vendeurs identifiés
+            {total} annonce{total > 1 ? "s" : ""} · visites et essais sur rendez-vous · vendeurs identifiés
           </p>
         </div>
         <Link href="/vendre" className="btn-pink">

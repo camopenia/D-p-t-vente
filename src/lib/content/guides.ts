@@ -42,7 +42,7 @@ Demandez une vidéo récente aux trois allures des deux mains avant de faire des
 
 ## 4. La visite et l'essai
 
-Utilisez la demande de visite gratuite depuis l'annonce. Les règles d'usage en France :
+Depuis l'annonce, proposez plusieurs créneaux parmi les disponibilités du vendeur (10 € de frais de plateforme, remboursés s'il refuse ou ne répond pas sous 48 h). Les règles d'usage en France :
 
 1. **Voir le cheval à froid** : allez le chercher au pré ou au box, pansez-le, sellez-le. Un cheval présenté déjà échauffé doit vous interroger.
 2. **Le vendeur monte en premier**, puis votre coach, puis vous. Un refus est un signal d'alerte.
@@ -97,7 +97,7 @@ Voir aussi [rédiger une annonce qui vend](/guides/rediger-une-annonce) et [fixe
 
 ## 3. Gérer les demandes de visite
 
-Répondez vite depuis votre espace « Visites & essais ». Qualifiez l'acheteur : niveau, projet, qui l'accompagne ; demandez une vidéo de lui à cheval si nécessaire. Ne recevez jamais seul, présentez le cheval en premier, exigez le casque, et soyez franc sur les défauts **avant** que l'acheteur ne monte.
+Répondez sous 48 h depuis votre espace « Visites & essais » en retenant l'un des créneaux proposés (sinon la demande expire et l'acheteur est remboursé). Qualifiez l'acheteur : niveau, projet, qui l'accompagne ; demandez une vidéo de lui à cheval si nécessaire. Ne recevez jamais seul, présentez le cheval en premier, exigez le casque, et soyez franc sur les défauts **avant** que l'acheteur ne monte.
 
 Vous pouvez continuer les visites tant qu'aucun acompte n'est versé ; dites-le honnêtement.
 
@@ -236,7 +236,7 @@ Chaque annonce comporte un bouton « Signaler ». Nous retirons immédiatement l
     body: `
 ## Avant la visite
 
-L'acheteur demande la visite depuis l'annonce (gratuit) en précisant son niveau, son projet et qui l'accompagnera. Le vendeur répond avec un créneau, l'adresse et ce qu'il faut apporter. Le vendeur peut demander une vidéo de l'acheteur à cheval ; l'acheteur peut demander une vidéo récente du cheval.
+L'acheteur demande la visite depuis l'annonce en proposant plusieurs créneaux parmi les disponibilités du vendeur, en précisant son niveau, son projet et qui l'accompagnera, et règle 10 € de frais de plateforme. Le vendeur a 48 h pour accepter en retenant un créneau (avec l'adresse et ce qu'il faut apporter) ou refuser ; sans réponse, l'acheteur est remboursé. Le vendeur peut demander une vidéo de l'acheteur à cheval ; l'acheteur peut demander une vidéo récente du cheval.
 
 ## Pendant la visite
 

@@ -26,7 +26,7 @@ export default async function MessagesPage() {
       {!canContact(plan) && (
         <div className="mb-6 rounded-xl bg-pink-soft/60 p-4 text-sm">
           <p className="font-medium text-[#8a2f40]">Écrire aux vendeurs nécessite l&apos;abonnement Contact.</p>
-          <p className="text-ink/80">Vous pouvez toujours répondre aux acheteurs qui vous écrivent et gérer vos demandes de visite gratuitement.</p>
+          <p className="text-ink/80">Vous pouvez toujours répondre aux acheteurs qui vous écrivent et gérer vos demandes de visite.</p>
           <Link href="/abonnement" className="btn-pink mt-2 !py-1.5 text-xs">
             Voir l&apos;abonnement Contact
           </Link>

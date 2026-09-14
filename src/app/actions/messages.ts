@@ -18,7 +18,7 @@ export async function startConversation(_prev: ActionState, formData: FormData):
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Connectez-vous pour envoyer un message." };
   const plan = planOf(await getCurrentSubscription());
-  if (!canContact(plan)) return { ok: false, message: "La messagerie est réservée aux abonnés Contact. Les demandes de visite restent gratuites." };
+  if (!canContact(plan)) return { ok: false, message: "La messagerie est réservée aux abonnés Contact. Les demandes de visite (10 €) ne nécessitent pas d'abonnement." };
 
   let conversationId: string | null = null;
   const { data: existing } = await supabase.from("ventes_conversations").select("id").eq("listing_id", listingId).eq("buyer_id", user.id).eq("seller_id", sellerId).maybeSingle();
