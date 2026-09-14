@@ -137,16 +137,24 @@ create index on public.ventes_listings (region);
 create index on public.ventes_listings (price);
 
 create or replace function public.ventes_set_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   new.updated_at = now();
-  if tg_table_name = 'ventes_listings' and new.status = 'active' and (old.status is distinct from 'active') then
+  return new;
+end;
+$$;
+-- Annonces : horodatage + date de publication au passage en ligne
+create or replace function public.ventes_listing_publish_stamp()
+returns trigger language plpgsql set search_path = public as $$
+begin
+  new.updated_at = now();
+  if new.status = 'active' and (old.status is distinct from 'active') then
     new.published_at = now();
   end if;
   return new;
 end;
 $$;
-create trigger listings_updated before update on public.ventes_listings for each row execute procedure public.ventes_set_updated_at();
+create trigger listings_updated before update on public.ventes_listings for each row execute procedure public.ventes_listing_publish_stamp();
 create trigger profiles_updated before update on public.ventes_profiles for each row execute procedure public.ventes_set_updated_at();
 create trigger subscriptions_updated before update on public.ventes_subscriptions for each row execute procedure public.ventes_set_updated_at();
 
