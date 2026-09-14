@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarCheck, FileText, ShieldCheck, Search, BookOpen, Users } from "lucide-react";
+import { CalendarCheck, FileText, ShieldCheck, Search, BookOpen, Users, HeartHandshake, BadgeEuro } from "lucide-react";
 import { ListingGrid } from "@/components/listings/ListingCard";
 import { getFeaturedListings } from "@/lib/listings";
 import { ROLES } from "@/lib/constants";
@@ -11,6 +11,29 @@ const AUDIENCES: { role: keyof typeof ROLES; href: string; text: string }[] = [
   { role: "particulier", href: "/guides/particuliers-vendeurs", text: "Publiez une annonce complète en 10 minutes, gérez les demandes de visite, vendez avec un contrat clair." },
   { role: "eleveur", href: "/guides/eleveurs", text: "Présentez vos foals et jeunes chevaux avec origines, vidéos et papiers. Page vitrine de votre élevage." },
   { role: "pro_depot", href: "/guides/professionnels-depot-vente", text: "Gérez vos chevaux en dépôt-vente pour le compte de propriétaires, avec mandat et commission transparents." },
+];
+
+const WHY_US = [
+  {
+    icon: Users,
+    title: "50 000 cavaliers déjà réunis",
+    text: "La communauté de la demi-pension Cavalons : des cavaliers qui montent, cherchent un cheval ou en ont un à vendre. Votre annonce est vue par les bonnes personnes.",
+  },
+  {
+    icon: HeartHandshake,
+    title: "On vient du secteur",
+    text: "Fondée par des cavaliers et des propriétaires. Chaque fonctionnalité répond à un problème vécu : visites qui ne se font pas, papiers manquants, vendeurs injoignables.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Des annonces vérifiées",
+    text: "Chaque annonce est relue avant publication. Numéro SIRE demandé, professionnels vérifiés, signalements traités : moins d'arnaques, plus de confiance.",
+  },
+  {
+    icon: BadgeEuro,
+    title: "Un modèle transparent",
+    text: "Publication gratuite, aucune commission sur le prix de vente. Seuls les services utiles sont payants : la mise en relation et les demandes de visite.",
+  },
 ];
 
 export default async function HomePage() {
@@ -104,6 +127,54 @@ export default async function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pourquoi nous */}
+      <section className="bg-primary-soft/50">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Pourquoi nous</p>
+              <h2 className="mt-2 text-2xl font-semibold">Une plateforme née dans le milieu, pas à côté</h2>
+              <p className="mt-3 text-muted">
+                Cavalons Ventes prolonge{" "}
+                <a href="https://cavalons.fr" className="font-medium text-primary underline-offset-2 hover:underline" target="_blank" rel="noopener">
+                  cavalons.fr
+                </a>
+                , la plateforme de demi-pension qui réunit déjà une communauté de 50 000 cavaliers. Nous sommes cavaliers et propriétaires avant d&apos;être un site : on connaît les essais qui n&apos;aboutissent pas, les papiers qui manquent et les prix qui ne veulent rien dire.
+              </p>
+              <ul className="mt-8 grid gap-5 sm:grid-cols-2">
+                {WHY_US.map((w) => (
+                  <li key={w.title} className="flex gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-primary shadow-sm">
+                      <w.icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold">{w.title}</h3>
+                      <p className="mt-1 text-sm text-muted">{w.text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[
+                  ["50 000", "cavaliers dans la communauté"],
+                  ["0 %", "de commission sur la vente"],
+                  ["24 h", "pour valider une annonce"],
+                  ["48 h", "de réponse à une demande de visite"],
+                ].map(([n, l]) => (
+                  <div key={l} className="rounded-xl bg-white p-4 shadow-sm">
+                    <dt className="text-2xl font-semibold text-primary">{n}</dt>
+                    <dd className="mt-1 text-xs text-muted">{l}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+            <div className="flex justify-center lg:justify-end">
+              <Image src="/brand/mascotte-amoureux.png" alt="Mascotte Cavalons, cavalier et cheval complices" width={340} height={480} className="h-auto w-56 sm:w-72" />
+            </div>
           </div>
         </div>
       </section>
