@@ -28,10 +28,10 @@ export default async function MesAnnoncesPage({ searchParams }: { searchParams: 
       ) : (
         <ul className="space-y-3">
           {listings.map((l) => (
-            <li key={l.id} className="card flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
+            <li key={l.id} className="card flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
               <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-primary-soft">{l.photos[0] && <Image src={l.photos[0]} alt="" fill sizes="112px" className="object-cover" />}</div>
               <div className="min-w-0 flex-1">
-                <Link href={`/chevaux/${l.slug}`} className="font-medium hover:text-primary">
+                <Link href={`/chevaux/${l.slug}`} className="break-words font-medium hover:text-primary">
                   {l.title}
                 </Link>
                 <p className="text-xs text-muted">
