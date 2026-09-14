@@ -5,9 +5,10 @@ import Link from "next/link";
 import { ImagePlus, Trash2, Info } from "lucide-react";
 import { saveListing } from "@/app/actions/listings";
 import type { ActionState } from "@/app/actions/visits";
-import { BREEDS, COLORS, DISCIPLINES, LEVELS, PAPERS, PERIODS, REGIONS, SEXES, WEEKDAYS, type Period, type VisitAvailability } from "@/lib/constants";
+import { BREEDS, COLORS, DISCIPLINES, LEVELS, PAPERS, PERIODS, SEXES, WEEKDAYS, type Period, type VisitAvailability } from "@/lib/constants";
 import type { Listing } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
+import { CommuneFields } from "@/components/ui/CommuneFields";
 
 type Props = { userId: string; isPro: boolean; existing?: Listing | null };
 
@@ -246,11 +247,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
             })}
           </div>
         </fieldset>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Commune où se trouve le cheval" name="city" required defaultValue={existing?.city} />
-          <Field label="Code postal" name="postal_code" pattern="[0-9]{5}" defaultValue={existing?.postal_code ?? undefined} />
-          <SelectField label="Région" name="region" options={REGIONS.map((r) => [r, r])} defaultValue={existing?.region} required />
-        </div>
+        <CommuneFields city={existing?.city} postalCode={existing?.postal_code} region={existing?.region} />
       </section>
 
       {/* Étape 2 */}

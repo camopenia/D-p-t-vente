@@ -2,7 +2,8 @@
 import { useActionState, useState } from "react";
 import { updateProfile } from "@/app/actions/profile";
 import type { ActionState } from "@/app/actions/visits";
-import { REGIONS, ROLES, type Role } from "@/lib/constants";
+import { ROLES, type Role } from "@/lib/constants";
+import { CommuneFields } from "@/components/ui/CommuneFields";
 import type { Profile } from "@/lib/types";
 
 export function ProfileForm({ profile }: { profile: Profile }) {
@@ -43,28 +44,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           </label>
           <input id="website" name="website" type="url" className="input" defaultValue={profile.website ?? ""} placeholder="https://" />
         </div>
-        <div>
-          <label className="label" htmlFor="city">
-            Commune
-          </label>
-          <input id="city" name="city" className="input" defaultValue={profile.city ?? ""} />
-        </div>
-        <div>
-          <label className="label" htmlFor="postal_code">
-            Code postal
-          </label>
-          <input id="postal_code" name="postal_code" className="input" defaultValue={profile.postal_code ?? ""} pattern="[0-9]{5}" />
-        </div>
-        <div>
-          <label className="label" htmlFor="region">
-            Région
-          </label>
-          <select id="region" name="region" className="input" defaultValue={profile.region ?? ""}>
-            <option value="">—</option>
-            {REGIONS.map((r) => (
-              <option key={r}>{r}</option>
-            ))}
-          </select>
+        <div className="sm:col-span-2">
+          <CommuneFields city={profile.city} postalCode={profile.postal_code} region={profile.region} required={false} cityLabel="Commune" />
         </div>
         {isPro && (
           <>
