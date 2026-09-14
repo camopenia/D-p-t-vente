@@ -26,7 +26,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         </div>
         <div>
           <label className="label" htmlFor="display_name">
-            Nom affiché
+            Nom affiché <span className="text-red-600">*</span>
           </label>
           <input id="display_name" name="display_name" required className="input" defaultValue={profile.display_name} />
         </div>

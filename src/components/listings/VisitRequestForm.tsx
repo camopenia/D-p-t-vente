@@ -39,7 +39,7 @@ export function VisitRequestForm({ listingId, sellerId, trialAvailable, loggedIn
       </div>
       <div>
         <label className="label" htmlFor="message">
-          Votre projet
+          Votre projet <span className="text-red-600">*</span>
         </label>
         <textarea id="message" name="message" rows={4} required minLength={20} className="input" placeholder="Votre niveau, votre projet avec le cheval, qui vous accompagnera (coach), vos disponibilités…" />
         <p className="helper">Un message précis obtient plus de réponses. Casque obligatoire lors de l&apos;essai.</p>

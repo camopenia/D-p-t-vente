@@ -120,13 +120,13 @@ export function ListingForm({ userId, isPro, existing }: Props) {
           // En brouillon, seuls le nom du cheval et la race sont exigés.
           if (isDraft && !["horse_name", "breed"].includes(el.name)) return;
           if (!el.validity.valid) {
-            const label = form.querySelector<HTMLLabelElement>(`label[for="${el.id}"]`)?.textContent?.trim() || el.closest("label")?.textContent?.trim().slice(0, 60) || el.name;
+            const raw = form.querySelector<HTMLLabelElement>(`label[for="${el.id}"]`)?.textContent || el.closest("label")?.textContent || el.name;
+            const label = raw.replace(/\*/g, "").trim().slice(0, 60);
             problems.push({ step: stepIndex, label });
           }
         });
         if (status === "active" && disciplines.length === 0) problems.push({ step: 0, label: "Disciplines (au moins une)" });
         if (status === "active" && photos.length === 0) problems.push({ step: 3, label: "Au moins une photo" });
-        if (status === "active" && !priceHidden && !(form.querySelector<HTMLInputElement>("input[name=price]")?.value)) problems.push({ step: 4, label: "Prix (ou cochez « prix sur demande »)" });
         if (problems.length) {
           e.preventDefault();
           problems.sort((a, b) => a.step - b.step);
@@ -149,6 +149,9 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       <input type="hidden" name="payload" />
       <input type="hidden" name="__status" defaultValue="active" />
 
+      <p className="text-xs text-muted">
+        Les champs marqués d&apos;un <span className="text-red-600">*</span> sont obligatoires pour publier. Un brouillon ne demande que le nom et la race.
+      </p>
       <ol className="flex flex-wrap gap-2 text-xs">
         {steps.map((s, i) => (
           <li key={s}>
@@ -167,6 +170,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
           <div>
             <label className="label" htmlFor="breed">
               Race / stud-book
+              <Req />
             </label>
             <input id="breed" name="breed" list="breeds" required className="input" defaultValue={existing?.breed} placeholder="Selle Français, KWPN, OC…" />
             <datalist id="breeds">
@@ -175,14 +179,17 @@ export function ListingForm({ userId, isPro, existing }: Props) {
               ))}
             </datalist>
           </div>
-          <SelectField label="Sexe" name="sex" options={Object.entries(SEXES)} defaultValue={existing?.sex} />
+          <SelectField label="Sexe" name="sex" options={Object.entries(SEXES)} defaultValue={existing?.sex} required />
           <Field label="Année de naissance" name="birth_year" type="number" required min={1980} max={new Date().getFullYear()} defaultValue={existing?.birth_year} />
           <Field label="Taille au garrot (cm)" name="height_cm" type="number" min={60} max={220} defaultValue={existing?.height_cm ?? undefined} helper="Laissez vide pour un foal." />
           <SelectField label="Robe" name="color" options={COLORS.map((c) => [c, c])} defaultValue={existing?.color ?? ""} allowEmpty />
-          <SelectField label="Niveau actuel" name="level" options={Object.entries(LEVELS)} defaultValue={existing?.level ?? "club"} />
+          <SelectField label="Niveau actuel" name="level" options={Object.entries(LEVELS)} defaultValue={existing?.level ?? "club"} required />
         </div>
         <fieldset>
-          <legend className="label">Disciplines (1 à 4)</legend>
+          <legend className="label">
+            Disciplines (1 à 4)
+            <Req />
+          </legend>
           <div className="flex flex-wrap gap-2">
             {DISCIPLINES.map((d) => {
               const on = disciplines.includes(d);
@@ -197,7 +204,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Commune où se trouve le cheval" name="city" required defaultValue={existing?.city} />
           <Field label="Code postal" name="postal_code" pattern="[0-9]{5}" defaultValue={existing?.postal_code ?? undefined} />
-          <SelectField label="Région" name="region" options={REGIONS.map((r) => [r, r])} defaultValue={existing?.region} />
+          <SelectField label="Région" name="region" options={REGIONS.map((r) => [r, r])} defaultValue={existing?.region} required />
         </div>
       </section>
 
@@ -210,8 +217,8 @@ export function ListingForm({ userId, isPro, existing }: Props) {
           <Field label="Père de mère" name="dam_sire_name" defaultValue={existing?.dam_sire_name ?? undefined} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <SelectField label="Papiers" name="papers" options={Object.entries(PAPERS)} defaultValue={existing?.papers ?? "sire_full"} />
-          <Field label="Numéro SIRE" name="sire_number" defaultValue={existing?.sire_number ?? undefined} placeholder="Ex. 23000123456A" helper="Obligatoire pour publier (sauf ONC). Il n'est affiché que partiellement et sert à lutter contre les fausses annonces." />
+          <SelectField label="Papiers" name="papers" options={Object.entries(PAPERS)} defaultValue={existing?.papers ?? "sire_full"} required />
+          <Field label="Numéro SIRE (obligatoire sauf ONC)" name="sire_number" defaultValue={existing?.sire_number ?? undefined} placeholder="Ex. 23000123456A" helper="Obligatoire pour publier (sauf ONC). Il n'est affiché que partiellement et sert à lutter contre les fausses annonces." />
         </div>
         <Check name="studbook_approved" label="Approuvé(e) à la reproduction dans son stud-book" defaultChecked={existing?.studbook_approved} />
         <div className="rounded-xl bg-primary-soft p-3 text-sm text-primary">
@@ -230,6 +237,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
         <div>
           <label className="label" htmlFor="description">
             Description complète
+            <Req />
           </label>
           <textarea id="description" name="description" rows={9} required minLength={120} className="input" defaultValue={existing?.description} placeholder={"Travail actuel et fréquence, résultats, caractère à pied et monté, mode de vie (box/pré, seul/troupeau), comportement au maréchal / transport / véto, raison de la vente, profil de cavalier recherché…"} />
           <p className="helper">Évitez les formules creuses (« bon caractère », « polyvalent »). Les annonces précises reçoivent 2 à 3 fois plus de demandes de visite.</p>
@@ -244,7 +252,9 @@ export function ListingForm({ userId, isPro, existing }: Props) {
 
       {/* Étape 4 */}
       <section data-step="3" className={`card space-y-4 p-5 ${step === 3 ? "" : "hidden"}`}>
-        <h2 className="font-semibold">Photos et vidéos</h2>
+        <h2 className="font-semibold">
+          Photos <Req /> et vidéos
+        </h2>
         <p className="text-sm text-muted">Recommandé : profil « modèle » entier, 3/4 avant, en mouvement, monté. Cheval propre, lumière du jour, fond dégagé. Pas de photo de groupe ni de cheval qui broute.</p>
         <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-line bg-sand p-6 text-sm text-muted hover:border-primary">
           <ImagePlus className="mb-2 h-6 w-6 text-primary" />
@@ -278,7 +288,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
       <section data-step="4" className={`card space-y-4 p-5 ${step === 4 ? "" : "hidden"}`}>
         <h2 className="font-semibold">Prix et conditions</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Prix (€)" name="price" type="number" min={0} step={100} defaultValue={existing?.price ?? undefined} disabled={priceHidden} helper="Un prix affiché et juste génère plus de contacts sérieux." />
+          <Field label="Prix (€)" name="price" type="number" min={0} step={100} defaultValue={existing?.price ?? undefined} disabled={priceHidden} required={!priceHidden} helper="Un prix affiché et juste génère plus de contacts sérieux." />
           <div className="space-y-2 pt-6">
             <Check name="price_hidden" label="Prix sur demande" defaultChecked={priceHidden} onChange={setPriceHidden} />
             <Check name="price_negotiable" label="Prix à débattre" defaultChecked={existing?.price_negotiable} />
@@ -294,6 +304,7 @@ export function ListingForm({ userId, isPro, existing }: Props) {
         <label className="flex items-start gap-2 rounded-xl border border-pink/60 bg-pink-soft/40 p-3 text-sm">
           <input type="checkbox" name="honesty" required className="mt-0.5 h-4 w-4 accent-primary" />
           <span>
+            <Req />
             Je certifie que les informations sont exactes et complètes, que je suis propriétaire du cheval ou mandaté par écrit, et je m&apos;engage à respecter le{" "}
             <Link href="/charte" className="text-primary underline" target="_blank">
               pacte de bonne conduite
@@ -339,11 +350,20 @@ export function ListingForm({ userId, isPro, existing }: Props) {
   );
 }
 
+function Req() {
+  return (
+    <span className="text-red-600" aria-hidden="true">
+      {" "}*
+    </span>
+  );
+}
+
 function Field({ label, name, helper, ...rest }: { label: string; name: string; helper?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div>
       <label className="label" htmlFor={name}>
         {label}
+        {rest.required && <Req />}
       </label>
       <input id={name} name={name} className="input" {...rest} />
       {helper && <p className="helper">{helper}</p>}
@@ -355,17 +375,19 @@ function TextArea({ label, name, helper, ...rest }: { label: string; name: strin
     <div>
       <label className="label" htmlFor={name}>
         {label}
+        {rest.required && <Req />}
       </label>
       <textarea id={name} name={name} rows={3} className="input" {...rest} />
       {helper && <p className="helper">{helper}</p>}
     </div>
   );
 }
-function SelectField({ label, name, options, defaultValue, allowEmpty }: { label: string; name: string; options: (readonly [string, string])[]; defaultValue?: string; allowEmpty?: boolean }) {
+function SelectField({ label, name, options, defaultValue, allowEmpty, required }: { label: string; name: string; options: (readonly [string, string])[]; defaultValue?: string; allowEmpty?: boolean; required?: boolean }) {
   return (
     <div>
       <label className="label" htmlFor={name}>
         {label}
+        {required && <Req />}
       </label>
       <select id={name} name={name} className="input" defaultValue={defaultValue ?? (allowEmpty ? "" : options[0][0])}>
         {allowEmpty && <option value="">—</option>}

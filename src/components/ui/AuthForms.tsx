@@ -14,7 +14,7 @@ export function SignInForm({ next }: { next: string }) {
       <form action={rAction} className="space-y-4">
         <div>
           <label className="label" htmlFor="email">
-            Email
+            Email <span className="text-red-600">*</span>
           </label>
           <input id="email" name="email" type="email" required className="input" autoComplete="email" />
         </div>
@@ -33,13 +33,13 @@ export function SignInForm({ next }: { next: string }) {
       <input type="hidden" name="next" value={next} />
       <div>
         <label className="label" htmlFor="email">
-          Email
+          Email <span className="text-red-600">*</span>
         </label>
         <input id="email" name="email" type="email" required className="input" autoComplete="email" />
       </div>
       <div>
         <label className="label" htmlFor="password">
-          Mot de passe
+          Mot de passe <span className="text-red-600">*</span>
         </label>
         <input id="password" name="password" type="password" required className="input" autoComplete="current-password" />
       </div>
@@ -79,19 +79,19 @@ export function SignUpForm({ defaultRole = "acheteur" }: { defaultRole?: Role })
       </fieldset>
       <div>
         <label className="label" htmlFor="displayName">
-          {role === "eleveur" || role === "pro_depot" ? "Nom de votre élevage / écurie" : "Prénom et nom (ou pseudo)"}
+          {role === "eleveur" || role === "pro_depot" ? "Nom de votre élevage / écurie" : "Prénom et nom (ou pseudo)"} <span className="text-red-600">*</span>
         </label>
         <input id="displayName" name="displayName" required minLength={2} className="input" />
       </div>
       <div>
         <label className="label" htmlFor="email">
-          Email
+          Email <span className="text-red-600">*</span>
         </label>
         <input id="email" name="email" type="email" required className="input" autoComplete="email" />
       </div>
       <div>
         <label className="label" htmlFor="password">
-          Mot de passe
+          Mot de passe <span className="text-red-600">*</span>
         </label>
         <input id="password" name="password" type="password" required minLength={8} className="input" autoComplete="new-password" />
         <p className="helper">8 caractères minimum.</p>
