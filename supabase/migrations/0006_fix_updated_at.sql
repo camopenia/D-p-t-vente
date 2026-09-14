@@ -20,3 +20,18 @@ $$;
 revoke execute on function public.ventes_listing_publish_stamp() from public, anon;
 drop trigger if exists listings_updated on public.ventes_listings;
 create trigger listings_updated before update on public.ventes_listings for each row execute procedure public.ventes_listing_publish_stamp();
+
+-- La protection des drapeaux de profil ne s'applique qu'aux membres connectés (auth.uid() non nul),
+-- pas aux opérations serveur (SQL editor, clé service).
+create or replace function public.ventes_protect_profile_flags()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is not null and not public.ventes_is_admin() then
+    new.is_admin := old.is_admin;
+    new.is_verified := old.is_verified;
+    new.is_blocked := old.is_blocked;
+    new.verification_note := old.verification_note;
+  end if;
+  return new;
+end;
+$$;

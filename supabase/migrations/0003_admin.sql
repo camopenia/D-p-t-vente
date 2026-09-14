@@ -37,7 +37,7 @@ create policy "profiles: admin modification" on public.ventes_profiles for updat
 create or replace function public.ventes_protect_profile_flags()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  if not public.ventes_is_admin() then
+  if auth.uid() is not null and not public.ventes_is_admin() then
     new.is_admin := old.is_admin;
     new.is_verified := old.is_verified;
     new.is_blocked := old.is_blocked;
