@@ -13,9 +13,9 @@ export function AccountShell({ profile, plan, children, title }: { profile: Prof
           <div className="card flex flex-wrap items-center justify-between gap-2 p-4 lg:block">
             <div className="min-w-0">
               <p className="truncate font-semibold">{profile?.display_name ?? "Visiteur"}</p>
-              <p className="text-xs text-muted">{profile ? ROLES[profile.role].label : "Mode démonstration"}</p>
+              <p className="text-xs text-muted">{profile ? (ROLES[profile.role]?.label ?? profile.role) : "Mode démonstration"}</p>
             </div>
-            <span className="tag-primary shrink-0 lg:mt-2">Plan {PLANS[plan].name}</span>
+            <span className="tag-primary shrink-0 lg:mt-2">Plan {(PLANS[plan] ?? PLANS.free).name}</span>
           </div>
           <AccountNav />
           <div className="flex flex-wrap items-center gap-2 lg:flex-col lg:items-stretch">
