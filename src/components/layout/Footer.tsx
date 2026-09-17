@@ -7,6 +7,7 @@ const COLS = [
     links: [
       { href: "/comment-ca-marche", label: "Comment ça marche" },
       { href: "/abonnement", label: "Abonnement" },
+      { href: "/vente-accompagnee", label: "Vente accompagnée" },
       { href: "/pros", label: "Éleveurs & dépôts-ventes" },
       { href: "https://www.cavalons.fr", label: "Cavalons demi-pension" },
     ],

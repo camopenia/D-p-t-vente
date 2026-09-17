@@ -274,3 +274,7 @@ export function slugify(input: string) {
     .replace(/(^-|-$)/g, "")
     .slice(0, 80);
 }
+
+/** Offre « Vente accompagnée » : Cavalons gère l'annonce et pré-sélectionne les acheteurs. */
+export const ACCOMPAGNEMENT_RATE = 10; // % du prix de vente, dû uniquement si le cheval est vendu
+export const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_URL || "https://calendly.com/cavalons";

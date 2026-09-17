@@ -6,7 +6,7 @@ import { searchListings } from "@/lib/listings";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const statics = ["", "/chevaux", "/pros", "/guides", "/contrats", "/abonnement", "/comment-ca-marche", "/charte", "/cgu", "/confidentialite", "/contact", "/vendre"].map((p) => ({ url: `${base}${p}`, changeFrequency: "weekly" as const }));
+  const statics = ["", "/chevaux", "/pros", "/guides", "/contrats", "/abonnement", "/vente-accompagnee", "/comment-ca-marche", "/charte", "/cgu", "/confidentialite", "/contact", "/vendre"].map((p) => ({ url: `${base}${p}`, changeFrequency: "weekly" as const }));
   const guides = GUIDES.map((g) => ({ url: `${base}/guides/${g.slug}`, changeFrequency: "monthly" as const }));
   const contracts = Object.keys(CONTRACT_TEMPLATES).map((t) => ({ url: `${base}/contrats/${t}`, changeFrequency: "monthly" as const }));
   let listings: MetadataRoute.Sitemap = [];

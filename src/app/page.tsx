@@ -4,7 +4,7 @@ import Image from "next/image";
 import { CalendarCheck, FileText, ShieldCheck, Search, BookOpen, Users, HeartHandshake, BadgeEuro } from "lucide-react";
 import { ListingGrid } from "@/components/listings/ListingCard";
 import { getFeaturedListings } from "@/lib/listings";
-import { ROLES } from "@/lib/constants";
+import { ROLES, ACCOMPAGNEMENT_RATE } from "@/lib/constants";
 
 const AUDIENCES: { role: keyof typeof ROLES; href: string; text: string }[] = [
   { role: "acheteur", href: "/guides/acheteurs", text: "Trouvez le bon cheval, proposez vos créneaux de visite ou d'essai, sécurisez l'achat avec la visite vétérinaire et le contrat type." },
@@ -205,6 +205,22 @@ export default async function HomePage() {
           </Link>
           <Link href="/contrats" className="btn-neutral">
             <FileText className="h-4 w-4" /> Modèles de contrats
+          </Link>
+        </div>
+      </section>
+
+      {/* Vente accompagnée */}
+      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6">
+        <div className="card flex flex-col gap-6 border-primary/30 bg-primary-soft/40 p-6 md:flex-row md:items-center md:justify-between md:p-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Pas le temps de gérer la vente ?</p>
+            <h2 className="mt-1 text-2xl font-semibold">On vend votre cheval pour vous</h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted">
+              Nous rédigeons et publions l&apos;annonce, nous trions tous les contacts et nous vous présentons uniquement des acheteurs sérieux. {ACCOMPAGNEMENT_RATE} % du prix de vente, uniquement si le cheval est vendu. Premier rendez-vous de 15 minutes sans engagement.
+            </p>
+          </div>
+          <Link href="/vente-accompagnee" className="btn-primary shrink-0">
+            Découvrir la vente accompagnée
           </Link>
         </div>
       </section>

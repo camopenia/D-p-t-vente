@@ -22,6 +22,13 @@ export default async function VendrePage() {
         </Link>
         .
       </p>
+      <p className="mt-4 rounded-xl border border-primary/30 bg-primary-soft/40 p-3 text-sm">
+        Pas le temps de gérer les contacts et les visites ?{" "}
+        <Link href="/vente-accompagnee" className="font-medium text-primary underline">
+          Découvrez la vente accompagnée
+        </Link>
+        {" "}: on publie, on trie, on pré-sélectionne les acheteurs. Rien à payer si le cheval n&apos;est pas vendu.
+      </p>
       <div className="mt-6">
         <ListingForm userId={user?.id ?? "demo"} isPro={Boolean(isPro)} />
       </div>

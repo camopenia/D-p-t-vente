@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { PLANS, type PlanId } from "@/lib/constants";
+import { PLANS, ACCOMPAGNEMENT_RATE, type PlanId } from "@/lib/constants";
 import { getCurrentSubscription, getCurrentUser, planOf } from "@/lib/auth";
 import { isStripeConfigured } from "@/lib/supabase/config";
 
@@ -81,6 +81,17 @@ export default async function AbonnementPage({ searchParams }: { searchParams: P
         })}
       </div>
 
+      <section className="card mx-auto mt-10 max-w-3xl border-primary/30 bg-primary-soft/40 p-6">
+        <span className="tag-primary">Pour les vendeurs</span>
+        <h2 className="mt-3 text-xl font-semibold">Vente accompagnée : {ACCOMPAGNEMENT_RATE} % du prix de vente, uniquement si le cheval est vendu</h2>
+        <p className="mt-2 text-sm text-muted">
+          Nous rédigeons et publions l&apos;annonce, nous trions les contacts et nous pré-sélectionnons les acheteurs sérieux. En option : essais à votre place, photos et vidéo. Aucun frais d&apos;avance, premier rendez-vous sans engagement.
+        </p>
+        <Link href="/vente-accompagnee" className="btn-primary mt-4">
+          En savoir plus
+        </Link>
+      </section>
+
       {sub?.stripe_customer_id && (
         <form action="/api/stripe/portal" method="post" className="mt-8 text-center">
           <button type="submit" className="btn-ghost text-sm">
@@ -105,7 +116,7 @@ export default async function AbonnementPage({ searchParams }: { searchParams: P
             ["Un vendeur doit-il s'abonner pour répondre ?", "Non. Les vendeurs répondent gratuitement aux messages et aux demandes de visite qu'ils reçoivent."],
             ["Que se passe-t-il si le vendeur ne répond pas à ma demande de visite ?", "Il dispose de 48 h après votre paiement. Sans réponse, ou s'il refuse, les 10 € vous sont remboursés automatiquement sur votre carte."],
             ["L'abonnement Pro est-il obligatoire pour un éleveur ?", "Non. Il apporte une page vitrine, des statistiques et le badge vérifié, mais la publication reste gratuite."],
-            ["Prenez-vous une commission sur la vente ?", "Non. La transaction se fait directement entre vendeur et acheteur, avec nos modèles de contrats."],
+            ["Prenez-vous une commission sur la vente ?", `Non pour les annonces classiques : la transaction se fait directement entre vendeur et acheteur, avec nos modèles de contrats. Seule l'offre optionnelle Vente accompagnée, où nous gérons la vente pour vous, est rémunérée ${ACCOMPAGNEMENT_RATE} % du prix de vente, uniquement si le cheval est vendu.`],
           ].map(([q, a]) => (
             <div key={q} className="card p-4">
               <dt className="font-medium">{q}</dt>
