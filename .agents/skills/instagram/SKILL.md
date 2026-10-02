@@ -1,9 +1,9 @@
 ---
 name: instagram
-description: "Gérer le compte Instagram Cavalons : publier une photo, un carrousel, une story ou un reel, programmer des publications, lister ou annuler les posts programmés, lire les commentaires et y répondre, commenter un post du compte, masquer ou supprimer un commentaire, consulter les statistiques d'un post, choisir les photos et vidéos dans la banque Google Drive « photo cheval ». À utiliser dès que la demande parle d'Instagram, de post, de story, de reel, de carrousel, de légende, de planning ou de calendrier de publication, de « programmer pour… », de commentaires ou de réponses aux abonnés, de photo ou vidéo à poster, même sans nommer l'outil."
+description: "Gérer le compte Instagram Cavalons : publier une photo, un carrousel, une story ou un reel, programmer des publications, lister ou annuler les posts programmés, lire les commentaires et y répondre, commenter un post du compte, masquer ou supprimer un commentaire, consulter les statistiques d'un post, choisir les photos et vidéos dans la banque Google Drive « photo cheval ». À utiliser dès que la demande parle d'Instagram, de post, de story, de reel, de carrousel, de légende, de planning ou de calendrier de publication, de « programmer pour… », de commentaires ou de réponses aux abonnés, de photo ou vidéo à poster, de reel texte ou de post du vendredi, même sans nommer l'outil."
 metadata:
   author: cavalons
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Instagram Cavalons
@@ -16,6 +16,7 @@ Deux outils complémentaires :
 | Programmer, lister, annuler une publication | Connecteur MCP `CAVALONS_META` |
 | Statistiques d'un post ou d'une story | Connecteur MCP `CAVALONS_META` |
 | Lire les commentaires, répondre, commenter, masquer, supprimer | Script `scripts/ig.mjs` (API Instagram) |
+| Produire un reel texte (« texte du vendredi ») | Script `scripts/texte-reel.py` ([references/formats.md](references/formats.md)) |
 | Trouver une photo ou une vidéo à publier | Banque Google Drive « photo cheval » ([references/banque-media.md](references/banque-media.md)) |
 
 Les outils du connecteur sont souvent différés : chargez-les avec `ToolSearch` (« instagram », « schedule post ») avant de dire qu'ils manquent.
@@ -30,6 +31,10 @@ Les outils du connecteur sont souvent différés : chargez-les avec `ToolSearch`
 ## Visuels : la banque Drive d'abord
 
 Quand la demande n'apporte pas son propre visuel, piochez dans le dossier Drive « photo cheval » : lisez son `CATALOGUE.md`, proposez 2 ou 3 fichiers adaptés au sujet avec la raison du choix, et signalez les consentements à obtenir (personne ou enfant reconnaissable). Tout est détaillé dans [references/banque-media.md](references/banque-media.md) : ID du dossier, recherche des fichiers, liste à ne jamais publier, charte, passage du Drive à une URL publique.
+
+## Formats types
+
+Avant d'inventer un format, regardez [references/formats.md](references/formats.md) : les formats validés par l'équipe, avec leur structure, leur ton et comment les produire. Le premier est le « texte du vendredi », un reel texte sur fond uni à publier chaque vendredi vers 17 h 45.
 
 ## Publier et programmer (connecteur)
 
