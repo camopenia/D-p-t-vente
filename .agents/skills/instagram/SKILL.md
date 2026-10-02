@@ -1,9 +1,9 @@
 ---
 name: instagram
-description: "Gérer le compte Instagram Cavalons : publier une photo, un carrousel, une story ou un reel, programmer des publications, lister ou annuler les posts programmés, lire les commentaires et y répondre, commenter un post du compte, masquer ou supprimer un commentaire, consulter les statistiques d'un post. À utiliser dès que la demande parle d'Instagram, de post, de story, de reel, de carrousel, de légende, de planning ou de calendrier de publication, de « programmer pour… », de commentaires ou de réponses aux abonnés, même sans nommer l'outil."
+description: "Gérer le compte Instagram Cavalons : publier une photo, un carrousel, une story ou un reel, programmer des publications, lister ou annuler les posts programmés, lire les commentaires et y répondre, commenter un post du compte, masquer ou supprimer un commentaire, consulter les statistiques d'un post, choisir les photos et vidéos dans la banque Google Drive « photo cheval ». À utiliser dès que la demande parle d'Instagram, de post, de story, de reel, de carrousel, de légende, de planning ou de calendrier de publication, de « programmer pour… », de commentaires ou de réponses aux abonnés, de photo ou vidéo à poster, même sans nommer l'outil."
 metadata:
   author: cavalons
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Instagram Cavalons
@@ -16,6 +16,7 @@ Deux outils complémentaires :
 | Programmer, lister, annuler une publication | Connecteur MCP `CAVALONS_META` |
 | Statistiques d'un post ou d'une story | Connecteur MCP `CAVALONS_META` |
 | Lire les commentaires, répondre, commenter, masquer, supprimer | Script `scripts/ig.mjs` (API Instagram) |
+| Trouver une photo ou une vidéo à publier | Banque Google Drive « photo cheval » ([references/banque-media.md](references/banque-media.md)) |
 
 Les outils du connecteur sont souvent différés : chargez-les avec `ToolSearch` (« instagram », « schedule post ») avant de dire qu'ils manquent.
 
@@ -25,6 +26,10 @@ Les outils du connecteur sont souvent différés : chargez-les avec `ToolSearch`
 2. **Validation avant envoi.** Avant de publier, programmer ou répondre, montrez le texte exact (légende, commentaire), les images et la date, puis attendez un « ok ». Une publication est publique dès qu'elle part.
 3. **Images.** Uniquement des URLs publiques (JPEG de préférence). Une image locale ou privée passe d'abord par `mcp__CAVALONS_META__rehost_image`. Ratios : 4:5 ou 1:1 pour le fil, 9:16 pour story et reel ; un carrousel garde le même ratio sur toutes ses images (2 à 10).
 4. **Légende.** 2 200 caractères maximum, 30 hashtags maximum (viser 5 à 10, pertinents : #cheval #equitation #chevalavendre…). Ton Cavalons : chaleureux, précis, tutoiement évité. Pour une annonce de cheval : nom, race, âge, taille, discipline, région, et le lien `vente.cavalons.fr` (non cliquable en légende : renvoyer vers « lien en bio »).
+
+## Visuels : la banque Drive d'abord
+
+Quand la demande n'apporte pas son propre visuel, piochez dans le dossier Drive « photo cheval » : lisez son `CATALOGUE.md`, proposez 2 ou 3 fichiers adaptés au sujet avec la raison du choix, et signalez les consentements à obtenir (personne ou enfant reconnaissable). Tout est détaillé dans [references/banque-media.md](references/banque-media.md) : ID du dossier, recherche des fichiers, liste à ne jamais publier, charte, passage du Drive à une URL publique.
 
 ## Publier et programmer (connecteur)
 
