@@ -241,7 +241,7 @@ body{overflow:hidden}
 .search{order:3;flex-basis:100%;max-width:none}
 .search kbd{display:none}
 .tally{margin-left:auto}
-.tile:nth-child(n+3){display:none}
+.tile:nth-child(n+3):not(.ptile){display:none}
 .app{grid-template-rows:auto auto 1fr auto}
 main{display:block;position:relative;min-height:0}
 aside.filters,.mapwrap,section.list{position:absolute;inset:0;border:0}
@@ -284,6 +284,19 @@ main:not([data-tab="liste"]) section.list{display:none}
 .note-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
 .note-bar .note{font-size:12px;margin:0}
 .row .nt{display:inline-flex;color:var(--gold)}
+.prospect{background:linear-gradient(180deg,var(--accent-2),transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:14px;padding:12px 12px 14px;margin:0 0 14px}
+.prospect h2{display:flex;align-items:center;gap:6px;color:var(--accent)}
+.pstats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 10px}
+.pst{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;text-align:left;transition:border-color .15s,box-shadow .15s}
+.pst:hover{border-color:var(--accent)}
+.pst b{font-family:var(--f-display);font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+.pst small{font-size:11.5px;color:var(--muted)}
+.pst[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-2)}
+.ptile{border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-2);cursor:pointer;color:var(--accent)}
+.ptile[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.ptile small{color:inherit}
+.suivi-sec{background:var(--accent-2);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:12px;padding:12px 12px 10px}
+.suivi-sec h4{color:var(--accent)}
 .sv{display:inline-block;font-size:10.5px;font-weight:600;line-height:1;padding:3px 6px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
 .sv.ok{color:var(--accent)} .sv.jb{color:var(--muted)} .sv.jb.oui{color:var(--accent)} .sv.jb.en_cours{color:var(--gold)}
 .suivi-sec .seg-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 2px;flex-wrap:wrap;font-size:14px}
@@ -298,7 +311,7 @@ main:not([data-tab="liste"]) section.list{display:none}
 .ct-edit{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:10px}
 .ct-edit textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink)}
 .su-st{font-size:12px;margin:8px 0 0}
-.drange{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.drange{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:8px}.drange input{min-width:0;padding:0 6px;font-size:13px}
 .field select+select{margin-top:8px}
 @media (max-width:520px){.su-grid{grid-template-columns:1fr}}
 #legend{display:none!important}
@@ -336,12 +349,26 @@ main:not([data-tab="liste"]) section.list{display:none}
 <div class="tile e"><b id="kE">0</b><small>avec e-mail</small></div>
 <div class="tile"><b id="kT">0</b><small>avec téléphone</small></div>
 <div class="tile"><b id="kM">0</b><small>sur la carte</small></div>
+<button type="button" class="tile ptile" id="kPbtn" title="Voir les fiches que vous avez contactées"><b id="kP">0</b><small>contactés</small></button>
 </div>
 <div class="who" id="who" hidden><span class="nm">Accès de <b id="whoN"></b> · <button type="button" id="logout">Se déconnecter</button></span><span class="q" id="whoQ" title="Fiches complètes encore consultables aujourd'hui"></span></div>
 </header>
 <div class="progress" aria-hidden="true"><i id="prog"></i></div>
 <main id="main" data-tab="carte">
 <aside class="filters" aria-label="Filtres">
+<div class="field prospect" id="prospect"><div class="fhead"><h2><svg width="14" height="14"><use href="#i-target"/></svg> Ma prospection</h2><button class="link" type="button" id="pReset" hidden>Effacer</button></div>
+<div class="pstats">
+<button type="button" class="pst" data-ps="c1"><b id="pC">0</b><small>contactés</small></button>
+<button type="button" class="pst" data-ps="c0"><b id="pN">0</b><small>à contacter</small></button>
+<button type="button" class="pst" data-ps="jo"><b id="pJo">0</b><small>diffusés job board</small></button>
+<button type="button" class="pst" data-ps="je"><b id="pJe">0</b><small>diffusion en cours</small></button>
+</div>
+<select id="sC" aria-label="Contacté"><option value="">Contactés ou non</option><option value="1">Contactés</option><option value="0">Non contactés</option></select>
+<select id="sJ" aria-label="Job board"><option value="">Job board : tous</option><option value="oui">Diffusé sur le job board</option><option value="non">Non diffusé</option><option value="en_cours">Diffusion en cours</option><option value="none">Job board non renseigné</option></select>
+<select id="sP" aria-label="Contacté par"><option value="">Contacté par : tout le monde</option></select>
+<div class="drange"><label>Contacté du<input type="date" id="sD1"></label><label>au<input type="date" id="sD2"></label></div>
+<p class="help" style="margin:8px 0 0">Propre à votre espace : les autres accès ne voient pas votre suivi. Ouvrez une fiche pour la marquer contactée.</p>
+</div>
 <div class="field"><div class="fhead"><h2>Vues rapides</h2></div>
 <div class="presets" id="presets"></div></div>
 <div class="field"><div class="fhead"><h2>1. Qui cherchez-vous ?</h2><button class="link" id="allCats" type="button">Tout cocher</button></div>
@@ -356,14 +383,7 @@ main:not([data-tab="liste"]) section.list{display:none}
 <label class="switch"><span><b>Avec un e-mail</b><em id="hE">Masque les fiches sans adresse e-mail</em></span><input type="checkbox" id="fE"></label>
 <label class="switch"><span><b>Avec un téléphone</b><em id="hT">Masque les fiches sans numéro</em></span><input type="checkbox" id="fT"></label>
 </div>
-<div class="field"><div class="fhead"><h2>4. Suivi de prospection</h2></div>
-<p class="help">Vos informations de suivi sont propres à votre espace : les autres accès ne les voient pas.</p>
-<select id="sC" aria-label="Contacté"><option value="">Contactés ou non</option><option value="1">Contactés</option><option value="0">Non contactés</option></select>
-<select id="sJ" aria-label="Job board"><option value="">Job board : tous</option><option value="oui">Diffusé sur le job board</option><option value="non">Non diffusé</option><option value="en_cours">Diffusion en cours</option><option value="none">Job board non renseigné</option></select>
-<select id="sP" aria-label="Contacté par"><option value="">Contacté par : tout le monde</option></select>
-<div class="drange"><label>Contacté du<input type="date" id="sD1"></label><label>au<input type="date" id="sD2"></label></div>
-</div>
-<div class="field"><div class="fhead"><h2>5. Liste et carte</h2></div>
+<div class="field"><div class="fhead"><h2>4. Liste et carte</h2></div>
 <label class="switch"><span><b>Suivre la carte</b><em>La liste ne montre que ce qui est visible sur la carte : zoomez ou déplacez-la pour explorer un secteur</em></span><input type="checkbox" id="fB"></label>
 <label class="switch"><span><b>Avec mes notes</b><em>Seulement les fiches que vous avez annotées. Vos notes sont privées : visibles uniquement avec votre code d'accès</em></span><input type="checkbox" id="fN"></label>
 </div>
@@ -383,7 +403,7 @@ main:not([data-tab="liste"]) section.list{display:none}
 <section class="list" aria-label="Liste des acteurs">
 <div class="listhead">
 <div class="lh1"><strong id="lc">Liste</strong>
-<select id="sort" aria-label="Trier"><option value="n">Nom (A → Z)</option><option value="v">Ville</option><option value="c">Famille</option><option value="w">Victoires 2026</option><option value="h">Chevaux (propriétaires)</option></select></div>
+<select id="sort" aria-label="Trier"><option value="n">Nom (A → Z)</option><option value="v">Ville</option><option value="c">Famille</option><option value="w">Victoires 2026</option><option value="dc">Dernier contact</option><option value="h">Chevaux (propriétaires)</option></select></div>
 <div class="summary" id="summary"></div>
 <div class="chips" id="chips"></div>
 </div>
@@ -517,7 +537,7 @@ if(state.fE && !x.he && ign!=="fE") return false;
 if(state.fT && !x.ht && ign!=="fT") return false;
 if(state.fA && (x.c==="galop"||x.c==="trot") && x.act!==1) return false;
 if(state.fN && !NOTES.has(x.id)) return false;
-if(state.sC||state.sJ||state.sP||state.sD1||state.sD2){ const Sv=SUIVI.get(x.id)||{};
+if(ign!=="suivi" && (state.sC||state.sJ||state.sP||state.sD1||state.sD2)){ const Sv=SUIVI.get(x.id)||{};
   if(state.sC==="1" && !Sv.c) return false; if(state.sC==="0" && Sv.c) return false;
   if(state.sJ){ const j=Sv.j||""; if(state.sJ==="none"? j : j!==state.sJ) return false; }
   if(state.sP){ const pp=Sv.p||""; if(state.sP==="__none"? pp : pp!==state.sP) return false; }
@@ -540,6 +560,10 @@ $("#hE").textContent = `${fmt(cE)} fiches sur ${fmt(bE)} ont un e-mail`;
 $("#hT").textContent = `${fmt(cT)} fiches sur ${fmt(bT)} ont un téléphone`;
 syncGroups(); renderPresets();
 countUp($("#kN"),filtered.length); countUp($("#kE"),em); countUp($("#kT"),tel); countUp($("#kM"),ms.length);
+{ let pc=0,pn=0,jo=0,je=0; for(const x of R){ if(!matches(x,false,"suivi")) continue; const Sv=SUIVI.get(x.id); if(Sv&&Sv.c) pc++; else pn++; if(Sv&&Sv.j==="oui") jo++; if(Sv&&Sv.j==="en_cours") je++; }
+  countUp($("#pC"),pc); countUp($("#pN"),pn); countUp($("#pJo"),jo); countUp($("#pJe"),je); countUp($("#kP"),[...SUIVI.values()].filter(s=>s.c).length);
+  document.querySelectorAll(".pst").forEach(b=>{ const k=b.dataset.ps; b.setAttribute("aria-pressed", k==="c1"?state.sC==="1":k==="c0"?state.sC==="0":k==="jo"?state.sJ==="oui":state.sJ==="en_cours"); });
+  $("#pReset").hidden=!(state.sC||state.sJ||state.sP||state.sD1||state.sD2); $("#kPbtn").setAttribute("aria-pressed",state.sC==="1"); }
 renderChips(); renderLegend(); renderList(true);
 $("#qclear").hidden=!state.q; $("#kbd").hidden=!!state.q;
 if(save) store.set("ach-f2",{cats:[...state.cats],reg:state.reg,dep:state.dep,fE:state.fE,fT:state.fT,fA:state.fA,fB:state.fB,fN:state.fN,sC:state.sC,sJ:state.sJ,sP:state.sP,sD1:state.sD1,sD2:state.sD2,sort:state.sort,open:[...state.open]});
@@ -599,6 +623,7 @@ $("#legend").innerHTML = CATS.filter(c=>state.cats.has(c[0])).map(([k,l,c])=>`<s
 function sortKey(){
 const s=state.sort;
 if(s==="w") return (a,b)=>(b.vw||0)-(a.vw||0)||a._k.localeCompare(b._k,"fr");
+if(s==="dc") return (a,b)=>((SUIVI.get(b.id)||{}).d||"").localeCompare((SUIVI.get(a.id)||{}).d||"")||a._k.localeCompare(b._k,"fr");
 if(s==="h") return (a,b)=>(b.nh||0)-(a.nh||0)||a._k.localeCompare(b._k,"fr");
 if(s==="v") return (a,b)=>(a.v||"~").localeCompare(b.v||"~","fr")||a._k.localeCompare(b._k,"fr");
 if(s==="c") return (a,b)=>CM[a.c].l.localeCompare(CM[b.c].l,"fr")||a._k.localeCompare(b._k,"fr");
@@ -851,6 +876,10 @@ function start(){ if(started) return; started=true; init().catch(err=>{ started=
 $("#gateForm").addEventListener("submit",async e=>{ e.preventDefault(); const b=e.target.querySelector("button[type=submit]"); b.disabled=true; $("#gateErr").textContent="";
 try{ await login($("#code").value,$("#remember").checked); start(); }catch(err){ if($("#gate").hidden) showGate(err.message); else $("#gateErr").textContent=err.message; } finally{ b.disabled=false; } });
 $("#logout").addEventListener("click",()=>{ sess.clear(); location.reload(); });
+$("#prospect").addEventListener("click",e=>{ const b=e.target.closest("[data-ps]"); if(!b) return; const k=b.dataset.ps;
+  if(k==="c1"||k==="c0"){ const v=k==="c1"?"1":"0"; state.sC=state.sC===v?"":v; $("#sC").value=state.sC; } else { const v=k==="jo"?"oui":"en_cours"; state.sJ=state.sJ===v?"":v; $("#sJ").value=state.sJ; } apply(); if(matchMedia("(max-width:980px)").matches) setTab("liste"); });
+$("#pReset").addEventListener("click",()=>{ ["sC","sJ","sP","sD1","sD2"].forEach(k=>{state[k]="";$("#"+k).value="";}); apply(); });
+$("#kPbtn").addEventListener("click",()=>{ state.sC=state.sC==="1"?"":"1"; $("#sC").value=state.sC; apply(); if(matchMedia("(max-width:980px)").matches) setTab("liste"); });
 $("#sheet").addEventListener("change",e=>{ const box=e.target.closest(".suivi-sec"); if(!box) return; const id=+box.dataset.sid;
   if(e.target.id==="suC"){ if(e.target.checked){ if(!$("#suD").value) $("#suD").value=new Date().toISOString().slice(0,10); if(!$("#suP").value){ let lp=null; try{lp=localStorage.getItem("ach-par")}catch(_){} if(lp&&[...$("#suP").options].some(o=>o.value===lp)) $("#suP").value=lp; } } saveSuivi(id); }
   else if(e.target.id==="suD"){ saveSuivi(id); }
