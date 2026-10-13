@@ -284,6 +284,23 @@ main:not([data-tab="liste"]) section.list{display:none}
 .note-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
 .note-bar .note{font-size:12px;margin:0}
 .row .nt{display:inline-flex;color:var(--gold)}
+.sv{display:inline-block;font-size:10.5px;font-weight:600;line-height:1;padding:3px 6px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.sv.ok{color:var(--accent)} .sv.jb{color:var(--muted)} .sv.jb.oui{color:var(--accent)} .sv.jb.en_cours{color:var(--gold)}
+.suivi-sec .seg-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 2px;flex-wrap:wrap;font-size:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--sunk)}
+.seg button{border:0;background:none;padding:6px 12px;font-size:13px;cursor:pointer;color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.su-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.su-grid label,.ct-edit label,.drange label{display:grid;gap:4px;font-size:12px;color:var(--muted)}
+.su-grid input,.drange input{height:38px;padding:0 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--sunk);color:var(--ink);font:inherit;font-size:14px;width:100%;box-sizing:border-box}
+.su-grid select{height:38px}
+.ct-edit{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:10px}
+.ct-edit textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink)}
+.su-st{font-size:12px;margin:8px 0 0}
+.drange{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.field select+select{margin-top:8px}
+@media (max-width:520px){.su-grid{grid-template-columns:1fr}}
 #legend{display:none!important}
 </style>
 </head>
@@ -339,7 +356,14 @@ main:not([data-tab="liste"]) section.list{display:none}
 <label class="switch"><span><b>Avec un e-mail</b><em id="hE">Masque les fiches sans adresse e-mail</em></span><input type="checkbox" id="fE"></label>
 <label class="switch"><span><b>Avec un téléphone</b><em id="hT">Masque les fiches sans numéro</em></span><input type="checkbox" id="fT"></label>
 </div>
-<div class="field"><div class="fhead"><h2>4. Liste et carte</h2></div>
+<div class="field"><div class="fhead"><h2>4. Suivi de prospection</h2></div>
+<p class="help">Vos informations de suivi sont propres à votre espace : les autres accès ne les voient pas.</p>
+<select id="sC" aria-label="Contacté"><option value="">Contactés ou non</option><option value="1">Contactés</option><option value="0">Non contactés</option></select>
+<select id="sJ" aria-label="Job board"><option value="">Job board : tous</option><option value="oui">Diffusé sur le job board</option><option value="non">Non diffusé</option><option value="en_cours">Diffusion en cours</option><option value="none">Job board non renseigné</option></select>
+<select id="sP" aria-label="Contacté par"><option value="">Contacté par : tout le monde</option></select>
+<div class="drange"><label>Contacté du<input type="date" id="sD1"></label><label>au<input type="date" id="sD2"></label></div>
+</div>
+<div class="field"><div class="fhead"><h2>5. Liste et carte</h2></div>
 <label class="switch"><span><b>Suivre la carte</b><em>La liste ne montre que ce qui est visible sur la carte : zoomez ou déplacez-la pour explorer un secteur</em></span><input type="checkbox" id="fB"></label>
 <label class="switch"><span><b>Avec mes notes</b><em>Seulement les fiches que vous avez annotées. Vos notes sont privées : visibles uniquement avec votre code d'accès</em></span><input type="checkbox" id="fN"></label>
 </div>
@@ -411,10 +435,11 @@ const PRESETS = [
 ["Jockeys & cavaliers", ()=>Object.assign(state,DEF(),{cats:new Set(["jockey","agent"])})],
 ["Hippodromes", ()=>Object.assign(state,DEF(),{cats:new Set(["hippo","inst"])})],
 ["Propriétaires", ()=>Object.assign(state,DEF(),{cats:new Set(["proprio"]),sort:"h"})],
-["Mes notes", ()=>Object.assign(state,DEF(),{cats:new Set(CATS.map(c=>c[0])),fN:true})]];
+["Mes notes", ()=>Object.assign(state,DEF(),{cats:new Set(CATS.map(c=>c[0])),fN:true})],
+["Déjà contactés", ()=>Object.assign(state,DEF(),{cats:new Set(CATS.map(c=>c[0])),sC:"1",sort:"n"})]];
 const SING = {hippo:"Hippodrome",inst:"Institution",centre:"Centre d'entraînement",galop:"Entraîneur galop",trot:"Entraîneur trot",jockey:"Jockey / cavalier",agent:"Agent",medecin:"Médecin agréé",haras:"Haras",eleveur:"Éleveur galop",naisseur:"Naisseur trot",courtier:"Courtier",proprio:"Propriétaire",employeur:"Employeur",equestre:"Centre équestre"};
 const $ = s=>document.querySelector(s);
-const DEF = ()=>({cats:new Set(CATS.map(c=>c[0]).filter(k=>k!=="proprio")), q:"", reg:"", dep:"", fE:false, fT:false, fA:false, fB:false, fN:false, sort:"n"});
+const DEF = ()=>({cats:new Set(CATS.map(c=>c[0]).filter(k=>k!=="proprio")), q:"", reg:"", dep:"", fE:false, fT:false, fA:false, fB:false, fN:false, sC:"", sJ:"", sP:"", sD1:"", sD2:"", sort:"n"});
 const state = Object.assign(DEF(), {sel:null, shown:0, open:new Set()});
 const store = {get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const API="https://gijcnroyuxogetxzruef.supabase.co/functions/v1/annuaire";
@@ -432,7 +457,33 @@ return j;
 function setQuota(q){ if(!q) return; QUOTA=q; const el=$("#whoQ"); el.textContent=`${q.reste} fiche${q.reste>1?"s":""} restante${q.reste>1?"s":""}`; el.classList.toggle("low",q.reste<=10); }
 function showGate(msg){ $("#gate").hidden=false; $("#gateErr").textContent=msg||""; setTimeout(()=>$("#code").focus(),50); }
 function wmURI(t){ const s=`<svg xmlns='http://www.w3.org/2000/svg' width='260' height='140'><text x='10' y='80' transform='rotate(-20 130 70)' font-family='Arial' font-size='14' fill='#000'>${t.replace(/[<&'"]/g,"")}</text></svg>`; return `url("data:image/svg+xml,${encodeURIComponent(s)}")`; }
-const NOTES=new Map();
+const NOTES=new Map(); const SUIVI=new Map(); let CONTACTS=[];
+const fdate=d=>d?new Date(d+"T12:00:00").toLocaleDateString("fr-FR"):"";
+const JBL={oui:"Diffusé",non:"Non diffusé",en_cours:"En cours"};
+function svTags(id){ const S=SUIVI.get(id); if(!S) return ""; let h="";
+  if(S.c) h+=`<span class="sv ok" title="Contacté${S.d?" le "+fdate(S.d):""}${S.p?" par "+esc(S.p):""}">Contacté</span>`;
+  if(S.j) h+=`<span class="sv jb ${S.j}" title="Job board : ${JBL[S.j]}">JB ${S.j==="oui"?"✓":S.j==="en_cours"?"…":"✗"}</span>`; return h; }
+function fillPar(){ const el=$("#sP"); if(!el) return; const used=new Set([...SUIVI.values()].map(s=>s.p).filter(Boolean)); const all=[...new Set([...CONTACTS,...used])];
+  el.innerHTML='<option value="">Contacté par : tout le monde</option>'+all.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("")+'<option value="__none">Non renseigné</option>'; el.value=state.sP||""; }
+function suiviBox(id){ const S=SUIVI.get(id)||{}; const opts=[...new Set([...CONTACTS,...(S.p?[S.p]:[])])];
+  return `<div class="sec suivi-sec" data-sid="${id}"><h4>Suivi de prospection</h4>
+  <label class="switch"><span><b>Contacté</b><em>Cochez quand l'acteur a été contacté</em></span><input type="checkbox" id="suC" ${S.c?"checked":""}></label>
+  <div class="seg-row"><span>Diffusé sur le job board</span><div class="seg" role="group" aria-label="Diffusé sur le job board">${[["oui","Oui"],["non","Non"],["en_cours","En cours"]].map(([v,l])=>`<button type="button" data-jb="${v}" aria-pressed="${S.j===v}">${l}</button>`).join("")}</div></div>
+  <div class="su-grid"><label>Date de contact<input type="date" id="suD" value="${esc(S.d||"")}"></label>
+  <label>Contacté par<select id="suP"><option value="">—</option>${opts.map(n=>`<option value="${esc(n)}" ${S.p===n?"selected":""}>${esc(n)}</option>`).join("")}<option value="__edit">Gérer la liste…</option></select></label></div>
+  <div class="ct-edit" id="ctEdit" hidden><label>Personnes de votre espace (une par ligne)<textarea id="ctTxt" rows="4">${esc(CONTACTS.join("\n"))}</textarea></label><div class="note-bar"><button class="btn" type="button" data-act="contacts-cancel">Annuler</button><button class="btn primary" type="button" data-act="contacts-save" data-id="${id}">Enregistrer la liste</button></div></div>
+  <p class="note su-st" id="suSt">${S.maj?"Mis à jour le "+new Date(S.maj).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})+" · ":""}Privé : propre à votre espace</p></div>`; }
+let svT; async function saveSuivi(id){ const box=document.querySelector(`.suivi-sec[data-sid="${id}"]`); if(!box) return;
+  const jb=box.querySelector('[data-jb][aria-pressed="true"]'); const P=$("#suP").value;
+  const body={action:"suivi_set",id,c:$("#suC").checked,j:jb?jb.dataset.jb:null,d:$("#suD").value||null,p:P&&P!=="__edit"?P:null};
+  try{ const j=await api(body); if(j.vide) SUIVI.delete(id); else SUIVI.set(id,{id,c:body.c,j:body.j,d:body.d,p:body.p,maj:j.maj});
+    $("#suSt").textContent=(j.vide?"Suivi effacé · ":"Enregistré le "+new Date(j.maj).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})+" · ")+"Privé : propre à votre espace";
+    const row=document.querySelector(`.row[data-id="${id}"]`); if(row){ row.outerHTML=rowHTML(R[id]); const r2=document.querySelector(`.row[data-id="${id}"]`); if(r2&&state.sel===id) r2.classList.add("on"); }
+    fillPar(); if(state.sC||state.sJ||state.sP||state.sD1||state.sD2) apply(false);
+  }catch(e){ toast(e.message); } }
+async function saveContacts(id){ const list=$("#ctTxt").value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+  try{ const j=await api({action:"contacts_set",contacts:list}); CONTACTS=j.contacts; const keep=$("#suP").value;
+    const box=document.querySelector(`.suivi-sec[data-sid="${id}"]`); box.outerHTML=suiviBox(id); if(keep&&keep!=="__edit"&&CONTACTS.includes(keep)) $("#suP").value=keep; fillPar(); toast("Liste enregistrée"); }catch(e){ toast(e.message); } }
 function noteBox(id){ const n=NOTES.get(id); return `<div class="sec note-sec"><h4>${svg("note")} Mes notes</h4><textarea id="noteTxt" rows="4" maxlength="5000" placeholder="Échanges, rendez-vous, à relancer… (Ctrl + Entrée pour enregistrer)">${esc(n?n.t:"")}</textarea><div class="note-bar"><span class="note" id="noteSt">${n?"Modifiée le "+new Date(n.maj).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})+" · ":""}Privée : visible uniquement avec votre accès</span><button class="btn primary" type="button" data-act="note-save" data-id="${id}">Enregistrer</button></div></div>`; }
 async function saveNote(id){ const ta=$("#noteTxt"); if(!ta) return; const t=ta.value.trim(); const b=$('[data-act="note-save"]'); if(b) b.disabled=true;
   try{ const j=await api({action:"note_set",id,texte:t}); if(j.supprimee) NOTES.delete(id); else NOTES.set(id,{t,maj:j.maj,n:norm(t)});
@@ -466,6 +517,11 @@ if(state.fE && !x.he && ign!=="fE") return false;
 if(state.fT && !x.ht && ign!=="fT") return false;
 if(state.fA && (x.c==="galop"||x.c==="trot") && x.act!==1) return false;
 if(state.fN && !NOTES.has(x.id)) return false;
+if(state.sC||state.sJ||state.sP||state.sD1||state.sD2){ const Sv=SUIVI.get(x.id)||{};
+  if(state.sC==="1" && !Sv.c) return false; if(state.sC==="0" && Sv.c) return false;
+  if(state.sJ){ const j=Sv.j||""; if(state.sJ==="none"? j : j!==state.sJ) return false; }
+  if(state.sP){ const pp=Sv.p||""; if(state.sP==="__none"? pp : pp!==state.sP) return false; }
+  if(state.sD1 && !(Sv.d && Sv.d>=state.sD1)) return false; if(state.sD2 && !(Sv.d && Sv.d<=state.sD2)) return false; }
 if(state.qw.length){ const hay=NOTES.has(x.id)?x._s+" "+NOTES.get(x.id).n:x._s; for(const w of state.qw) if(!hay.includes(w)) return false; }
 return true;
 }
@@ -486,7 +542,7 @@ syncGroups(); renderPresets();
 countUp($("#kN"),filtered.length); countUp($("#kE"),em); countUp($("#kT"),tel); countUp($("#kM"),ms.length);
 renderChips(); renderLegend(); renderList(true);
 $("#qclear").hidden=!state.q; $("#kbd").hidden=!!state.q;
-if(save) store.set("ach-f2",{cats:[...state.cats],reg:state.reg,dep:state.dep,fE:state.fE,fT:state.fT,fA:state.fA,fB:state.fB,fN:state.fN,sort:state.sort,open:[...state.open]});
+if(save) store.set("ach-f2",{cats:[...state.cats],reg:state.reg,dep:state.dep,fE:state.fE,fT:state.fT,fA:state.fA,fB:state.fB,fN:state.fN,sC:state.sC,sJ:state.sJ,sP:state.sP,sD1:state.sD1,sD2:state.sD2,sort:state.sort,open:[...state.open]});
 }
 function catPhrase(){
 const on=CATS.filter(c=>state.cats.has(c[0]));
@@ -507,6 +563,10 @@ const c=[state.fE&&"un e-mail",state.fT&&"un téléphone"].filter(Boolean); if(c
 if(state.q) parts.push(`contenant « ${esc(state.q)} »`);
 if(state.fB) parts.push("visibles sur la carte");
 if(state.fN) parts.push("avec vos notes");
+if(state.sC) parts.push(state.sC==="1"?"déjà contactées":"pas encore contactées");
+if(state.sJ) parts.push({oui:"diffusées sur le job board",non:"non diffusées sur le job board",en_cours:"en cours de diffusion",none:"sans statut job board"}[state.sJ]);
+if(state.sP) parts.push(state.sP==="__none"?"sans contact attribué":"contactées par "+esc(state.sP));
+if(state.sD1||state.sD2) parts.push("contactées "+(state.sD1?"à partir du "+fdate(state.sD1):"")+(state.sD1&&state.sD2?" et ":"")+(state.sD2?"jusqu'au "+fdate(state.sD2):""));
 $("#summary").innerHTML=parts.join(", ")+".";
 }
 function syncGroups(){
@@ -514,7 +574,7 @@ document.querySelectorAll(".grp").forEach(g=>{ const ks=GROUPS.find(x=>x[0]===g.
 g.querySelector(".tri").dataset.s = n===0?"none":n===ks.length?"all":"some"; });
 const sub=document.querySelector(".sub"); if(sub) sub.hidden=!(state.cats.has("galop")||state.cats.has("trot"));
 }
-function presetKey(){ return JSON.stringify([[...state.cats].sort(),state.reg,state.dep,state.fE,state.fT,state.fA,state.fN,state.q]); }
+function presetKey(){ return JSON.stringify([[...state.cats].sort(),state.reg,state.dep,state.fE,state.fT,state.fA,state.fN,state.sC,state.sJ,state.sP,state.sD1,state.sD2,state.q]); }
 function renderPresets(){
 const cur=presetKey(); const keep={...state,cats:new Set(state.cats)};
 $("#presets").innerHTML=PRESETS.map(([l,f],i)=>{ f(); const k=presetKey(); Object.assign(state,keep,{cats:new Set(keep.cats)}); return `<button type="button" data-preset="${i}" aria-pressed="${k===cur}">${esc(l)}</button>`; }).join("");
@@ -527,7 +587,9 @@ const off=isDef?[]:CATS.filter(k=>!state.cats.has(k[0]));
 if(off.length && state.cats.size && state.cats.size<=3) c.push(["cats",[...state.cats].map(k=>CM[k].l).join(", ")]);
 else if(off.length && state.cats.size) c.push(["cats",`${state.cats.size} familles sur ${CATS.length}`]);
 if(state.dep) c.push(["dep",`${state.dep} · ${DEP[state.dep]||""}`]); else if(state.reg) c.push(["reg",state.reg]);
-if(state.fE) c.push(["fE","Avec e-mail"]); if(state.fT) c.push(["fT","Avec téléphone"]); if(state.fA) c.push(["fA","Entraîneurs actifs 2026"]); if(state.fB) c.push(["fB","Suit la carte"]); if(state.fN) c.push(["fN","Avec mes notes"]);
+if(state.fE) c.push(["fE","Avec e-mail"]); if(state.fT) c.push(["fT","Avec téléphone"]); if(state.fA) c.push(["fA","Entraîneurs actifs 2026"]);
+if(state.sC) c.push(["sC",state.sC==="1"?"Contactés":"Non contactés"]); if(state.sJ) c.push(["sJ","Job board : "+{oui:"oui",non:"non",en_cours:"en cours",none:"non renseigné"}[state.sJ]]);
+if(state.sP) c.push(["sP","Par : "+(state.sP==="__none"?"non renseigné":state.sP)]); if(state.sD1) c.push(["sD1","Depuis le "+fdate(state.sD1)]); if(state.sD2) c.push(["sD2","Jusqu'au "+fdate(state.sD2)]); if(state.fB) c.push(["fB","Suit la carte"]); if(state.fN) c.push(["fN","Avec mes notes"]);
 $("#chips").innerHTML = c.map(([k,l])=>`<span class="chip">${esc(l)}<button type="button" data-chip="${k}" aria-label="Retirer le filtre ${esc(l)}">${svg("x")}</button></span>`).join("")
 + (c.length>1?`<button class="link" type="button" data-chip="all">Tout effacer</button>`:"");
 }
@@ -552,7 +614,7 @@ const badge = x.vw ? `<span class="badge win">${x.vw} vict. 2026</span>` : x.nh 
 return `<button class="row${state.sel===x.id?" on":""}" data-id="${x.id}" style="--c:${c.c}">
 <span class="av"><b>${esc(ini(x.n))}</b></span>
 <span style="min-width:0"><div class="t">${hl(x.n)}</div><div class="m">${esc(SING[x.c])}${x.s&&x.c!=="proprio"?" · "+esc(x.s):""}${place?" — "+esc(place):""}</div></span>
-<span class="side"><span class="ico" aria-label="${x.ht?"téléphone":""} ${x.he?"e-mail":""} ${x.la!=null?"localisé":"non localisé"}">${svg("phone",x.ht?"on":"")}${svg("mail",x.he?"on":"")}${svg("pin",x.la!=null?"on":"")}${NOTES.has(x.id)?`<span class="nt" title="Vous avez une note sur cette fiche">${svg("note","on")}</span>`:""}</span>${badge}</span></button>`;
+<span class="side"><span class="ico" aria-label="${x.ht?"téléphone":""} ${x.he?"e-mail":""} ${x.la!=null?"localisé":"non localisé"}">${svg("phone",x.ht?"on":"")}${svg("mail",x.he?"on":"")}${svg("pin",x.la!=null?"on":"")}${NOTES.has(x.id)?`<span class="nt" title="Vous avez une note sur cette fiche">${svg("note","on")}</span>`:""}</span>${svTags(x.id)}${badge}</span></button>`;
 }
 function renderList(reset){
 if(reset){
@@ -579,7 +641,7 @@ sh.innerHTML=`<div class="sh-top"><div class="sh-band"></div><div class="sh-nav"
 <div class="sh-id"><span class="av"><b>${esc(ini(x0.n))}</b></span><div style="min-width:0"><div class="kind">${esc(SING[x0.c])}</div><h3>${esc(x0.n)}</h3></div></div></div><div class="skel">Ouverture de la fiche…</div>`;
 sh.hidden=false;
 try{ const j=await api({action:"fiche",id}); F=j.fiche; setQuota(j.quota); FC.set(id,F); }
-catch(e){ if(e.quota) setQuota(e.quota); if(state.sel===id){ sh.querySelector(".skel").innerHTML=`<b>${esc(e.message)}</b>`; sh.insertAdjacentHTML("beforeend",`<div class="sh-body">${noteBox(id)}</div>`); } toast(e.message); return; }
+catch(e){ if(e.quota) setQuota(e.quota); if(state.sel===id){ sh.querySelector(".skel").innerHTML=`<b>${esc(e.message)}</b>`; sh.insertAdjacentHTML("beforeend",`<div class="sh-body">${suiviBox(id)}${noteBox(id)}</div>`); } toast(e.message); return; }
 if(state.sel!==id) return;
 }
 const x=Object.assign({},x0,F,{la:x0.la,lo:x0.lo});
@@ -615,7 +677,7 @@ ${links.map(([l,u])=>`<a class="btn" href="${esc(u)}" target="_blank" rel="noope
 </div></div>
 <div class="sh-body">
 ${kpis.length?`<div class="kpis">${kpis.map(([v,l])=>`<div class="kpi"><b>${typeof v==="number"?fmt(v):esc(v)}</b><small>${esc(l)}</small></div>`).join("")}</div>`:""}
-${noteBox(id)}<div class="sec"><h4>Coordonnées</h4>${(x.t||[]).map(v=>`<div class="contact">${svg("phone")}<span class="v">${esc(v)}</span><button type="button" data-copy="${esc(v)}">Copier</button></div>`).join("")}${(x.e||[]).map(v=>`<div class="contact">${svg("mail")}<span class="v">${esc(v)}</span><button type="button" data-copy="${esc(v)}">Copier</button></div>`).join("")}${!x.t&&!x.e?`<p class="note" style="margin:0">Aucun téléphone ni e-mail dans les sources.</p>`:""}</div>
+${suiviBox(id)}${noteBox(id)}<div class="sec"><h4>Coordonnées</h4>${(x.t||[]).map(v=>`<div class="contact">${svg("phone")}<span class="v">${esc(v)}</span><button type="button" data-copy="${esc(v)}">Copier</button></div>`).join("")}${(x.e||[]).map(v=>`<div class="contact">${svg("mail")}<span class="v">${esc(v)}</span><button type="button" data-copy="${esc(v)}">Copier</button></div>`).join("")}${!x.t&&!x.e?`<p class="note" style="margin:0">Aucun téléphone ni e-mail dans les sources.</p>`:""}</div>
 ${trainers?`<div class="sec"><h4>Entraîneurs (chevaux)</h4><div class="tlist">${trainers.split(/,\s(?![^()]*\))/).map(t=>`<button type="button" data-search="${esc(t.replace(/\s*\(\d+\)$/,"").replace(/\(S\)/,"").replace(/^[A-Z&]+\.\s*/,"").trim())}">${esc(t)}</button>`).join("")}</div></div>`:""}
 <div class="sec"><h4>Informations</h4><dl class="kv">${kv.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></div>
 ${x.rem?`<div class="warn"><b>Remarque de transcription :</b> ${esc(x.rem)}</div>`:""}
@@ -649,7 +711,7 @@ $("#fA").addEventListener("change",e=>{state.fA=e.target.checked;apply()});
 const regs=[...new Set(R.map(x=>DEPR[x.d]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"fr"));
 $("#reg").innerHTML='<option value="">Toutes les régions</option>'+regs.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join("");
 $("#reg").value=state.reg; fillDeps(); $("#dep").value=state.dep;
-["fE","fT","fA","fB","fN"].forEach(k=>$("#"+k).checked=!!state[k]); $("#sort").value=state.sort; $("#q").value=state.q;
+["fE","fT","fA","fB","fN"].forEach(k=>$("#"+k).checked=!!state[k]); fillPar(); ["sC","sJ","sP","sD1","sD2"].forEach(k=>$("#"+k).value=state[k]||""); $("#sort").value=state.sort; $("#q").value=state.q;
 }
 function syncCats(){ document.querySelectorAll(".cat").forEach(c=>{c.setAttribute("aria-pressed",state.cats.has(c.dataset.k));c.setAttribute("aria-checked",state.cats.has(c.dataset.k));}); $("#allCats").textContent = state.cats.size===CATS.length?"Tout décocher":"Tout cocher"; }
 function fillDeps(){
@@ -716,6 +778,7 @@ const fr=await load("https://cdn.jsdelivr.net/gh/camopenia/D-p-t-vente@c6fa3883e
 const d={r:d0.r.map(a=>{const o={}; d0.cols.forEach((k,i)=>{ if(a[i]!==null) o[k]=a[i]; }); return o;}), dep:d0.dep, depr:d0.depr};
 $("#loadtxt").textContent="Indexation…"; await new Promise(r=>setTimeout(r,20));
 R=d.r; DEP=d.dep; DEPR=d.depr;
+try{ const js=await api({action:"suivi"}); for(const s of js.suivi) SUIVI.set(s.id,s); CONTACTS=js.contacts||[]; }catch(_){}
 try{ const jn=await api({action:"notes"}); for(const n of jn.notes) NOTES.set(n.id,{t:n.t,maj:n.maj,n:norm(n.t)}); }catch(_){}
 for(const x of R){ x._s=norm([x.n,x.s,x.v,x.d,DEP[x.d]].join(" "));
 x._k=norm(x.n.replace(/^((m\.|mme|mlle|mm|dr|mr|&|et)\s+)+/i,"")); }
@@ -751,6 +814,7 @@ $("#allCats").addEventListener("click",()=>{ state.cats = state.cats.size===CATS
 $("#reg").addEventListener("change",e=>{state.reg=e.target.value;state.dep="";fillDeps();apply();fitSel()});
 $("#dep").addEventListener("change",e=>{state.dep=e.target.value;apply();fitSel()});
 ["fE","fT","fB","fN"].forEach(id=>$("#"+id).addEventListener("change",e=>{state[id]=e.target.checked;apply()}));
+["sC","sJ","sP","sD1","sD2"].forEach(id=>$("#"+id).addEventListener("change",e=>{state[id]=e.target.value;apply()}));
 $("#presets").addEventListener("click",e=>{ const b=e.target.closest("[data-preset]"); if(!b) return; PRESETS[+b.dataset.preset][1](); buildFilters(); syncCats(); apply(); fitSel(); $("#sort").value=state.sort; });
 $("#sort").addEventListener("change",e=>{state.sort=e.target.value;renderList(true);store.set("ach-f2",{...(store.get("ach-f2")||{}),sort:state.sort})});
 $("#reset").addEventListener("click",()=>{ Object.assign(state,DEF()); buildFilters(); syncCats(); apply(); map.fitBounds([[42.2,-4.9],[51.2,8.3]]); toast("Filtres réinitialisés"); });
@@ -760,13 +824,14 @@ const ch=e.target.closest("[data-chip]"); if(ch){ const k=ch.dataset.chip;
 if(k==="all"){ $("#reset").click(); return; }
 if(k==="q"){ state.q=""; $("#q").value=""; } else if(k==="cats"){ state.cats=DEF().cats; syncCats(); }
 else if(k==="dep"){ state.dep=""; $("#dep").value=""; } else if(k==="reg"){ state.reg=""; $("#reg").value=""; fillDeps(); }
+else if(["sC","sJ","sP","sD1","sD2"].includes(k)){ state[k]=""; $("#"+k).value=""; }
 else { state[k]=false; $("#"+k).checked=false; }
 apply(); return; }
 });
 $("#rows").addEventListener("click",e=>{ const r=e.target.closest(".row"); if(r) openSheet(+r.dataset.id,true); });
 $("#sheet").addEventListener("click",e=>{
 const a=e.target.closest("[data-act]");
-if(a){ const k=a.dataset.act; if(k==="note-save"){ saveNote(+a.dataset.id); return; } if(k==="close") closeSheet(); else if(k==="prev") step(-1); else if(k==="next") step(1);
+if(a){ const k=a.dataset.act; if(k==="note-save"){ saveNote(+a.dataset.id); return; } if(k==="contacts-save"){ saveContacts(+a.dataset.id); return; } if(k==="contacts-cancel"){ $("#ctEdit").hidden=true; return; } if(k==="close") closeSheet(); else if(k==="prev") step(-1); else if(k==="next") step(1);
 else if(k==="center"){ const x=R[state.sel]; if(matchMedia("(max-width:980px)").matches) setTab("carte"); setTimeout(()=>{ cluster.zoomToShowLayer(markers[x.id],()=>{ map.setView([x.la,x.lo],Math.max(map.getZoom(),11)); const el=markers[x.id].getElement(); if(el) el.firstChild.classList.add("sel"); }); },60); }
 return; }
 const c=e.target.closest("[data-copy]"); if(c){ copy(c.dataset.copy,"Copié : "+c.dataset.copy); return; }
@@ -786,6 +851,12 @@ function start(){ if(started) return; started=true; init().catch(err=>{ started=
 $("#gateForm").addEventListener("submit",async e=>{ e.preventDefault(); const b=e.target.querySelector("button[type=submit]"); b.disabled=true; $("#gateErr").textContent="";
 try{ await login($("#code").value,$("#remember").checked); start(); }catch(err){ if($("#gate").hidden) showGate(err.message); else $("#gateErr").textContent=err.message; } finally{ b.disabled=false; } });
 $("#logout").addEventListener("click",()=>{ sess.clear(); location.reload(); });
+$("#sheet").addEventListener("change",e=>{ const box=e.target.closest(".suivi-sec"); if(!box) return; const id=+box.dataset.sid;
+  if(e.target.id==="suC"){ if(e.target.checked){ if(!$("#suD").value) $("#suD").value=new Date().toISOString().slice(0,10); if(!$("#suP").value){ let lp=null; try{lp=localStorage.getItem("ach-par")}catch(_){} if(lp&&[...$("#suP").options].some(o=>o.value===lp)) $("#suP").value=lp; } } saveSuivi(id); }
+  else if(e.target.id==="suD"){ saveSuivi(id); }
+  else if(e.target.id==="suP"){ if(e.target.value==="__edit"){ const S=SUIVI.get(id)||{}; e.target.value=S.p||""; $("#ctEdit").hidden=false; $("#ctTxt").focus(); return; } try{localStorage.setItem("ach-par",e.target.value)}catch(_){} saveSuivi(id); } });
+$("#sheet").addEventListener("click",e=>{ const b=e.target.closest("[data-jb]"); if(!b) return; const box=b.closest(".suivi-sec"); const on=b.getAttribute("aria-pressed")==="true";
+  box.querySelectorAll("[data-jb]").forEach(x=>x.setAttribute("aria-pressed","false")); if(!on) b.setAttribute("aria-pressed","true"); saveSuivi(+box.dataset.sid); });
 document.addEventListener("contextmenu",e=>{ if(e.target.closest("textarea")) return; if(e.target.closest(".sheet,.rows")) e.preventDefault(); });
 document.addEventListener("keydown",e=>{ if(e.target.id==="noteTxt" && e.key==="Enter" && (e.ctrlKey||e.metaKey)){ e.preventDefault(); const b=$('[data-act="note-save"]'); if(b) saveNote(+b.dataset.id); } });
 (async()=>{ const c=sess.get(); if(!c){ showGate(); return; } try{ await login(c,true); start(); }catch(e){ showGate(e.message); } })();
