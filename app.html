@@ -248,7 +248,7 @@ aside.filters,.mapwrap,section.list{position:absolute;inset:0;border:0}
 main:not([data-tab="filtres"]) aside.filters{display:none}
 main:not([data-tab="carte"]) .mapwrap{visibility:hidden}
 main:not([data-tab="liste"]) section.list{display:none}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px))}
 .tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:var(--muted);font-size:11.5px;font-weight:600;padding:6px 0;border-radius:10px}
 .tabs button svg{width:20px;height:20px}
 .tabs button[aria-selected="true"]{color:var(--accent);background:var(--accent-2)}
@@ -339,24 +339,83 @@ html.th-angles .btn.primary{border-radius:3px}
 .ct-edit{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:10px}
 .ct-edit textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink)}
 .su-st{font-size:12px;margin:8px 0 0}
-.addbtn{width:100%;margin:0 0 12px;height:40px;font-size:14px}
-dialog.addm{border:0;padding:0;border-radius:14px;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 32px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
-dialog.addm::backdrop{background:rgba(10,20,15,.5)}
-.addm form{display:grid;gap:12px;padding:20px 20px 16px}
-.addm h2{margin:0;font-family:var(--f-display);font-size:22px}
-.addm .g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
-.addm .g3{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px}
-.addm label{display:grid;gap:4px;font-size:12.5px;font-weight:600;color:var(--muted)}
-.addm input,.addm textarea,.addm select{font:inherit;font-weight:400;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--sunk);width:100%;box-sizing:border-box}
-.addm select{height:38px}
-.addm textarea{resize:vertical;min-height:64px}
-.addm .req{color:var(--accent)}
-.addm .dup{border:1px solid #E0A400;background:color-mix(in srgb,#E0A400 12%,var(--surface));border-radius:10px;padding:8px 10px;font-size:13px}
-.addm .dup button{display:block;background:none;border:0;padding:3px 0;color:var(--ink);text-decoration:underline;text-align:left;cursor:pointer;font-size:13px}
-.addm .err{color:#B42318;font-size:13px;min-height:1em}
-.addm .bar{display:flex;justify-content:flex-end;gap:8px}
-.addm .hint{font-size:12px;color:var(--muted);margin:0}
-@media (max-width:560px){.addm .g2{grid-template-columns:1fr}}
+.addbtn{width:100%;margin:0 0 12px;height:42px;font-size:14px;gap:8px}
+.addbtn svg{width:16px;height:16px}
+dialog.addm{border:0;padding:0;border-radius:16px;width:min(620px,calc(100vw - 24px));max-height:calc(100dvh - 32px);background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.35);overflow:hidden}
+dialog.addm[open]{display:flex;animation:amIn .22s cubic-bezier(.2,.8,.2,1)}
+dialog.addm::backdrop{background:rgba(10,20,15,.55);backdrop-filter:blur(2px)}
+@keyframes amIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.addm form{display:flex;flex-direction:column;width:100%;min-height:0;max-height:inherit}
+.am-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px 12px;border-bottom:1px solid var(--line2);background:var(--surface)}
+.am-h h2{margin:0;font-family:var(--f-display);font-size:24px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
+.am-h p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.am-x{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--sunk);display:grid;place-items:center;color:var(--ink)}
+.am-x svg{width:16px;height:16px}
+.am-b{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:6px 18px 18px;-webkit-overflow-scrolling:touch}
+.am-s{border:0;margin:0;padding:14px 0 4px;display:grid;gap:12px;min-width:0}
+.am-s+.am-s{border-top:1px dashed var(--line)}
+.am-s legend{padding:0;margin:0 0 2px;display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);float:left;width:100%}
+.am-s legend+*{clear:both}
+.am-s legend i{font-style:normal;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:12px;letter-spacing:0}
+.am-s legend em{font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted);font-size:12px;margin-left:auto}
+.am-s.priv{background:var(--accent-2);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:12px;padding:12px;margin-top:14px}
+.am-s.priv+.am-s{border-top:0}
+.am-g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.am-g3{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px}
+.am-f label,.am-b label.fl{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--muted);min-width:0;position:relative}
+.am-b .fl>span{display:flex;align-items:center;gap:6px}
+.am-b .req{color:var(--accent2,var(--accent));font-weight:700}
+.am-b input:not([type=checkbox]),.am-b textarea,.am-b select{font:inherit;font-size:15px;font-weight:400;color:var(--ink);height:44px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--sunk);width:100%;box-sizing:border-box;transition:border-color .12s,box-shadow .12s,background .12s}
+.am-b textarea{height:auto;min-height:76px;padding:10px 12px;resize:vertical;line-height:1.45}
+.am-b input:focus,.am-b textarea:focus,.am-b select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent);background:var(--surface)}
+.am-b .bad{border-color:#B42318!important;box-shadow:0 0 0 3px rgba(180,35,24,.15)!important}
+.am-b select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 13px) 19px;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
+.am-q{position:relative}
+.am-q .dot{position:absolute;left:12px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:var(--c,var(--line));box-shadow:0 0 0 3px var(--surface);pointer-events:none}
+.am-q select{padding-left:32px}
+.am-sug{position:absolute;z-index:5;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.18);max-height:240px;overflow:auto}
+#aCPs{right:auto;width:min(340px,calc(100vw - 32px))}
+.am-sug li{padding:10px 10px;border-radius:8px;font-size:14px;font-weight:400;color:var(--ink);cursor:pointer;line-height:1.3}
+.am-sug li small{display:block;color:var(--muted);font-size:12px}
+.am-sug li[aria-selected="true"],.am-sug li:hover{background:var(--accent-2)}
+.am-sug li.ld{color:var(--muted);cursor:default;background:none}
+.am-pin{display:flex;align-items:center;gap:8px;font-size:13px;padding:9px 12px;border-radius:10px;background:var(--sunk);color:var(--muted);line-height:1.35}
+.am-pin svg{flex:none;width:16px;height:16px}
+.am-pin.ok{background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--ink)}
+.am-pin.ok svg{color:var(--accent)}
+.am-pin.wa{background:color-mix(in srgb,#E0A400 14%,var(--surface));color:var(--ink)}
+.am-dup{border:1px solid #E0A400;background:color-mix(in srgb,#E0A400 12%,var(--surface));border-radius:10px;padding:10px 12px;font-size:13px;display:grid;gap:4px}
+.am-dup button{display:block;background:none;border:0;padding:4px 0;color:var(--ink);text-decoration:underline;text-align:left;font-size:13.5px}
+.am-dup small{color:var(--muted)}
+.am-b .switch{padding:4px 0;font-size:14px}
+.am-b .seg-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px}
+.am-b .seg button{min-height:38px}
+.am-hint{margin:0;font-size:12px;color:var(--muted);font-weight:400}
+.am-hint button{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;font:inherit}
+.am-f{display:flex;align-items:center;gap:10px;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line2);background:var(--surface)}
+.am-f .err{flex:1;color:#B42318;font-size:13px;line-height:1.3;min-width:0}
+.am-f .btn{height:44px;padding:0 18px;font-size:14px}
+.am-f .btn.primary{min-width:150px}
+.am-f .btn[disabled]{opacity:.65}
+.tabs .tab-add{color:var(--accent-ink)!important;background:var(--accent)!important;margin:2px 4px}
+@media (max-width:640px){
+dialog.addm{width:100%;max-width:100%;height:100dvh;max-height:100dvh;margin:0;border-radius:0;inset:0}
+dialog.addm[open]{animation:amUp .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes amUp{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.addm form{max-height:none;height:100%}
+.am-h{padding:calc(12px + env(safe-area-inset-top,0px)) 16px 10px}
+.am-h h2{font-size:22px}
+.am-b{padding:4px 16px 24px}
+.am-g2,.am-g3{grid-template-columns:1fr}
+.am-g3{grid-template-columns:110px minmax(0,1fr)}
+.am-b input:not([type=checkbox]),.am-b textarea,.am-b select{font-size:16px;height:48px}
+.am-b textarea{height:auto}
+.am-f{flex-wrap:wrap}
+.am-f .err{flex-basis:100%;order:-1}
+.am-f .err:empty{display:none}
+.am-f .btn{flex:1;height:48px}
+.am-f .btn.primary{flex:2}
+}
 .pedit{display:block;margin:6px 0 2px;font-size:12.5px;text-align:left}
 #pEdit{margin-top:6px;background:var(--surface)}
 .drange{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:8px}.drange input{min-width:0;padding:0 6px;font-size:13px}
@@ -404,7 +463,7 @@ dialog.addm::backdrop{background:rgba(10,20,15,.5)}
 <div class="progress" aria-hidden="true"><i id="prog"></i></div>
 <main id="main" data-tab="carte">
 <aside class="filters" aria-label="Filtres">
-<button class="btn primary addbtn" type="button" id="addBtn">+ Ajouter un contact</button>
+<button class="btn primary addbtn" type="button" id="addBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>Ajouter un contact</button>
 <div class="field prospect" id="prospect"><div class="fhead"><h2><svg width="14" height="14"><use href="#i-target"/></svg> Ma prospection</h2><button class="link" type="button" id="pReset" hidden>Effacer</button></div>
 <div class="pstats">
 <button type="button" class="pst" data-ps="c1"><b id="pC">0</b><small>contactés</small></button>
@@ -466,24 +525,41 @@ dialog.addm::backdrop{background:rgba(10,20,15,.5)}
 <button role="tab" aria-selected="false" data-t="filtres"><svg><use href="#i-filter"/></svg>Filtres</button>
 <button role="tab" aria-selected="true" data-t="carte"><svg><use href="#i-map"/></svg>Carte</button>
 <button role="tab" aria-selected="false" data-t="liste"><svg><use href="#i-list"/></svg>Liste</button>
+<button type="button" class="tab-add" id="addTab"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>Ajouter</button>
 </nav>
 </div>
 <dialog class="addm" id="addDlg" aria-labelledby="addTitle">
-<form id="addForm" method="dialog" autocomplete="off" novalidate>
-<h2 id="addTitle">Ajouter un contact</h2>
-<p class="hint">La fiche sera visible dans tous les espaces. Les champs marqués <span class="req">*</span> sont obligatoires.</p>
-<div class="g2"><label><span>Famille <span class="req">*</span></span><select id="aC" required></select></label>
-<label><span>Nom <span class="req">*</span></span><input id="aN" maxlength="120" required placeholder="Ex. : Écurie du Val"></label></div>
-<div id="aDup" class="dup" hidden></div>
-<label>Qualité / fonction<input id="aS" maxlength="120" placeholder="Ex. : gérante, entraîneur public…"></label>
-<label>Adresse<input id="aA" maxlength="200" placeholder="N° et rue"></label>
-<div class="g3"><label>Code postal<input id="aCP" maxlength="10" inputmode="numeric" placeholder="14000"></label><label>Ville<input id="aV" maxlength="80"></label></div>
-<div class="g2"><label>Téléphone(s)<input id="aT" maxlength="120" inputmode="tel" placeholder="06 12 34 56 78"></label>
-<label>E-mail(s)<input id="aE" maxlength="200" inputmode="email" placeholder="nom@exemple.fr"></label></div>
-<label>Site web<input id="aW" maxlength="200" placeholder="www.exemple.fr"></label>
-<label>Commentaire<textarea id="aCom" maxlength="1000" rows="3" placeholder="Contexte, origine du contact…"></textarea></label>
-<div class="err" id="aErr" role="alert"></div>
-<div class="bar"><button class="btn" type="button" id="aCancel">Annuler</button><button class="btn primary" type="submit" id="aOk">Ajouter la fiche</button></div>
+<form id="addForm" autocomplete="off" novalidate>
+<header class="am-h"><div><h2 id="addTitle">Nouveau contact</h2><p>La fiche sera visible dans tous les espaces.</p></div><button class="am-x" type="button" id="aClose" aria-label="Fermer"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></header>
+<div class="am-b" id="aBody">
+<fieldset class="am-s"><legend><i>1</i>Qui ?<em><span class="req">*</span> obligatoire</em></legend>
+<label class="fl"><span>Qualité <span class="req">*</span></span><div class="am-q" id="aQ"><span class="dot"></span><select id="aC" required aria-describedby="aCh"></select></div><small class="am-hint" id="aCh">Détermine la base dans laquelle la fiche est rangée (filtres, carte, couleur).</small></label>
+<label class="fl"><span>Nom <span class="req">*</span></span><input id="aN" maxlength="120" required placeholder="Ex. : Écurie du Val, Marie Durand" autocapitalize="words"></label>
+<div id="aDup" class="am-dup" hidden></div>
+<label class="fl"><span>Précision sur la fonction</span><input id="aS" maxlength="120" placeholder="Ex. : gérante, entraîneur public, assistant…"></label>
+</fieldset>
+<fieldset class="am-s"><legend><i>2</i>Où ?</legend>
+<label class="fl"><span>Adresse</span><div class="am-ac"><input id="aA" maxlength="200" placeholder="Commencez à taper : 12 route de…" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="aAs" autocomplete="off"><ul class="am-sug" id="aAs" role="listbox" hidden></ul></div></label>
+<div class="am-g3"><label class="fl"><span>Code postal</span><div class="am-ac"><input id="aCP" maxlength="5" inputmode="numeric" pattern="[0-9]*" placeholder="14000" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="aCPs" autocomplete="off"><ul class="am-sug" id="aCPs" role="listbox" hidden></ul></div></label>
+<label class="fl"><span>Ville</span><div class="am-ac"><input id="aV" maxlength="80" placeholder="Caen" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="aVs" autocomplete="off"><ul class="am-sug" id="aVs" role="listbox" hidden></ul></div></label></div>
+<div class="am-pin" id="aPin" aria-live="polite"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 14.5s5-4.6 5-8.5a5 5 0 0 0-10 0c0 3.9 5 8.5 5 8.5z"/><circle cx="8" cy="6" r="1.8"/></svg><span>Sans adresse ni ville, la fiche ne sera pas placée sur la carte.</span></div>
+</fieldset>
+<fieldset class="am-s"><legend><i>3</i>Coordonnées</legend>
+<div class="am-g2"><label class="fl"><span>Téléphone</span><input id="aT" type="tel" maxlength="120" inputmode="tel" autocomplete="off" placeholder="06 12 34 56 78"></label>
+<label class="fl"><span>E-mail</span><input id="aE" type="email" maxlength="200" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="nom@exemple.fr"></label></div>
+<label class="fl"><span>Site web</span><input id="aW" type="url" maxlength="200" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="www.exemple.fr"></label>
+<label class="fl"><span>Commentaire partagé</span><textarea id="aCom" maxlength="1000" rows="2" placeholder="Contexte utile à tous : spécialité, nombre de chevaux…"></textarea><small class="am-hint">Visible par tous les espaces, sur la fiche.</small></label>
+</fieldset>
+<fieldset class="am-s priv"><legend><i>4</i>Mon suivi<em>privé à votre espace</em></legend>
+<label class="switch"><span><b>Déjà contacté</b><em>Ajoute la fiche à « Ma prospection »</em></span><input type="checkbox" id="aSC"></label>
+<div class="am-g2"><label class="fl"><span>Date de contact</span><input type="date" id="aSD"></label>
+<label class="fl"><span>Contacté par</span><select id="aSP"></select></label></div>
+<p class="am-hint" id="aSPh" hidden>Aucune personne enregistrée. <button type="button" id="aSPedit">Ajouter des personnes</button></p>
+<div class="seg-row"><span>Diffusé sur le job board</span><div class="seg" role="group" aria-label="Diffusé sur le job board" id="aSJ"><button type="button" data-v="oui" aria-pressed="false">Oui</button><button type="button" data-v="non" aria-pressed="false">Non</button><button type="button" data-v="en_cours" aria-pressed="false">En cours</button></div></div>
+<label class="fl"><span>Note privée</span><textarea id="aNote" maxlength="5000" rows="3" placeholder="Échanges, rendez-vous, à relancer…"></textarea></label>
+</fieldset>
+</div>
+<footer class="am-f"><div class="err" id="aErr" role="alert"></div><button class="btn" type="button" id="aCancel">Annuler</button><button class="btn primary" type="submit" id="aOk">Ajouter la fiche</button></footer>
 </form>
 </dialog>
 <div class="toast" id="toast" hidden></div>
@@ -925,35 +1001,99 @@ const s=$("#sent"); if(s) io.observe(s);
 // ---------- ajout de contact ----------
 function mkMarker(x){ if(x.la==null||!CM[x.c]) return null; const m=L.marker([x.la,x.lo],{icon:L.divIcon({html:`<div class="dot" style="--c:${CM[x.c].c}"></div>`,className:"",iconSize:[12,12]}),title:x.n,keyboard:false});
 m._c=x.c; m.on("click",()=>{openSheet(x.id,false); if(matchMedia("(max-width:980px)").matches) setTab("liste");}); return m; }
-function indexX(x){ x._s=norm([x.n,x.s,x.v,x.d,DEP[x.d]].join(" ")); x._k=norm((x.n||"").replace(/^((m\.|mme|mlle|mm|dr|mr|&|et)\s+)+/i,"")); }
-function openAdd(){ const sel=$("#aC"); if(!sel.options.length) sel.innerHTML='<option value="">Choisir…</option>'+GROUPS.map(([g,cs])=>`<optgroup label="${esc(g)}">${cs.map(c=>`<option value="${c[0]}">${esc(SING[c[0]]||c[1])}</option>`).join("")}</optgroup>`).join("");
-  $("#addForm").reset(); $("#aErr").textContent=""; $("#aDup").hidden=true; $("#aOk").disabled=false; const d=$("#addDlg"); d.showModal(); setTimeout(()=>$("#aC").focus(),30); }
-let dupT; function checkDup(){ clearTimeout(dupT); dupT=setTimeout(()=>{ const k=norm($("#aN").value.trim()).replace(/^((m\.|mme|mlle|mm|dr|mr|&|et)\s+)+/i,""); const cp=$("#aCP").value.trim(); const box=$("#aDup");
-  if(k.length<3){ box.hidden=true; return; } const dep=/^\d{5}$/.test(cp)?(cp.startsWith("97")?cp.slice(0,3):cp.slice(0,2)):"";
-  const hits=R.filter(x=>x.n && CM[x.c] && (x._k===k || (k.length>=5 && x._k.includes(k))) && (!dep || x.d===dep)).slice(0,5);
+const KPRE=/^((m\.|mme|mlle|mm|dr|mr|&|et)\s+)+/i;
+function indexX(x){ x._s=norm([x.n,x.s,x.v,x.d,DEP[x.d]].join(" ")); x._k=norm((x.n||"").replace(KPRE,"")); }
+const AD={pick:null, jb:"", dirty:false};
+const depOf=cp=>/^\d{5}$/.test(cp)?(cp.startsWith("97")?cp.slice(0,3):cp.slice(0,2)):"";
+function fillAddSelects(){ const sel=$("#aC"); if(!sel.options.length){ const order=["equestre","galop","trot","centre","haras","eleveur","naisseur","jockey","agent","employeur","courtier","medecin","proprio","hippo","inst"];
+    sel.innerHTML='<option value="">Choisir une qualité…</option>'+GROUPS.map(([g,cs])=>`<optgroup label="${esc(g)}">${cs.map(c=>`<option value="${c[0]}">${esc(SING[c[0]]||c[1])}</option>`).join("")}</optgroup>`).join(""); }
+  const sp=$("#aSP"); sp.innerHTML='<option value="">—</option>'+CONTACTS.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(""); $("#aSPh").hidden=CONTACTS.length>0; }
+function setQDot(){ const k=$("#aC").value; $("#aQ").style.setProperty("--c",k&&CM[k]?CM[k].c:""); }
+function openAdd(){ fillAddSelects(); $("#addForm").reset(); AD.pick=null; AD.jb=""; AD.dirty=false; setJB(""); setQDot();
+  document.querySelectorAll("#addForm .bad").forEach(e=>e.classList.remove("bad")); $("#aErr").textContent=""; $("#aDup").hidden=true; closeSug(); pinUpd();
+  const b=$("#aOk"); b.disabled=false; b.textContent="Ajouter la fiche"; $("#aBody").scrollTop=0;
+  const d=$("#addDlg"); d.showModal(); if(!matchMedia("(pointer:coarse)").matches) setTimeout(()=>$("#aC").focus(),40); }
+function closeAdd(force){ if(!force && AD.dirty && ($("#aN").value.trim()||$("#aT").value.trim()||$("#aE").value.trim()||$("#aNote").value.trim())){ const b=$("#aCancel"); if(b.dataset.ok!=="1"){ b.dataset.ok="1"; b.textContent="Abandonner ?"; setTimeout(()=>{b.dataset.ok="";b.textContent="Annuler";},3500); return; } }
+  $("#aCancel").dataset.ok=""; $("#aCancel").textContent="Annuler"; $("#addDlg").close(); }
+function setJB(v){ AD.jb=v; document.querySelectorAll("#aSJ button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v)); }
+function pinUpd(){ const a=$("#aA").value.trim(), cp=$("#aCP").value.trim(), v=$("#aV").value.trim(); const el=$("#aPin"), t=el.querySelector("span"); el.className="am-pin";
+  if(AD.pick && a===AD.pick.a){ el.classList.add("ok"); t.textContent=`Sera placée sur la carte : ${AD.pick.l}.`; }
+  else if(a && (cp||v)){ el.classList.add("ok"); t.textContent="Sera placée sur la carte à l'adresse saisie (vérifiée à l'enregistrement)."; }
+  else if(cp||v){ el.classList.add("ok"); t.textContent=`Sera placée sur la carte au centre de la commune${v?" ("+v+")":""}. Ajoutez l'adresse pour plus de précision.`; }
+  else if(a){ el.classList.add("wa"); t.textContent="Ajoutez le code postal ou la ville pour placer la fiche sur la carte."; }
+  else t.textContent="Sans adresse ni ville, la fiche ne sera pas placée sur la carte."; }
+// autocomplétion (adresse, code postal, ville) via l'API
+const GEOC=new Map(); let geoSeq=0;
+async function geo(mode,q){ const k=mode+"|"+q.toLowerCase(); if(GEOC.has(k)) return GEOC.get(k); try{ const j=await api({action:"geo",mode,q}); GEOC.set(k,j.r||[]); return j.r||[]; }catch(_){ return []; } }
+let SUG=null;
+function closeSug(){ document.querySelectorAll("#addForm .am-sug").forEach(u=>{u.hidden=true;u.innerHTML="";}); document.querySelectorAll("#addForm [role=combobox]").forEach(i=>i.setAttribute("aria-expanded","false")); SUG=null; }
+function showSug(inp, items, render, pick, loading){ const ul=document.getElementById(inp.getAttribute("aria-controls")); document.querySelectorAll("#addForm .am-sug").forEach(u=>{ if(u!==ul){u.hidden=true;u.innerHTML="";} });
+  if(loading){ ul.innerHTML='<li class="ld">Recherche…</li>'; ul.hidden=false; return; }
+  if(!items.length){ ul.hidden=true; ul.innerHTML=""; inp.setAttribute("aria-expanded","false"); SUG=null; return; }
+  ul.innerHTML=items.map((it,i)=>`<li role="option" id="${ul.id}-${i}" data-i="${i}" aria-selected="false">${render(it)}</li>`).join(""); ul.hidden=false; inp.setAttribute("aria-expanded","true");
+  SUG={inp,ul,items,pick,i:-1}; }
+function moveSug(d){ if(!SUG) return; const n=SUG.items.length; SUG.i=(SUG.i+d+n)%n; SUG.ul.querySelectorAll("li").forEach((li,i)=>li.setAttribute("aria-selected",i===SUG.i)); const li=SUG.ul.children[SUG.i]; if(li){ li.scrollIntoView({block:"nearest"}); SUG.inp.setAttribute("aria-activedescendant",li.id); } }
+function pickSug(i){ if(!SUG) return; const it=SUG.items[i]; const f=SUG.pick; closeSug(); f(it); }
+const deb=(fn,ms)=>{ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; };
+function pickCommune(it){ $("#aCP").value=it.cp; $("#aV").value=it.v; $("#aCP").classList.remove("bad"); pinUpd(); checkDup(); }
+const sugAdr=deb(async()=>{ const inp=$("#aA"); const q=inp.value.trim(); if(q.length<4 || document.activeElement!==inp){ closeSug(); return; } const my=++geoSeq; showSug(inp,[],null,null,true);
+  const cp=$("#aCP").value.trim(), v=$("#aV").value.trim(); const r=await geo("adr", q+(cp||v?" "+[cp,v].filter(Boolean).join(" "):"")); if(my!==geoSeq || document.activeElement!==inp) return;
+  showSug(inp,r,it=>`${esc(it.a||it.v)}<small>${esc([it.cp,it.v].filter(Boolean).join(" "))}${it.d?" · "+esc(it.d):""}</small>`, it=>{ if(it.a){ $("#aA").value=it.a; AD.pick=it; } $("#aCP").value=it.cp||""; $("#aV").value=it.v||""; pinUpd(); checkDup(); }); },260);
+const sugCP=deb(async()=>{ const inp=$("#aCP"); const q=inp.value.trim(); if(!/^\d{5}$/.test(q)){ closeSug(); return; } const my=++geoSeq; showSug(inp,[],null,null,true); const r=await geo("cp",q); if(my!==geoSeq) return;
+  if(r.length===1){ closeSug(); if(norm($("#aV").value)!==norm(r[0].v)) $("#aV").value=r[0].v; pinUpd(); checkDup(); return; }
+  if(!r.length){ closeSug(); inp.classList.add("bad"); $("#aErr").textContent="Code postal inconnu."; return; }
+  if(r.some(x=>norm(x.v)===norm($("#aV").value))){ closeSug(); return; }
+  showSug(inp,r,it=>`${esc(it.v)}<small>${esc(it.cp)}</small>`,pickCommune); },200);
+const sugV=deb(async()=>{ const inp=$("#aV"); const q=inp.value.trim(); if(q.length<2 || document.activeElement!==inp){ closeSug(); return; } const my=++geoSeq; showSug(inp,[],null,null,true); const r=await geo("ville",q); if(my!==geoSeq || document.activeElement!==inp) return;
+  showSug(inp,r,it=>`${esc(it.v)}<small>${esc(it.cp)}${it.d&&DEP[it.d]?" · "+esc(DEP[it.d]):""}</small>`,pickCommune); },260);
+let dupT; function checkDup(){ clearTimeout(dupT); dupT=setTimeout(()=>{ const k=norm($("#aN").value.trim()).replace(KPRE,""); const dep=depOf($("#aCP").value.trim()); const box=$("#aDup");
+  if(k.length<3){ box.hidden=true; return; }
+  const hits=R.filter(x=>x.n && CM[x.c] && (x._k===k || (k.length>=5 && x._k.includes(k))) && (!dep || x.d===dep)).slice(0,4);
   if(!hits.length){ box.hidden=true; return; }
-  box.innerHTML=`<b>Fiche${hits.length>1?"s":""} peut-être déjà présente${hits.length>1?"s":""} :</b>`+hits.map(x=>`<button type="button" data-id="${x.id}">${esc(x.n)} · ${esc(SING[x.c]||"")}${x.v?" · "+esc(x.v):""}${x.d?" ("+esc(x.d)+")":""}</button>`).join("")+`<span class="hint">Vous pouvez quand même ajouter la fiche si c'est un autre contact.</span>`; box.hidden=false; },250); }
-async function submitAdd(e){ e.preventDefault(); const v=id=>$(id).value.trim(); const err=$("#aErr"); err.textContent="";
+  box.innerHTML=`<b>Déjà dans l'annuaire ?</b>`+hits.map(x=>`<button type="button" data-id="${x.id}">${esc(x.n)} · ${esc(SING[x.c]||"")}${x.v?" · "+esc(x.v):""}${x.d?" ("+esc(x.d)+")":""}</button>`).join("")+`<small>Si c'est un autre contact, continuez la saisie.</small>`; box.hidden=false; },250); }
+async function submitAdd(e){ e.preventDefault(); closeSug(); const v=id=>$(id).value.trim(); const err=$("#aErr"); err.textContent="";
+  document.querySelectorAll("#addForm .bad").forEach(x=>x.classList.remove("bad"));
+  const fail=(id,m)=>{ err.textContent=m; const el=$(id); el.classList.add("bad"); el.scrollIntoView({block:"center",behavior:"smooth"}); setTimeout(()=>el.focus({preventScroll:true}),250); };
   const f={c:v("#aC"),n:v("#aN"),s:v("#aS"),a:v("#aA"),cp:v("#aCP"),v:v("#aV"),t:v("#aT"),e:v("#aE"),w:v("#aW"),com:v("#aCom")};
-  if(!f.c){ err.textContent="Choisissez une famille."; $("#aC").focus(); return; }
-  if(f.n.length<2){ err.textContent="Indiquez le nom du contact."; $("#aN").focus(); return; }
-  if(f.e && !/^[^@\s]+@[^@\s]+\.[^@\s]+/.test(f.e)){ err.textContent="L'adresse e-mail semble incorrecte."; $("#aE").focus(); return; }
-  if(f.cp && !/^\d{5}$/.test(f.cp)){ err.textContent="Le code postal doit compter 5 chiffres."; $("#aCP").focus(); return; }
-  const b=$("#aOk"); b.disabled=true; b.textContent="Ajout en cours…";
-  try{ const j=await api({action:"fiche_add",fiche:f}); const x=j.light; x.id=j.id;
+  if(!f.c) return fail("#aC","Choisissez la qualité du contact.");
+  if(f.n.length<2) return fail("#aN","Indiquez le nom du contact.");
+  if(f.cp && !/^\d{5}$/.test(f.cp)) return fail("#aCP","Le code postal doit compter 5 chiffres.");
+  if(f.t && f.t.replace(/\D/g,"").length<8) return fail("#aT","Le numéro de téléphone semble incomplet.");
+  if(f.e && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(f.e)) return fail("#aE","L'adresse e-mail semble incorrecte.");
+  const suivi={c:$("#aSC").checked,j:AD.jb||null,d:v("#aSD")||null,p:v("#aSP")||null}; const note=v("#aNote");
+  const b=$("#aOk"); b.disabled=true; b.textContent="Enregistrement…";
+  try{ const j=await api({action:"fiche_add",fiche:f,note,suivi}); const x=j.light; x.id=j.id;
     while(R.length<x.id){ const g={id:R.length,c:"_del",n:""}; indexX(g); R.push(g); markers.push(null); }
     indexX(x); R[x.id]=x; markers[x.id]=mkMarker(x);
+    if(j.note) NOTES.set(x.id,{t:j.note.t,maj:j.note.maj,n:norm(j.note.t)});
+    if(j.suivi) SUIVI.set(x.id,j.suivi);
+    if(suivi.p){ try{localStorage.setItem("ach-par",suivi.p)}catch(_){} }
     if(!state.cats.has(x.c)){ state.cats.add(x.c); syncCats(); }
-    $("#addDlg").close(); state.q=""; $("#q").value=""; apply();
-    toast(j.localise?"Fiche ajoutée et placée sur la carte.":"Fiche ajoutée (adresse non localisée).");
+    closeAdd(true); state.q=""; $("#q").value=""; apply(); fillPar();
+    toast(j.localise?(j.precis?"Fiche ajoutée et placée sur la carte.":"Fiche ajoutée, placée au centre de la commune."):"Fiche ajoutée (pas d'adresse pour la carte).");
+    if(matchMedia("(max-width:980px)").matches) setTab("liste");
     openSheet(x.id,true);
-  }catch(ex){ err.textContent=ex.message||"Ajout impossible."; }
-  finally{ b.disabled=false; b.textContent="Ajouter la fiche"; } }
-$("#addBtn").addEventListener("click",openAdd);
-$("#aCancel").addEventListener("click",()=>$("#addDlg").close());
+  }catch(ex){ err.textContent=ex.message||"Ajout impossible."; b.disabled=false; b.textContent="Ajouter la fiche"; } }
+$("#addBtn").addEventListener("click",openAdd); $("#addTab").addEventListener("click",openAdd);
+$("#aCancel").addEventListener("click",()=>closeAdd(false)); $("#aClose").addEventListener("click",()=>closeAdd(false));
+$("#addDlg").addEventListener("cancel",e=>{ if(SUG){ e.preventDefault(); closeSug(); return; } e.preventDefault(); closeAdd(false); });
+$("#addDlg").addEventListener("click",e=>{ if(e.target===$("#addDlg")) closeAdd(false); });
 $("#addForm").addEventListener("submit",submitAdd);
-$("#aN").addEventListener("input",checkDup); $("#aCP").addEventListener("input",checkDup);
-$("#aDup").addEventListener("click",e=>{ const bt=e.target.closest("[data-id]"); if(!bt) return; $("#addDlg").close(); openSheet(+bt.dataset.id,true); });
+$("#addForm").addEventListener("input",e=>{ AD.dirty=true; if(e.target.classList.contains("bad")){ e.target.classList.remove("bad"); $("#aErr").textContent=""; } });
+$("#aC").addEventListener("change",setQDot);
+$("#aN").addEventListener("input",checkDup);
+$("#aA").addEventListener("input",()=>{ AD.pick=null; pinUpd(); sugAdr(); });
+$("#aCP").addEventListener("input",e=>{ e.target.value=e.target.value.replace(/\D/g,"").slice(0,5); pinUpd(); checkDup(); sugCP(); });
+$("#aV").addEventListener("input",()=>{ pinUpd(); sugV(); });
+$("#aV").addEventListener("focus",()=>{ const cp=$("#aCP").value.trim(); if(/^\d{5}$/.test(cp) && !$("#aV").value.trim()) sugCP(); });
+for(const id of ["#aA","#aCP","#aV"]){ const el=$(id);
+  el.addEventListener("keydown",e=>{ if(!SUG||SUG.inp!==el) return; if(e.key==="ArrowDown"){e.preventDefault();moveSug(1);} else if(e.key==="ArrowUp"){e.preventDefault();moveSug(-1);} else if(e.key==="Enter"&&SUG.i>=0){e.preventDefault();pickSug(SUG.i);} else if(e.key==="Escape"){e.preventDefault();closeSug();} });
+  el.addEventListener("blur",()=>setTimeout(()=>{ if(SUG&&SUG.inp===el&&!SUG.ul.matches(":hover")) closeSug(); },180)); }
+$("#addForm").addEventListener("pointerdown",e=>{ const li=e.target.closest(".am-sug li[data-i]"); if(li){ e.preventDefault(); pickSug(+li.dataset.i); } });
+$("#aSJ").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; setJB(AD.jb===b.dataset.v?"":b.dataset.v); AD.dirty=true; });
+$("#aSC").addEventListener("change",e=>{ if(e.target.checked){ if(!$("#aSD").value) $("#aSD").value=new Date().toISOString().slice(0,10); if(!$("#aSP").value){ let lp=null; try{lp=localStorage.getItem("ach-par")}catch(_){} if(lp&&CONTACTS.includes(lp)) $("#aSP").value=lp; } } });
+$("#aSPedit").addEventListener("click",()=>{ closeAdd(true); if(matchMedia("(max-width:980px)").matches) setTab("filtres"); $("#pEditBtn").click(); $("#prospect").scrollIntoView({behavior:"smooth"}); });
+$("#aDup").addEventListener("click",e=>{ const bt=e.target.closest("[data-id]"); if(!bt) return; closeAdd(true); if(matchMedia("(max-width:980px)").matches) setTab("liste"); openSheet(+bt.dataset.id,true); });
 // ---------- événements ----------
 let qt; $("#q").addEventListener("input",e=>{ if(!$("#sheet").hidden) closeSheet(); clearTimeout(qt);qt=setTimeout(()=>{state.q=e.target.value.trim();apply(false)},160)});
 $("#qclear").addEventListener("click",()=>{state.q="";$("#q").value="";apply(false);$("#q").focus()});
@@ -997,7 +1137,7 @@ else if(e.key==="Escape"){ if(!$("#sheet").hidden) closeSheet(); else if(typing)
 else if((e.key==="ArrowDown"||e.key==="ArrowUp") && (!typing || document.activeElement.id==="q")){ e.preventDefault(); step(e.key==="ArrowDown"?1:-1); }
 });
 function setTab(t){ $("#main").dataset.tab=t; document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t)); if(t==="carte"&&map) setTimeout(()=>map.invalidateSize(),60); }
-document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.t)));
+document.querySelectorAll(".tabs button[data-t]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.t)));
 let started=false;
 function start(){ if(started) return; started=true; init().catch(err=>{ started=false; $("#loadtxt").textContent="Impossible de charger les données ("+err.message+")."; }); }
 $("#gateForm").addEventListener("submit",async e=>{ e.preventDefault(); const b=e.target.querySelector("button[type=submit]"); b.disabled=true; $("#gateErr").textContent="";
