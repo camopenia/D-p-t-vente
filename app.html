@@ -311,6 +311,8 @@ main:not([data-tab="liste"]) section.list{display:none}
 .ct-edit{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:10px}
 .ct-edit textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink)}
 .su-st{font-size:12px;margin:8px 0 0}
+.pedit{display:block;margin:6px 0 2px;font-size:12.5px;text-align:left}
+#pEdit{margin-top:6px;background:var(--surface)}
 .drange{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:8px}.drange input{min-width:0;padding:0 6px;font-size:13px}
 .field select+select{margin-top:8px}
 @media (max-width:520px){.su-grid{grid-template-columns:1fr}}
@@ -366,6 +368,8 @@ main:not([data-tab="liste"]) section.list{display:none}
 <select id="sC" aria-label="Contacté"><option value="">Contactés ou non</option><option value="1">Contactés</option><option value="0">Non contactés</option></select>
 <select id="sJ" aria-label="Job board"><option value="">Job board : tous</option><option value="oui">Diffusé sur le job board</option><option value="non">Non diffusé</option><option value="en_cours">Diffusion en cours</option><option value="none">Job board non renseigné</option></select>
 <select id="sP" aria-label="Contacté par"><option value="">Contacté par : tout le monde</option></select>
+<button class="link pedit" type="button" id="pEditBtn">+ Ajouter ou modifier les personnes « contacté par »</button>
+<div class="ct-edit" id="pEdit" hidden><label>Personnes de votre espace (une par ligne)<textarea id="pTxt" rows="5" placeholder="Camille&#10;Baptiste"></textarea></label><div class="note-bar"><button class="btn" type="button" id="pCancel">Annuler</button><button class="btn primary" type="button" id="pSave">Enregistrer</button></div></div>
 <div class="drange"><label>Contacté du<input type="date" id="sD1"></label><label>au<input type="date" id="sD2"></label></div>
 <p class="help" style="margin:8px 0 0">Propre à votre espace : les autres accès ne voient pas votre suivi. Ouvrez une fiche pour la marquer contactée.</p>
 </div>
@@ -490,7 +494,7 @@ function suiviBox(id){ const S=SUIVI.get(id)||{}; const opts=[...new Set([...CON
   <label class="switch"><span><b>Contacté</b><em>Cochez quand l'acteur a été contacté</em></span><input type="checkbox" id="suC" ${S.c?"checked":""}></label>
   <div class="seg-row"><span>Diffusé sur le job board</span><div class="seg" role="group" aria-label="Diffusé sur le job board">${[["oui","Oui"],["non","Non"],["en_cours","En cours"]].map(([v,l])=>`<button type="button" data-jb="${v}" aria-pressed="${S.j===v}">${l}</button>`).join("")}</div></div>
   <div class="su-grid"><label>Date de contact<input type="date" id="suD" value="${esc(S.d||"")}"></label>
-  <label>Contacté par<select id="suP"><option value="">—</option>${opts.map(n=>`<option value="${esc(n)}" ${S.p===n?"selected":""}>${esc(n)}</option>`).join("")}<option value="__edit">Gérer la liste…</option></select></label></div>
+  <label>Contacté par<select id="suP"><option value="">—</option>${opts.map(n=>`<option value="${esc(n)}" ${S.p===n?"selected":""}>${esc(n)}</option>`).join("")}<option value="__edit">+ Ajouter ou modifier les personnes…</option></select></label></div>
   <div class="ct-edit" id="ctEdit" hidden><label>Personnes de votre espace (une par ligne)<textarea id="ctTxt" rows="4">${esc(CONTACTS.join("\n"))}</textarea></label><div class="note-bar"><button class="btn" type="button" data-act="contacts-cancel">Annuler</button><button class="btn primary" type="button" data-act="contacts-save" data-id="${id}">Enregistrer la liste</button></div></div>
   <p class="note su-st" id="suSt">${S.maj?"Mis à jour le "+new Date(S.maj).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})+" · ":""}Privé : propre à votre espace</p></div>`; }
 let svT; async function saveSuivi(id){ const box=document.querySelector(`.suivi-sec[data-sid="${id}"]`); if(!box) return;
@@ -878,6 +882,11 @@ try{ await login($("#code").value,$("#remember").checked); start(); }catch(err){
 $("#logout").addEventListener("click",()=>{ sess.clear(); location.reload(); });
 $("#prospect").addEventListener("click",e=>{ const b=e.target.closest("[data-ps]"); if(!b) return; const k=b.dataset.ps;
   if(k==="c1"||k==="c0"){ const v=k==="c1"?"1":"0"; state.sC=state.sC===v?"":v; $("#sC").value=state.sC; } else { const v=k==="jo"?"oui":"en_cours"; state.sJ=state.sJ===v?"":v; $("#sJ").value=state.sJ; } apply(); if(matchMedia("(max-width:980px)").matches) setTab("liste"); });
+$("#pEditBtn").addEventListener("click",()=>{ $("#pTxt").value=CONTACTS.join("\n"); $("#pEdit").hidden=false; $("#pTxt").focus(); });
+$("#pCancel").addEventListener("click",()=>{ $("#pEdit").hidden=true; });
+$("#pSave").addEventListener("click",async()=>{ const list=$("#pTxt").value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+  try{ const j=await api({action:"contacts_set",contacts:list}); CONTACTS=j.contacts; fillPar(); $("#pEdit").hidden=true; toast("Liste enregistrée : "+CONTACTS.length+" personne"+(CONTACTS.length>1?"s":""));
+    const box=document.querySelector(".suivi-sec"); if(box){ const id=+box.dataset.sid; const keep=$("#suP").value; box.outerHTML=suiviBox(id); if(keep&&keep!=="__edit") $("#suP").value=keep; } }catch(e){ toast(e.message); } });
 $("#pReset").addEventListener("click",()=>{ ["sC","sJ","sP","sD1","sD2"].forEach(k=>{state[k]="";$("#"+k).value="";}); apply(); });
 $("#kPbtn").addEventListener("click",()=>{ state.sC=state.sC==="1"?"":"1"; $("#sC").value=state.sC; apply(); if(matchMedia("(max-width:980px)").matches) setTab("liste"); });
 $("#sheet").addEventListener("change",e=>{ const box=e.target.closest(".suivi-sec"); if(!box) return; const id=+box.dataset.sid;
