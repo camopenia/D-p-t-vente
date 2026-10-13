@@ -278,6 +278,34 @@ main:not([data-tab="liste"]) section.list{display:none}
 .sheet .stamp{font-size:11px;color:var(--faint);border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
 @media (max-width:980px){.who #whoN{display:none}}
 @media print{body{display:none!important}}
+/* Chartes personnalisées */
+.logo.img{background:none;border-radius:0;width:auto;max-width:140px;height:38px;display:flex;align-items:center}
+.logo.img::before,.logo.img::after{display:none}
+.logo.img img{max-height:38px;max-width:140px;width:auto;display:block}
+html.th-custom .top{background:var(--hd);color:var(--hd-ink);border-bottom-color:transparent}
+html.th-custom .top .brand small,html.th-custom .top .tile small,html.th-custom .top .who{color:color-mix(in srgb,var(--hd-ink) 72%,transparent)}
+html.th-custom .top .tile b,html.th-custom .top .who b,html.th-custom .top .who button{color:var(--hd-ink)}
+html.th-custom .top .who .q{background:transparent;color:var(--hd-ink);border-color:color-mix(in srgb,var(--hd-ink) 35%,transparent)}
+html.th-custom .ptile{background:var(--accent2);border-color:transparent;color:#fff}
+html.th-custom .ptile small{color:#fff}
+html.th-angles .brand h1{font-family:var(--f-accent);font-weight:400;color:var(--accent2);letter-spacing:.01em}
+html.th-angles .brand small{font-family:var(--f-display);font-weight:700;letter-spacing:.06em;font-size:12px}
+html.th-angles .fhead h2,html.th-angles .sec h4,html.th-angles .suivi-sec h4{font-family:var(--f-display);font-weight:700;letter-spacing:.07em;font-size:13px}
+html.th-angles .top{position:relative;overflow:hidden}
+html.th-angles .top>*{position:relative;z-index:1}
+html.th-angles .top::after{content:"";position:absolute;right:0;top:0;bottom:0;width:240px;background:var(--accent2);clip-path:polygon(34% 0,100% 0,100% 100%,0 100%);pointer-events:none;z-index:0}
+html.th-angles .gate{background:var(--hd);overflow:hidden}
+html.th-angles .gate::before{content:"";position:absolute;inset:0;background:var(--bg);clip-path:polygon(74% 0,100% 0,100% 100%,32% 100%,62% 80%)}
+html.th-angles .gate::after{content:"";position:absolute;right:0;bottom:0;width:34%;height:36%;background:var(--accent2);clip-path:polygon(16% 22%,100% 0,100% 100%,0 100%)}
+html.th-angles .gate form{position:relative;z-index:1;border:0;border-radius:4px}
+html.th-angles .gate h1{font-family:var(--f-accent);color:var(--accent2);font-weight:400;font-size:38px}
+html.th-angles .sh-band{background:var(--hd);opacity:1}
+html.th-angles .sh-band::after{background:var(--accent2);clip-path:polygon(64% 0,100% 0,100% 100%,52% 100%)}
+html.th-angles .prospect{border-left:5px solid var(--accent2)}
+html.th-angles .pst b,html.th-angles .tile b{font-family:var(--f-display)}
+html.th-angles .btn.primary{border-radius:3px}
+@media (max-width:980px){html.th-angles .top::after{width:120px}}
+
 .note-sec textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;line-height:1.45;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--sunk);color:var(--ink);resize:vertical;min-height:92px;user-select:text;-webkit-user-select:text}
 .note-sec textarea:focus{outline:2px solid var(--focus);outline-offset:1px}
 .note-sec h4{display:flex;align-items:center;gap:6px}
@@ -424,7 +452,7 @@ main:not([data-tab="liste"]) section.list{display:none}
 <div class="toast" id="toast" hidden></div>
 <div class="gate" id="gate" hidden>
 <form id="gateForm" autocomplete="off">
-<h1>Annuaire des courses</h1>
+<h1 id="gateTitle">Annuaire des courses</h1>
 <p>Accès réservé. Saisissez le code personnel qui vous a été remis.</p>
 <input id="code" name="code" placeholder="XXXXX-XXXXX" maxlength="40" spellcheck="false" autocapitalize="characters" aria-label="Code d'accès" required>
 <label class="rem"><input type="checkbox" id="remember" checked> Rester connecté sur cet appareil</label>
@@ -467,6 +495,31 @@ const DEF = ()=>({cats:new Set(CATS.map(c=>c[0]).filter(k=>k!=="proprio")), q:""
 const state = Object.assign(DEF(), {sel:null, shown:0, open:new Set()});
 const store = {get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const API="https://gijcnroyuxogetxzruef.supabase.co/functions/v1/annuaire";
+const FONTS={"Public Sans":"Public+Sans:wght@400;500;600;700","Work Sans":"Work+Sans:wght@400;500;600;700","Inter":"Inter:wght@400;500;600;700","Montserrat":"Montserrat:wght@400;500;600;700;800","Poppins":"Poppins:wght@400;500;600;700","Barlow":"Barlow:wght@400;500;600;700","Barlow Condensed":"Barlow+Condensed:wght@500;600;700;800","Bebas Neue":"Bebas+Neue","Oswald":"Oswald:wght@400;500;600;700","Big Shoulders Display":"Big+Shoulders+Display:wght@700;800","Gloock":"Gloock","Playfair Display":"Playfair+Display:wght@400;600;700","Bodoni Moda":"Bodoni+Moda:wght@400;600;700","DM Serif Display":"DM+Serif+Display","Fraunces":"Fraunces:wght@400;600;700"};
+function charteVars(c){ const k=(c&&c.colors)||{}, f=(c&&c.fonts)||{}, v={}; const S=k.surface||"#ffffff";
+  const mix=(a,b,p)=>`color-mix(in srgb, ${a} ${p}%, ${b})`;
+  if(k.bg){ v["--bg"]=k.bg; v["--sea"]=k.bg; v["--sunk"]=mix(k.bg,S,45); v["--land"]=mix(k.bg,S,35); }
+  if(k.surface){ v["--surface"]=S; v["--raise"]=S; v["--halo"]=S; }
+  if(k.ink){ v["--ink"]=k.ink; v["--label"]=k.ink; v["--muted"]=mix(k.ink,S,72); v["--faint"]=mix(k.ink,S,48); }
+  if(k.line){ v["--line"]=k.line; v["--line2"]=mix(k.line,S,55); v["--landline"]=k.line; }
+  if(k.accent){ v["--accent"]=k.accent; v["--accent-2"]=mix(k.accent,S,12); v["--accent-ink"]="#ffffff"; }
+  v["--accent2"]=k.accent2||k.accent||"#B8860B"; if(k.accent2){ v["--gold"]=k.accent2; v["--focus"]=k.accent2; }
+  v["--hd"]=k.header||S; v["--hd-ink"]=k.headerInk||k.ink||"#14211A";
+  if(f.titre) v["--f-display"]=`"${f.titre}","Arial Narrow",sans-serif`;
+  if(f.texte) v["--f-body"]=`"${f.texte}",system-ui,sans-serif`;
+  v["--f-accent"]=f.accent?`"${f.accent}",Georgia,serif`:"var(--f-display)";
+  return v; }
+function charteFontsHref(c){ const f=(c&&c.fonts)||{}; const fams=[...new Set([f.titre,f.accent,f.texte].filter(x=>x&&FONTS[x]))]; return fams.length?"https://fonts.googleapis.com/css2?"+fams.map(x=>"family="+FONTS[x]).join("&")+"&display=swap":""; }
+function applyCharte(ch, root){ const R=root||document.documentElement; R.removeAttribute("style"); R.classList.remove("th-custom","th-angles"); if(!root){ R.removeAttribute("data-theme"); const old=document.getElementById("chFonts"); if(old) old.remove(); }
+  if(!ch||!ch.config) return; const c=ch.config; const v=charteVars(c); for(const k in v) R.style.setProperty(k,v[k]);
+  if(!root){ R.setAttribute("data-theme","light"); const h=charteFontsHref(c); if(h){ const l=document.createElement("link"); l.id="chFonts"; l.rel="stylesheet"; l.href=h; document.head.appendChild(l); } }
+  R.classList.add("th-custom"); if(c.style==="angles") R.classList.add("th-angles"); }
+
+function applyBrand(ch){ const c=(ch&&ch.config)||{}; const h=document.querySelector(".brand h1"), s=document.querySelector(".brand small"), lg=document.querySelector(".brand .logo");
+  if(h) h.textContent=c.titre||"Annuaire des courses"; if(s) s.textContent=c.sousTitre||"Galop · Trot · Élevage · Propriétaires"; const g=document.getElementById("gateTitle"); if(g) g.textContent=c.titre||"Annuaire des courses";
+  const ok=c.logo&&/^data:image\//.test(c.logo); if(lg){ lg.innerHTML=ok?`<img src="${c.logo.replace(/"/g,"")}" alt="">`:""; lg.classList.toggle("img",!!ok); } }
+function setCharte(ch){ applyCharte(ch); applyBrand(ch); try{ ch?localStorage.setItem("ach-charte",JSON.stringify(ch)):localStorage.removeItem("ach-charte"); }catch(_){} }
+try{ const c0=JSON.parse(localStorage.getItem("ach-charte")||"null"); if(c0){ applyCharte(c0); applyBrand(c0); } }catch(_){}
 let CODE=null, ME=null, QUOTA=null;
 const sess={get(){try{return localStorage.getItem("ach-code")||sessionStorage.getItem("ach-code")}catch(e){return null}},
 set(c,rem){try{(rem?localStorage:sessionStorage).setItem("ach-code",c)}catch(e){}},
@@ -798,7 +851,7 @@ return JSON.parse(new TextDecoder().decode(all));
 }
 async function login(code, rem){
 CODE=code.trim().toUpperCase();
-const j=await api({action:"login"}); ME=j.nom; sess.set(CODE,rem);
+const j=await api({action:"login"}); ME=j.nom; sess.set(CODE,rem); setCharte(j.charte||null);
 $("#whoN").textContent=ME; $("#who").hidden=false; setQuota(j.quota); $("#gate").hidden=true;
 }
 async function init(){
@@ -879,7 +932,7 @@ let started=false;
 function start(){ if(started) return; started=true; init().catch(err=>{ started=false; $("#loadtxt").textContent="Impossible de charger les données ("+err.message+")."; }); }
 $("#gateForm").addEventListener("submit",async e=>{ e.preventDefault(); const b=e.target.querySelector("button[type=submit]"); b.disabled=true; $("#gateErr").textContent="";
 try{ await login($("#code").value,$("#remember").checked); start(); }catch(err){ if($("#gate").hidden) showGate(err.message); else $("#gateErr").textContent=err.message; } finally{ b.disabled=false; } });
-$("#logout").addEventListener("click",()=>{ sess.clear(); location.reload(); });
+$("#logout").addEventListener("click",()=>{ sess.clear(); try{localStorage.removeItem("ach-charte")}catch(_){} location.reload(); });
 $("#prospect").addEventListener("click",e=>{ const b=e.target.closest("[data-ps]"); if(!b) return; const k=b.dataset.ps;
   if(k==="c1"||k==="c0"){ const v=k==="c1"?"1":"0"; state.sC=state.sC===v?"":v; $("#sC").value=state.sC; } else { const v=k==="jo"?"oui":"en_cours"; state.sJ=state.sJ===v?"":v; $("#sJ").value=state.sJ; } apply(); if(matchMedia("(max-width:980px)").matches) setTab("liste"); });
 $("#pEditBtn").addEventListener("click",()=>{ $("#pTxt").value=CONTACTS.join("\n"); $("#pEdit").hidden=false; $("#pTxt").focus(); });
