@@ -113,6 +113,12 @@ fieldset{border:1px solid var(--line);border-radius:10px;padding:10px;margin:0}l
     </section>
 
     <section class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">Contacts ajoutés</h2><button type="button" id="ajRefresh">Actualiser</button></div>
+      <div class="scroll" style="max-height:420px"><table class="tbl"><thead><tr><th>Nom</th><th>Famille</th><th>Ville</th><th>Dép.</th><th>Ajouté par</th><th>Date</th><th></th></tr></thead><tbody id="ajRows"></tbody></table></div>
+      <p class="muted">Fiches créées depuis l'annuaire par les espaces. Elles sont visibles dans tous les espaces (sous 10 minutes au plus). « Retirer » masque la fiche partout.</p>
+    </section>
+
+    <section class="card">
       <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">Chartes graphiques</h2><button type="button" class="primary" id="chNew">Nouvelle charte</button></div>
       <p class="muted" style="margin-top:0">Une charte habille l'annuaire aux couleurs d'une structure : couleurs, polices, style, titre et logo. Attribuez-la ensuite à un ou plusieurs accès dans le tableau ci-dessus.</p>
       <div class="chgrid" id="chList"></div>
@@ -221,7 +227,7 @@ async function refresh(){
     :`<tr><td colspan="9" class="muted">Aucun accès pour l'instant.</td></tr>`;
 }
 $("#loginForm").addEventListener("submit",async e=>{e.preventDefault(); KEY=$("#akey").value.trim(); $("#loginErr").textContent="";
-  try{ await refresh(); $("#loginCard").hidden=true; $("#app").hidden=false; try{sessionStorage.setItem("adm",KEY)}catch(_){} }
+  try{ await refresh(); loadAjouts().catch(()=>{}); $("#loginCard").hidden=true; $("#app").hidden=false; try{sessionStorage.setItem("adm",KEY)}catch(_){} }
   catch(err){ $("#loginErr").textContent=err.message; }});
 $("#createForm").addEventListener("submit",async e=>{e.preventDefault(); $("#createErr").textContent="";
   try{ const j=await call({op:"create",nom:$("#nNom").value,quota_jour:+$("#nQ").value,expire_le:$("#nExp").value?new Date($("#nExp").value+"T23:59:59").toISOString():null,note:$("#nNote").value});
@@ -254,6 +260,15 @@ $("#rows").addEventListener("click",async e=>{
     $("#dlg").showModal(); }
 });
 try{ const k=sessionStorage.getItem("adm"); if(k){ $("#akey").value=k; $("#loginForm").requestSubmit(); } }catch(_){}
+
+const FAM={hippo:"Hippodrome",inst:"Institution",centre:"Centre d'entraînement",galop:"Entraîneur galop",trot:"Entraîneur trot",jockey:"Jockey / cavalier",agent:"Agent",medecin:"Médecin agréé",haras:"Haras",eleveur:"Éleveur galop",naisseur:"Naisseur trot",courtier:"Courtier",proprio:"Propriétaire",employeur:"Employeur",equestre:"Centre équestre"};
+async function loadAjouts(){ const {ajouts}=await call({op:"ajouts_list"});
+  $("#ajRows").innerHTML=ajouts.length?ajouts.map(a=>`<tr class="${a.retire?"off":""}"><td><b>${esc(a.n||"")}</b>${a.retire?' <span class="tag no">Retirée</span>':""}</td><td>${esc(FAM[a.c]||"")}</td><td>${esc(a.v||"")}</td><td>${esc(a.d||"")}</td><td>${esc(a.par||"")}</td><td>${dt(a.at)}</td>
+  <td>${a.retire?"":`<button type="button" class="danger" data-rm="${a.id}">Retirer</button>`}</td></tr>`).join(""):`<tr><td colspan="7" class="muted">Aucun contact ajouté pour l'instant.</td></tr>`; }
+$("#ajRefresh").addEventListener("click",()=>loadAjouts().catch(e=>{$("#ajRows").innerHTML=`<tr><td colspan="7">${esc(e.message)}</td></tr>`;}));
+$("#ajRows").addEventListener("click",async e=>{ const b=e.target.closest("[data-rm]"); if(!b) return;
+  if(b.dataset.ok!=="1"){ b.dataset.ok="1"; b.textContent="Confirmer ?"; setTimeout(()=>{ if(b.isConnected){ b.dataset.ok=""; b.textContent="Retirer"; } },4000); return; }
+  b.disabled=true; try{ await call({op:"ajout_retire",id:+b.dataset.rm}); await loadAjouts(); }catch(err){ b.disabled=false; b.textContent=err.message; } });
 </script>
 </body>
 </html>

@@ -339,6 +339,24 @@ html.th-angles .btn.primary{border-radius:3px}
 .ct-edit{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:10px}
 .ct-edit textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink)}
 .su-st{font-size:12px;margin:8px 0 0}
+.addbtn{width:100%;margin:0 0 12px;height:40px;font-size:14px}
+dialog.addm{border:0;padding:0;border-radius:14px;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 32px);background:var(--surface);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog.addm::backdrop{background:rgba(10,20,15,.5)}
+.addm form{display:grid;gap:12px;padding:20px 20px 16px}
+.addm h2{margin:0;font-family:var(--f-display);font-size:22px}
+.addm .g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.addm .g3{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px}
+.addm label{display:grid;gap:4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.addm input,.addm textarea,.addm select{font:inherit;font-weight:400;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--sunk);width:100%;box-sizing:border-box}
+.addm select{height:38px}
+.addm textarea{resize:vertical;min-height:64px}
+.addm .req{color:var(--accent)}
+.addm .dup{border:1px solid #E0A400;background:color-mix(in srgb,#E0A400 12%,var(--surface));border-radius:10px;padding:8px 10px;font-size:13px}
+.addm .dup button{display:block;background:none;border:0;padding:3px 0;color:var(--ink);text-decoration:underline;text-align:left;cursor:pointer;font-size:13px}
+.addm .err{color:#B42318;font-size:13px;min-height:1em}
+.addm .bar{display:flex;justify-content:flex-end;gap:8px}
+.addm .hint{font-size:12px;color:var(--muted);margin:0}
+@media (max-width:560px){.addm .g2{grid-template-columns:1fr}}
 .pedit{display:block;margin:6px 0 2px;font-size:12.5px;text-align:left}
 #pEdit{margin-top:6px;background:var(--surface)}
 .drange{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:8px}.drange input{min-width:0;padding:0 6px;font-size:13px}
@@ -386,6 +404,7 @@ html.th-angles .btn.primary{border-radius:3px}
 <div class="progress" aria-hidden="true"><i id="prog"></i></div>
 <main id="main" data-tab="carte">
 <aside class="filters" aria-label="Filtres">
+<button class="btn primary addbtn" type="button" id="addBtn">+ Ajouter un contact</button>
 <div class="field prospect" id="prospect"><div class="fhead"><h2><svg width="14" height="14"><use href="#i-target"/></svg> Ma prospection</h2><button class="link" type="button" id="pReset" hidden>Effacer</button></div>
 <div class="pstats">
 <button type="button" class="pst" data-ps="c1"><b id="pC">0</b><small>contactés</small></button>
@@ -449,6 +468,24 @@ html.th-angles .btn.primary{border-radius:3px}
 <button role="tab" aria-selected="false" data-t="liste"><svg><use href="#i-list"/></svg>Liste</button>
 </nav>
 </div>
+<dialog class="addm" id="addDlg" aria-labelledby="addTitle">
+<form id="addForm" method="dialog" autocomplete="off" novalidate>
+<h2 id="addTitle">Ajouter un contact</h2>
+<p class="hint">La fiche sera visible dans tous les espaces. Les champs marqués <span class="req">*</span> sont obligatoires.</p>
+<div class="g2"><label><span>Famille <span class="req">*</span></span><select id="aC" required></select></label>
+<label><span>Nom <span class="req">*</span></span><input id="aN" maxlength="120" required placeholder="Ex. : Écurie du Val"></label></div>
+<div id="aDup" class="dup" hidden></div>
+<label>Qualité / fonction<input id="aS" maxlength="120" placeholder="Ex. : gérante, entraîneur public…"></label>
+<label>Adresse<input id="aA" maxlength="200" placeholder="N° et rue"></label>
+<div class="g3"><label>Code postal<input id="aCP" maxlength="10" inputmode="numeric" placeholder="14000"></label><label>Ville<input id="aV" maxlength="80"></label></div>
+<div class="g2"><label>Téléphone(s)<input id="aT" maxlength="120" inputmode="tel" placeholder="06 12 34 56 78"></label>
+<label>E-mail(s)<input id="aE" maxlength="200" inputmode="email" placeholder="nom@exemple.fr"></label></div>
+<label>Site web<input id="aW" maxlength="200" placeholder="www.exemple.fr"></label>
+<label>Commentaire<textarea id="aCom" maxlength="1000" rows="3" placeholder="Contexte, origine du contact…"></textarea></label>
+<div class="err" id="aErr" role="alert"></div>
+<div class="bar"><button class="btn" type="button" id="aCancel">Annuler</button><button class="btn primary" type="submit" id="aOk">Ajouter la fiche</button></div>
+</form>
+</dialog>
 <div class="toast" id="toast" hidden></div>
 <div class="gate" id="gate" hidden>
 <form id="gateForm" autocomplete="off">
@@ -743,7 +780,7 @@ if(x.d) kv.push(["Département",x.d+" · "+(DEP[x.d]||"")]); if(DEPR[x.d]) kv.pu
 I.forEach(([k,v])=>{ if(!skip.has(k)) kv.push([k==="Région"?"Secteur (guide)":k,v]); });
 const links=[]; if(x.fg) links.push(["France Galop",x.fg]); if(x.lt) links.push(["LeTrot",x.lt]); if(x.w) links.push(["Site",/^https?:/.test(x.w)?x.w:"https://"+x.w]);
 const rel=(x.rel||[]).filter(r=>CM[r.c]);
-const prec = x.la==null ? "Pas d'adresse exploitable : fiche absente de la carte." : x.p==="département" ? "Position approximative : centre du département." : x.p==="res" ? "Position de l'installation." :
+const prec = x.la==null ? "Pas d'adresse exploitable : fiche absente de la carte." : x.p==="département" ? "Position approximative : centre du département." : x.p==="res" ? "Position de l'installation." : x.p==="adr" ? "Position d'après l'adresse saisie." : x.p==="commune" ? "Position approximative : centre de la commune." :
 (x.p||"").startsWith("via") ? `Position reprise de la fiche « ${esc(x.p.slice(4))} » (même e-mail ou portable).` : "Position approximative : fiches regroupées autour du centre de la commune.";
 const pos=listed.findIndex(r=>r.id===id);
 sh.innerHTML = `<div class="sh-top"><div class="sh-band"></div>
@@ -874,7 +911,7 @@ drawPlaces(pl, css);
 map.fitBounds([[42.2,-4.9],[51.2,8.3]]);
 cluster=L.markerClusterGroup({chunkedLoading:true,showCoverageOnHover:false,maxClusterRadius:z=>z>=13?18:50,disableClusteringAtZoom:15,spiderfyOnMaxZoom:true,iconCreateFunction:clusterIcon});
 map.addLayer(cluster);
-for(const x of R){ if(x.la==null){markers.push(null);continue}
+for(const x of R){ if(x.la==null||!CM[x.c]){markers.push(null);continue}
 const m=L.marker([x.la,x.lo],{icon:L.divIcon({html:`<div class="dot" style="--c:${CM[x.c].c}"></div>`,className:"",iconSize:[12,12]}),title:x.n,keyboard:false});
 m._c=x.c; m.on("click",()=>{openSheet(x.id,false); if(matchMedia("(max-width:980px)").matches) setTab("liste");}); markers.push(m); }
 buildFilters(); syncCats(); apply(false);
@@ -884,6 +921,39 @@ io=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting) && state.shown
 new MutationObserver(()=>{ const s=$("#sent"); if(s){ io.disconnect(); io.observe(s); } }).observe($("#rows"),{childList:true});
 const s=$("#sent"); if(s) io.observe(s);
 }
+
+// ---------- ajout de contact ----------
+function mkMarker(x){ if(x.la==null||!CM[x.c]) return null; const m=L.marker([x.la,x.lo],{icon:L.divIcon({html:`<div class="dot" style="--c:${CM[x.c].c}"></div>`,className:"",iconSize:[12,12]}),title:x.n,keyboard:false});
+m._c=x.c; m.on("click",()=>{openSheet(x.id,false); if(matchMedia("(max-width:980px)").matches) setTab("liste");}); return m; }
+function indexX(x){ x._s=norm([x.n,x.s,x.v,x.d,DEP[x.d]].join(" ")); x._k=norm((x.n||"").replace(/^((m\.|mme|mlle|mm|dr|mr|&|et)\s+)+/i,"")); }
+function openAdd(){ const sel=$("#aC"); if(!sel.options.length) sel.innerHTML='<option value="">Choisir…</option>'+GROUPS.map(([g,cs])=>`<optgroup label="${esc(g)}">${cs.map(c=>`<option value="${c[0]}">${esc(SING[c[0]]||c[1])}</option>`).join("")}</optgroup>`).join("");
+  $("#addForm").reset(); $("#aErr").textContent=""; $("#aDup").hidden=true; $("#aOk").disabled=false; const d=$("#addDlg"); d.showModal(); setTimeout(()=>$("#aC").focus(),30); }
+let dupT; function checkDup(){ clearTimeout(dupT); dupT=setTimeout(()=>{ const k=norm($("#aN").value.trim()).replace(/^((m\.|mme|mlle|mm|dr|mr|&|et)\s+)+/i,""); const cp=$("#aCP").value.trim(); const box=$("#aDup");
+  if(k.length<3){ box.hidden=true; return; } const dep=/^\d{5}$/.test(cp)?(cp.startsWith("97")?cp.slice(0,3):cp.slice(0,2)):"";
+  const hits=R.filter(x=>x.n && CM[x.c] && (x._k===k || (k.length>=5 && x._k.includes(k))) && (!dep || x.d===dep)).slice(0,5);
+  if(!hits.length){ box.hidden=true; return; }
+  box.innerHTML=`<b>Fiche${hits.length>1?"s":""} peut-être déjà présente${hits.length>1?"s":""} :</b>`+hits.map(x=>`<button type="button" data-id="${x.id}">${esc(x.n)} · ${esc(SING[x.c]||"")}${x.v?" · "+esc(x.v):""}${x.d?" ("+esc(x.d)+")":""}</button>`).join("")+`<span class="hint">Vous pouvez quand même ajouter la fiche si c'est un autre contact.</span>`; box.hidden=false; },250); }
+async function submitAdd(e){ e.preventDefault(); const v=id=>$(id).value.trim(); const err=$("#aErr"); err.textContent="";
+  const f={c:v("#aC"),n:v("#aN"),s:v("#aS"),a:v("#aA"),cp:v("#aCP"),v:v("#aV"),t:v("#aT"),e:v("#aE"),w:v("#aW"),com:v("#aCom")};
+  if(!f.c){ err.textContent="Choisissez une famille."; $("#aC").focus(); return; }
+  if(f.n.length<2){ err.textContent="Indiquez le nom du contact."; $("#aN").focus(); return; }
+  if(f.e && !/^[^@\s]+@[^@\s]+\.[^@\s]+/.test(f.e)){ err.textContent="L'adresse e-mail semble incorrecte."; $("#aE").focus(); return; }
+  if(f.cp && !/^\d{5}$/.test(f.cp)){ err.textContent="Le code postal doit compter 5 chiffres."; $("#aCP").focus(); return; }
+  const b=$("#aOk"); b.disabled=true; b.textContent="Ajout en cours…";
+  try{ const j=await api({action:"fiche_add",fiche:f}); const x=j.light; x.id=j.id;
+    while(R.length<x.id){ const g={id:R.length,c:"_del",n:""}; indexX(g); R.push(g); markers.push(null); }
+    indexX(x); R[x.id]=x; markers[x.id]=mkMarker(x);
+    if(!state.cats.has(x.c)){ state.cats.add(x.c); syncCats(); }
+    $("#addDlg").close(); state.q=""; $("#q").value=""; apply();
+    toast(j.localise?"Fiche ajoutée et placée sur la carte.":"Fiche ajoutée (adresse non localisée).");
+    openSheet(x.id,true);
+  }catch(ex){ err.textContent=ex.message||"Ajout impossible."; }
+  finally{ b.disabled=false; b.textContent="Ajouter la fiche"; } }
+$("#addBtn").addEventListener("click",openAdd);
+$("#aCancel").addEventListener("click",()=>$("#addDlg").close());
+$("#addForm").addEventListener("submit",submitAdd);
+$("#aN").addEventListener("input",checkDup); $("#aCP").addEventListener("input",checkDup);
+$("#aDup").addEventListener("click",e=>{ const bt=e.target.closest("[data-id]"); if(!bt) return; $("#addDlg").close(); openSheet(+bt.dataset.id,true); });
 // ---------- événements ----------
 let qt; $("#q").addEventListener("input",e=>{ if(!$("#sheet").hidden) closeSheet(); clearTimeout(qt);qt=setTimeout(()=>{state.q=e.target.value.trim();apply(false)},160)});
 $("#qclear").addEventListener("click",()=>{state.q="";$("#q").value="";apply(false);$("#q").focus()});
