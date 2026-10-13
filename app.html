@@ -278,6 +278,12 @@ main:not([data-tab="liste"]) section.list{display:none}
 .sheet .stamp{font-size:11px;color:var(--faint);border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
 @media (max-width:980px){.who #whoN{display:none}}
 @media print{body{display:none!important}}
+.note-sec textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;line-height:1.45;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--sunk);color:var(--ink);resize:vertical;min-height:92px;user-select:text;-webkit-user-select:text}
+.note-sec textarea:focus{outline:2px solid var(--focus);outline-offset:1px}
+.note-sec h4{display:flex;align-items:center;gap:6px}
+.note-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.note-bar .note{font-size:12px;margin:0}
+.row .nt{display:inline-flex;color:var(--gold)}
 #legend{display:none!important}
 </style>
 </head>
@@ -288,6 +294,7 @@ main:not([data-tab="liste"]) section.list{display:none}
 <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol>
 <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></symbol>
 <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+<symbol id="i-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h5"/></symbol>
 <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
 <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></symbol>
 <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
@@ -334,6 +341,7 @@ main:not([data-tab="liste"]) section.list{display:none}
 </div>
 <div class="field"><div class="fhead"><h2>4. Liste et carte</h2></div>
 <label class="switch"><span><b>Suivre la carte</b><em>La liste ne montre que ce qui est visible sur la carte : zoomez ou déplacez-la pour explorer un secteur</em></span><input type="checkbox" id="fB"></label>
+<label class="switch"><span><b>Avec mes notes</b><em>Seulement les fiches que vous avez annotées. Vos notes sont privées : visibles uniquement avec votre code d'accès</em></span><input type="checkbox" id="fN"></label>
 </div>
 <div class="stack">
 <button class="btn" id="reset" type="button">Revenir à la vue de départ</button>
@@ -402,10 +410,11 @@ const PRESETS = [
 ["Élevage", ()=>Object.assign(state,DEF(),{cats:new Set(["haras","eleveur","naisseur"])})],
 ["Jockeys & cavaliers", ()=>Object.assign(state,DEF(),{cats:new Set(["jockey","agent"])})],
 ["Hippodromes", ()=>Object.assign(state,DEF(),{cats:new Set(["hippo","inst"])})],
-["Propriétaires", ()=>Object.assign(state,DEF(),{cats:new Set(["proprio"]),sort:"h"})]];
+["Propriétaires", ()=>Object.assign(state,DEF(),{cats:new Set(["proprio"]),sort:"h"})],
+["Mes notes", ()=>Object.assign(state,DEF(),{cats:new Set(CATS.map(c=>c[0])),fN:true})]];
 const SING = {hippo:"Hippodrome",inst:"Institution",centre:"Centre d'entraînement",galop:"Entraîneur galop",trot:"Entraîneur trot",jockey:"Jockey / cavalier",agent:"Agent",medecin:"Médecin agréé",haras:"Haras",eleveur:"Éleveur galop",naisseur:"Naisseur trot",courtier:"Courtier",proprio:"Propriétaire",employeur:"Employeur",equestre:"Centre équestre"};
 const $ = s=>document.querySelector(s);
-const DEF = ()=>({cats:new Set(CATS.map(c=>c[0]).filter(k=>k!=="proprio")), q:"", reg:"", dep:"", fE:false, fT:false, fA:false, fB:false, sort:"n"});
+const DEF = ()=>({cats:new Set(CATS.map(c=>c[0]).filter(k=>k!=="proprio")), q:"", reg:"", dep:"", fE:false, fT:false, fA:false, fB:false, fN:false, sort:"n"});
 const state = Object.assign(DEF(), {sel:null, shown:0, open:new Set()});
 const store = {get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const API="https://gijcnroyuxogetxzruef.supabase.co/functions/v1/annuaire";
@@ -423,6 +432,15 @@ return j;
 function setQuota(q){ if(!q) return; QUOTA=q; const el=$("#whoQ"); el.textContent=`${q.reste} fiche${q.reste>1?"s":""} restante${q.reste>1?"s":""}`; el.classList.toggle("low",q.reste<=10); }
 function showGate(msg){ $("#gate").hidden=false; $("#gateErr").textContent=msg||""; setTimeout(()=>$("#code").focus(),50); }
 function wmURI(t){ const s=`<svg xmlns='http://www.w3.org/2000/svg' width='260' height='140'><text x='10' y='80' transform='rotate(-20 130 70)' font-family='Arial' font-size='14' fill='#000'>${t.replace(/[<&'"]/g,"")}</text></svg>`; return `url("data:image/svg+xml,${encodeURIComponent(s)}")`; }
+const NOTES=new Map();
+function noteBox(id){ const n=NOTES.get(id); return `<div class="sec note-sec"><h4>${svg("note")} Mes notes</h4><textarea id="noteTxt" rows="4" maxlength="5000" placeholder="Échanges, rendez-vous, à relancer… (Ctrl + Entrée pour enregistrer)">${esc(n?n.t:"")}</textarea><div class="note-bar"><span class="note" id="noteSt">${n?"Modifiée le "+new Date(n.maj).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})+" · ":""}Privée : visible uniquement avec votre accès</span><button class="btn primary" type="button" data-act="note-save" data-id="${id}">Enregistrer</button></div></div>`; }
+async function saveNote(id){ const ta=$("#noteTxt"); if(!ta) return; const t=ta.value.trim(); const b=$('[data-act="note-save"]'); if(b) b.disabled=true;
+  try{ const j=await api({action:"note_set",id,texte:t}); if(j.supprimee) NOTES.delete(id); else NOTES.set(id,{t,maj:j.maj,n:norm(t)});
+    $("#noteSt").textContent=(j.supprimee?"Note supprimée · ":"Enregistrée le "+new Date(j.maj).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})+" · ")+"Privée : visible uniquement avec votre accès";
+    toast(j.supprimee?"Note supprimée":"Note enregistrée");
+    const row=document.querySelector(`.row[data-id="${id}"]`); if(row){ row.outerHTML=rowHTML(R[id]); const r2=document.querySelector(`.row[data-id="${id}"]`); if(r2&&state.sel===id) r2.classList.add("on"); }
+    if(state.fN) apply(false);
+  }catch(e){ toast(e.message); } finally{ if(b) b.disabled=false; } }
 let R=[], DEP={}, DEPR={}, map, cluster, markers=[], filtered=[], listed=[], io;
 const norm = s => (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 const esc = s => String(s??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -447,7 +465,8 @@ if(!state.dep && state.reg && DEPR[x.d]!==state.reg) return false;
 if(state.fE && !x.he && ign!=="fE") return false;
 if(state.fT && !x.ht && ign!=="fT") return false;
 if(state.fA && (x.c==="galop"||x.c==="trot") && x.act!==1) return false;
-if(state.qw.length){ for(const w of state.qw) if(!x._s.includes(w)) return false; }
+if(state.fN && !NOTES.has(x.id)) return false;
+if(state.qw.length){ const hay=NOTES.has(x.id)?x._s+" "+NOTES.get(x.id).n:x._s; for(const w of state.qw) if(!hay.includes(w)) return false; }
 return true;
 }
 function apply(save=true){
@@ -467,7 +486,7 @@ syncGroups(); renderPresets();
 countUp($("#kN"),filtered.length); countUp($("#kE"),em); countUp($("#kT"),tel); countUp($("#kM"),ms.length);
 renderChips(); renderLegend(); renderList(true);
 $("#qclear").hidden=!state.q; $("#kbd").hidden=!!state.q;
-if(save) store.set("ach-f2",{cats:[...state.cats],reg:state.reg,dep:state.dep,fE:state.fE,fT:state.fT,fA:state.fA,fB:state.fB,sort:state.sort,open:[...state.open]});
+if(save) store.set("ach-f2",{cats:[...state.cats],reg:state.reg,dep:state.dep,fE:state.fE,fT:state.fT,fA:state.fA,fB:state.fB,fN:state.fN,sort:state.sort,open:[...state.open]});
 }
 function catPhrase(){
 const on=CATS.filter(c=>state.cats.has(c[0]));
@@ -487,6 +506,7 @@ if(state.dep) parts.push("dans le "+esc(state.dep+" · "+(DEP[state.dep]||"")));
 const c=[state.fE&&"un e-mail",state.fT&&"un téléphone"].filter(Boolean); if(c.length) parts.push("avec "+c.join(" et "));
 if(state.q) parts.push(`contenant « ${esc(state.q)} »`);
 if(state.fB) parts.push("visibles sur la carte");
+if(state.fN) parts.push("avec vos notes");
 $("#summary").innerHTML=parts.join(", ")+".";
 }
 function syncGroups(){
@@ -494,7 +514,7 @@ document.querySelectorAll(".grp").forEach(g=>{ const ks=GROUPS.find(x=>x[0]===g.
 g.querySelector(".tri").dataset.s = n===0?"none":n===ks.length?"all":"some"; });
 const sub=document.querySelector(".sub"); if(sub) sub.hidden=!(state.cats.has("galop")||state.cats.has("trot"));
 }
-function presetKey(){ return JSON.stringify([[...state.cats].sort(),state.reg,state.dep,state.fE,state.fT,state.fA,state.q]); }
+function presetKey(){ return JSON.stringify([[...state.cats].sort(),state.reg,state.dep,state.fE,state.fT,state.fA,state.fN,state.q]); }
 function renderPresets(){
 const cur=presetKey(); const keep={...state,cats:new Set(state.cats)};
 $("#presets").innerHTML=PRESETS.map(([l,f],i)=>{ f(); const k=presetKey(); Object.assign(state,keep,{cats:new Set(keep.cats)}); return `<button type="button" data-preset="${i}" aria-pressed="${k===cur}">${esc(l)}</button>`; }).join("");
@@ -507,7 +527,7 @@ const off=isDef?[]:CATS.filter(k=>!state.cats.has(k[0]));
 if(off.length && state.cats.size && state.cats.size<=3) c.push(["cats",[...state.cats].map(k=>CM[k].l).join(", ")]);
 else if(off.length && state.cats.size) c.push(["cats",`${state.cats.size} familles sur ${CATS.length}`]);
 if(state.dep) c.push(["dep",`${state.dep} · ${DEP[state.dep]||""}`]); else if(state.reg) c.push(["reg",state.reg]);
-if(state.fE) c.push(["fE","Avec e-mail"]); if(state.fT) c.push(["fT","Avec téléphone"]); if(state.fA) c.push(["fA","Entraîneurs actifs 2026"]); if(state.fB) c.push(["fB","Suit la carte"]);
+if(state.fE) c.push(["fE","Avec e-mail"]); if(state.fT) c.push(["fT","Avec téléphone"]); if(state.fA) c.push(["fA","Entraîneurs actifs 2026"]); if(state.fB) c.push(["fB","Suit la carte"]); if(state.fN) c.push(["fN","Avec mes notes"]);
 $("#chips").innerHTML = c.map(([k,l])=>`<span class="chip">${esc(l)}<button type="button" data-chip="${k}" aria-label="Retirer le filtre ${esc(l)}">${svg("x")}</button></span>`).join("")
 + (c.length>1?`<button class="link" type="button" data-chip="all">Tout effacer</button>`:"");
 }
@@ -532,7 +552,7 @@ const badge = x.vw ? `<span class="badge win">${x.vw} vict. 2026</span>` : x.nh 
 return `<button class="row${state.sel===x.id?" on":""}" data-id="${x.id}" style="--c:${c.c}">
 <span class="av"><b>${esc(ini(x.n))}</b></span>
 <span style="min-width:0"><div class="t">${hl(x.n)}</div><div class="m">${esc(SING[x.c])}${x.s&&x.c!=="proprio"?" · "+esc(x.s):""}${place?" — "+esc(place):""}</div></span>
-<span class="side"><span class="ico" aria-label="${x.ht?"téléphone":""} ${x.he?"e-mail":""} ${x.la!=null?"localisé":"non localisé"}">${svg("phone",x.ht?"on":"")}${svg("mail",x.he?"on":"")}${svg("pin",x.la!=null?"on":"")}</span>${badge}</span></button>`;
+<span class="side"><span class="ico" aria-label="${x.ht?"téléphone":""} ${x.he?"e-mail":""} ${x.la!=null?"localisé":"non localisé"}">${svg("phone",x.ht?"on":"")}${svg("mail",x.he?"on":"")}${svg("pin",x.la!=null?"on":"")}${NOTES.has(x.id)?`<span class="nt" title="Vous avez une note sur cette fiche">${svg("note","on")}</span>`:""}</span>${badge}</span></button>`;
 }
 function renderList(reset){
 if(reset){
@@ -559,7 +579,7 @@ sh.innerHTML=`<div class="sh-top"><div class="sh-band"></div><div class="sh-nav"
 <div class="sh-id"><span class="av"><b>${esc(ini(x0.n))}</b></span><div style="min-width:0"><div class="kind">${esc(SING[x0.c])}</div><h3>${esc(x0.n)}</h3></div></div></div><div class="skel">Ouverture de la fiche…</div>`;
 sh.hidden=false;
 try{ const j=await api({action:"fiche",id}); F=j.fiche; setQuota(j.quota); FC.set(id,F); }
-catch(e){ if(e.quota) setQuota(e.quota); if(state.sel===id) sh.querySelector(".skel").innerHTML=`<b>${esc(e.message)}</b>`; toast(e.message); return; }
+catch(e){ if(e.quota) setQuota(e.quota); if(state.sel===id){ sh.querySelector(".skel").innerHTML=`<b>${esc(e.message)}</b>`; sh.insertAdjacentHTML("beforeend",`<div class="sh-body">${noteBox(id)}</div>`); } toast(e.message); return; }
 if(state.sel!==id) return;
 }
 const x=Object.assign({},x0,F,{la:x0.la,lo:x0.lo});
@@ -579,7 +599,7 @@ if(x.d) kv.push(["Département",x.d+" · "+(DEP[x.d]||"")]); if(DEPR[x.d]) kv.pu
 I.forEach(([k,v])=>{ if(!skip.has(k)) kv.push([k==="Région"?"Secteur (guide)":k,v]); });
 const links=[]; if(x.fg) links.push(["France Galop",x.fg]); if(x.lt) links.push(["LeTrot",x.lt]); if(x.w) links.push(["Site",/^https?:/.test(x.w)?x.w:"https://"+x.w]);
 const rel=(x.rel||[]).filter(r=>CM[r.c]);
-const prec = x.la==null ? "Pas d'adresse exploitable : fiche absente de la carte." : x.p==="département" ? "Position approximative : centre du département." : x.p==="res" ? "Position de l'installation d'après le recensement national des équipements sportifs." :
+const prec = x.la==null ? "Pas d'adresse exploitable : fiche absente de la carte." : x.p==="département" ? "Position approximative : centre du département." : x.p==="res" ? "Position de l'installation." :
 (x.p||"").startsWith("via") ? `Position reprise de la fiche « ${esc(x.p.slice(4))} » (même e-mail ou portable).` : "Position approximative : fiches regroupées autour du centre de la commune.";
 const pos=listed.findIndex(r=>r.id===id);
 sh.innerHTML = `<div class="sh-top"><div class="sh-band"></div>
@@ -595,7 +615,7 @@ ${links.map(([l,u])=>`<a class="btn" href="${esc(u)}" target="_blank" rel="noope
 </div></div>
 <div class="sh-body">
 ${kpis.length?`<div class="kpis">${kpis.map(([v,l])=>`<div class="kpi"><b>${typeof v==="number"?fmt(v):esc(v)}</b><small>${esc(l)}</small></div>`).join("")}</div>`:""}
-<div class="sec"><h4>Coordonnées</h4>${(x.t||[]).map(v=>`<div class="contact">${svg("phone")}<span class="v">${esc(v)}</span><button type="button" data-copy="${esc(v)}">Copier</button></div>`).join("")}${(x.e||[]).map(v=>`<div class="contact">${svg("mail")}<span class="v">${esc(v)}</span><button type="button" data-copy="${esc(v)}">Copier</button></div>`).join("")}${!x.t&&!x.e?`<p class="note" style="margin:0">Aucun téléphone ni e-mail dans les sources.</p>`:""}</div>
+${noteBox(id)}<div class="sec"><h4>Coordonnées</h4>${(x.t||[]).map(v=>`<div class="contact">${svg("phone")}<span class="v">${esc(v)}</span><button type="button" data-copy="${esc(v)}">Copier</button></div>`).join("")}${(x.e||[]).map(v=>`<div class="contact">${svg("mail")}<span class="v">${esc(v)}</span><button type="button" data-copy="${esc(v)}">Copier</button></div>`).join("")}${!x.t&&!x.e?`<p class="note" style="margin:0">Aucun téléphone ni e-mail dans les sources.</p>`:""}</div>
 ${trainers?`<div class="sec"><h4>Entraîneurs (chevaux)</h4><div class="tlist">${trainers.split(/,\s(?![^()]*\))/).map(t=>`<button type="button" data-search="${esc(t.replace(/\s*\(\d+\)$/,"").replace(/\(S\)/,"").replace(/^[A-Z&]+\.\s*/,"").trim())}">${esc(t)}</button>`).join("")}</div></div>`:""}
 <div class="sec"><h4>Informations</h4><dl class="kv">${kv.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></div>
 ${x.rem?`<div class="warn"><b>Remarque de transcription :</b> ${esc(x.rem)}</div>`:""}
@@ -629,7 +649,7 @@ $("#fA").addEventListener("change",e=>{state.fA=e.target.checked;apply()});
 const regs=[...new Set(R.map(x=>DEPR[x.d]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"fr"));
 $("#reg").innerHTML='<option value="">Toutes les régions</option>'+regs.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join("");
 $("#reg").value=state.reg; fillDeps(); $("#dep").value=state.dep;
-["fE","fT","fA","fB"].forEach(k=>$("#"+k).checked=!!state[k]); $("#sort").value=state.sort; $("#q").value=state.q;
+["fE","fT","fA","fB","fN"].forEach(k=>$("#"+k).checked=!!state[k]); $("#sort").value=state.sort; $("#q").value=state.q;
 }
 function syncCats(){ document.querySelectorAll(".cat").forEach(c=>{c.setAttribute("aria-pressed",state.cats.has(c.dataset.k));c.setAttribute("aria-checked",state.cats.has(c.dataset.k));}); $("#allCats").textContent = state.cats.size===CATS.length?"Tout décocher":"Tout cocher"; }
 function fillDeps(){
@@ -696,6 +716,7 @@ const fr=await load("https://cdn.jsdelivr.net/gh/camopenia/D-p-t-vente@c6fa3883e
 const d={r:d0.r.map(a=>{const o={}; d0.cols.forEach((k,i)=>{ if(a[i]!==null) o[k]=a[i]; }); return o;}), dep:d0.dep, depr:d0.depr};
 $("#loadtxt").textContent="Indexation…"; await new Promise(r=>setTimeout(r,20));
 R=d.r; DEP=d.dep; DEPR=d.depr;
+try{ const jn=await api({action:"notes"}); for(const n of jn.notes) NOTES.set(n.id,{t:n.t,maj:n.maj,n:norm(n.t)}); }catch(_){}
 for(const x of R){ x._s=norm([x.n,x.s,x.v,x.d,DEP[x.d]].join(" "));
 x._k=norm(x.n.replace(/^((m\.|mme|mlle|mm|dr|mr|&|et)\s+)+/i,"")); }
 const css=getComputedStyle(document.documentElement);
@@ -729,7 +750,7 @@ $("#groups").addEventListener("keydown",e=>{ const b=e.target.closest(".cat"); i
 $("#allCats").addEventListener("click",()=>{ state.cats = state.cats.size===CATS.length? new Set(): new Set(CATS.map(c=>c[0])); syncCats(); apply(); });
 $("#reg").addEventListener("change",e=>{state.reg=e.target.value;state.dep="";fillDeps();apply();fitSel()});
 $("#dep").addEventListener("change",e=>{state.dep=e.target.value;apply();fitSel()});
-["fE","fT","fB"].forEach(id=>$("#"+id).addEventListener("change",e=>{state[id]=e.target.checked;apply()}));
+["fE","fT","fB","fN"].forEach(id=>$("#"+id).addEventListener("change",e=>{state[id]=e.target.checked;apply()}));
 $("#presets").addEventListener("click",e=>{ const b=e.target.closest("[data-preset]"); if(!b) return; PRESETS[+b.dataset.preset][1](); buildFilters(); syncCats(); apply(); fitSel(); $("#sort").value=state.sort; });
 $("#sort").addEventListener("change",e=>{state.sort=e.target.value;renderList(true);store.set("ach-f2",{...(store.get("ach-f2")||{}),sort:state.sort})});
 $("#reset").addEventListener("click",()=>{ Object.assign(state,DEF()); buildFilters(); syncCats(); apply(); map.fitBounds([[42.2,-4.9],[51.2,8.3]]); toast("Filtres réinitialisés"); });
@@ -745,7 +766,7 @@ apply(); return; }
 $("#rows").addEventListener("click",e=>{ const r=e.target.closest(".row"); if(r) openSheet(+r.dataset.id,true); });
 $("#sheet").addEventListener("click",e=>{
 const a=e.target.closest("[data-act]");
-if(a){ const k=a.dataset.act; if(k==="close") closeSheet(); else if(k==="prev") step(-1); else if(k==="next") step(1);
+if(a){ const k=a.dataset.act; if(k==="note-save"){ saveNote(+a.dataset.id); return; } if(k==="close") closeSheet(); else if(k==="prev") step(-1); else if(k==="next") step(1);
 else if(k==="center"){ const x=R[state.sel]; if(matchMedia("(max-width:980px)").matches) setTab("carte"); setTimeout(()=>{ cluster.zoomToShowLayer(markers[x.id],()=>{ map.setView([x.la,x.lo],Math.max(map.getZoom(),11)); const el=markers[x.id].getElement(); if(el) el.firstChild.classList.add("sel"); }); },60); }
 return; }
 const c=e.target.closest("[data-copy]"); if(c){ copy(c.dataset.copy,"Copié : "+c.dataset.copy); return; }
@@ -765,7 +786,8 @@ function start(){ if(started) return; started=true; init().catch(err=>{ started=
 $("#gateForm").addEventListener("submit",async e=>{ e.preventDefault(); const b=e.target.querySelector("button[type=submit]"); b.disabled=true; $("#gateErr").textContent="";
 try{ await login($("#code").value,$("#remember").checked); start(); }catch(err){ if($("#gate").hidden) showGate(err.message); else $("#gateErr").textContent=err.message; } finally{ b.disabled=false; } });
 $("#logout").addEventListener("click",()=>{ sess.clear(); location.reload(); });
-document.addEventListener("contextmenu",e=>{ if(e.target.closest(".sheet,.rows")) e.preventDefault(); });
+document.addEventListener("contextmenu",e=>{ if(e.target.closest("textarea")) return; if(e.target.closest(".sheet,.rows")) e.preventDefault(); });
+document.addEventListener("keydown",e=>{ if(e.target.id==="noteTxt" && e.key==="Enter" && (e.ctrlKey||e.metaKey)){ e.preventDefault(); const b=$('[data-act="note-save"]'); if(b) saveNote(+b.dataset.id); } });
 (async()=>{ const c=sess.get(); if(!c){ showGate(); return; } try{ await login(c,true); start(); }catch(e){ showGate(e.message); } })();
 </script>
 
