@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Gestion des accès</title>
+<style>
+:root{--bg:#EDF0E8;--surface:#fff;--sunk:#F5F7F1;--ink:#14211A;--muted:#5A695F;--line:#D8DED3;--accent:#15603B;--danger:#B42318;--ok:#2B7A4B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121813;--surface:#1A221C;--sunk:#141B16;--ink:#E7EDE6;--muted:#9AA79D;--line:#2C372F;--accent:#5CC08A;--danger:#FF8A80;--ok:#7BD3A0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:24px;margin:0 0 4px}
+p.sub{color:var(--muted);margin:0 0 20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
+.card h2{font-size:16px;margin:0 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+input,select{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink);min-width:0}
+button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.danger{color:var(--danger)}
+button:disabled{opacity:.5;cursor:default}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);padding:8px 6px}
+.tbl td{border-bottom:1px solid var(--line);padding:9px 6px;vertical-align:middle}
+.code{font-family:ui-monospace,Menlo,monospace;letter-spacing:.06em;font-weight:600}
+.off td{opacity:.55}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+.tag.on{color:var(--ok);border-color:currentColor}.tag.no{color:var(--danger);border-color:currentColor}
+.new{margin-top:12px;padding:12px;border-radius:8px;background:var(--sunk);border:1px dashed var(--accent);display:none}
+.new.show{display:block}
+.err{color:var(--danger);min-height:1.2em;font-size:14px}
+.scroll{overflow-x:auto}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);max-width:760px;width:calc(100% - 32px);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.muted{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Gestion des accès à l'annuaire</h1>
+  <p class="sub">Créez un code par personne, réglez son quota de fiches par jour, coupez un accès en un clic et voyez qui a consulté quoi.</p>
+
+  <section class="card" id="loginCard">
+    <h2>Clé administrateur</h2>
+    <form class="row" id="loginForm">
+      <label style="flex:1 1 280px">Clé<input id="akey" type="password" autocomplete="current-password" required></label>
+      <button class="primary" type="submit">Ouvrir</button>
+    </form>
+    <div class="err" id="loginErr"></div>
+  </section>
+
+  <div id="app" hidden>
+    <section class="card">
+      <h2>Donner un accès</h2>
+      <form class="row" id="createForm">
+        <label style="flex:2 1 220px">Nom de la personne<input id="nNom" required maxlength="80" placeholder="Prénom Nom, structure"></label>
+        <label style="flex:1 1 120px">Fiches par jour<input id="nQ" type="number" min="1" max="2000" value="150"></label>
+        <label style="flex:1 1 150px">Expire le (facultatif)<input id="nExp" type="date"></label>
+        <label style="flex:2 1 200px">Note (facultatif)<input id="nNote" maxlength="200"></label>
+        <button class="primary" type="submit">Créer le code</button>
+      </form>
+      <div class="new" id="newBox"></div>
+      <div class="err" id="createErr"></div>
+    </section>
+
+    <section class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px"><h2 style="margin:0">Accès existants</h2><button type="button" id="refresh">Actualiser</button></div>
+      <div class="scroll"><table class="tbl"><thead><tr><th>Personne</th><th>Code</th><th>État</th><th>Quota / jour</th><th>Fiches aujourd'hui</th><th>Fiches 7 j</th><th>Dernière visite</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+      <p class="muted">Couper un accès prend effet immédiatement, y compris pour une personne connectée : sa prochaine action la renvoie à l'écran de code.</p>
+    </section>
+  </div>
+</main>
+
+<dialog id="dlg"><div id="dlgBody"></div><div style="text-align:right;margin-top:12px"><button type="button" onclick="dlg.close()">Fermer</button></div></dialog>
+
+<script>
+const API="https://gijcnroyuxogetxzruef.supabase.co/functions/v1/annuaire";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dt=s=>s?new Date(s).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"}):"—";
+let KEY="";
+async function call(body){
+  const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json","x-admin":KEY},body:JSON.stringify({action:"admin",...body})});
+  const j=await r.json().catch(()=>({error:"Réponse illisible"}));
+  if(!r.ok) throw new Error(j.error||("Erreur "+r.status));
+  return j;
+}
+async function refresh(){
+  const {codes}=await call({op:"list"});
+  $("#rows").innerHTML=codes.length?codes.map(c=>`<tr class="${c.actif?"":"off"}">
+    <td><b>${esc(c.nom)}</b>${c.note?`<br><span class="muted">${esc(c.note)}</span>`:""}${c.expire_le?`<br><span class="muted">expire le ${new Date(c.expire_le).toLocaleDateString("fr-FR")}</span>`:""}</td>
+    <td class="code">${esc(c.code)}</td>
+    <td><span class="tag ${c.actif?"on":"no"}">${c.actif?"Actif":"Coupé"}</span></td>
+    <td><input type="number" min="1" max="2000" value="${c.quota_jour}" data-q="${esc(c.code)}" style="width:90px" aria-label="Quota par jour"></td>
+    <td>${c.stats.fj}</td><td>${c.stats.f7}</td><td>${dt(c.derniere_visite)}</td>
+    <td style="white-space:nowrap"><button type="button" data-j="${esc(c.code)}" data-n="${esc(c.nom)}">Journal</button>
+      <button type="button" class="${c.actif?"danger":""}" data-t="${esc(c.code)}" data-a="${c.actif?0:1}">${c.actif?"Couper":"Réactiver"}</button></td></tr>`).join("")
+    :`<tr><td colspan="8" class="muted">Aucun accès pour l'instant.</td></tr>`;
+}
+$("#loginForm").addEventListener("submit",async e=>{e.preventDefault(); KEY=$("#akey").value.trim(); $("#loginErr").textContent="";
+  try{ await refresh(); $("#loginCard").hidden=true; $("#app").hidden=false; try{sessionStorage.setItem("adm",KEY)}catch(_){} }
+  catch(err){ $("#loginErr").textContent=err.message; }});
+$("#createForm").addEventListener("submit",async e=>{e.preventDefault(); $("#createErr").textContent="";
+  try{ const j=await call({op:"create",nom:$("#nNom").value,quota_jour:+$("#nQ").value,expire_le:$("#nExp").value?new Date($("#nExp").value+"T23:59:59").toISOString():null,note:$("#nNote").value});
+    const nom=$("#nNom").value; const msg=`Bonjour,\n\nVoici votre accès personnel à l'annuaire des courses hippiques :\n${location.origin}/\nCode : ${j.code}\n\nCe code est personnel, merci de ne pas le partager : les consultations sont enregistrées à votre nom.`;
+    $("#newBox").innerHTML=`<b>Code créé pour ${esc(nom)} : <span class="code">${esc(j.code)}</span></b><br><span class="muted">Message à lui envoyer :</span><pre style="white-space:pre-wrap;margin:6px 0">${esc(msg)}</pre><button type="button" id="cp">Copier le message</button>`;
+    $("#newBox").classList.add("show"); $("#cp").onclick=()=>navigator.clipboard.writeText(msg).then(()=>$("#cp").textContent="Copié");
+    e.target.reset(); $("#nQ").value=150; await refresh();
+  }catch(err){ $("#createErr").textContent=err.message; }});
+$("#refresh").addEventListener("click",()=>refresh().catch(e=>alert(e.message)));
+$("#rows").addEventListener("change",async e=>{const q=e.target.closest("[data-q]"); if(!q) return; try{ await call({op:"update",code:q.dataset.q,quota_jour:+q.value}); q.style.outline="2px solid var(--ok)"; setTimeout(()=>q.style.outline="",900);}catch(err){ $("#createErr").textContent=err.message; }});
+$("#rows").addEventListener("click",async e=>{
+  const t=e.target.closest("[data-t]"); if(t){ t.disabled=true; try{ await call({op:"update",code:t.dataset.t,actif:t.dataset.a==="1"}); await refresh(); }catch(err){ $("#createErr").textContent=err.message; t.disabled=false; } return; }
+  const j=e.target.closest("[data-j]"); if(j){ const {journal}=await call({op:"journal",code:j.dataset.j});
+    $("#dlgBody").innerHTML=`<h2 style="margin:0 0 10px;font-size:17px">Journal de ${esc(j.dataset.n)}</h2><p class="muted">300 dernières actions.</p><div class="scroll" style="max-height:60vh"><table class="tbl"><thead><tr><th>Date</th><th>Action</th><th>Fiche</th><th>Adresse IP</th></tr></thead><tbody>${journal.map(r=>`<tr><td>${dt(r.at)}</td><td>${esc(r.action)}</td><td>${esc(r.nom||"")}</td><td class="muted">${esc(r.ip||"")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">Rien pour l'instant.</td></tr>`}</tbody></table></div>`;
+    $("#dlg").showModal(); }
+});
+try{ const k=sessionStorage.getItem("adm"); if(k){ $("#akey").value=k; $("#loginForm").requestSubmit(); } }catch(_){}
+</script>
+</body>
+</html>
