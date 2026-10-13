@@ -387,14 +387,14 @@ const GROUPS = [
 ["Cavaliers", [["jockey","Jockeys & cavaliers","#D6336C"],["agent","Agents de jockeys","#8A6A45"],["medecin","Médecins agréés","#2B9348"]]],
 ["Élevage & commerce", [["haras","Haras","#8C1C13"],["eleveur","Éleveurs galop","#B08900"],["naisseur","Naisseurs trot","#6D8F22"],["courtier","Courtiers","#475569"]]],
 ["Propriétaires & employeurs", [["proprio","Propriétaires","#B5179E"],["employeur","Employeurs","#7C8691"]]],
-["Équitation", [["equestre","Centres équestres (Aquitaine)","#0096C7"]]]];
+["Équitation", [["equestre","Centres équestres","#0096C7"]]]];
 const CATS = GROUPS.flatMap(g=>g[1]);
 const CM = Object.fromEntries(CATS.map(c=>[c[0],{l:c[1],c:c[2]}]));
 const DESC = {hippo:"Sociétés de courses et hippodromes",inst:"Fédérations régionales et bureaux techniques",centre:"Grands centres d'entraînement galop",
 galop:"Guide galop et palmarès France Galop 2026",trot:"Guide trot 2025 et classements LeTrot 2026",
 jockey:"Jockeys, apprentis, cavalières, gentlemen-riders",agent:"Agents agréés des jockeys, sans adresse",medecin:"Médecins agréés France Galop",
 haras:"Répertoire des haras 2024",eleveur:"Répertoire des éleveurs galop 2024",naisseur:"Naisseurs de trotteurs, guide trot",courtier:"Courtiers ARQANA",
-proprio:"Effectifs 2026, rarement localisés : masqués au départ",employeur:"Employeurs de la filière",equestre:"Nouvelle-Aquitaine uniquement"};
+proprio:"Effectifs 2026, rarement localisés : masqués au départ",employeur:"Employeurs de la filière",equestre:"Toute la France ; coordonnées en Nouvelle-Aquitaine"};
 const PRESETS = [
 ["Vue de départ", ()=>Object.assign(state,DEF())],
 ["Entraîneurs actifs 2026", ()=>Object.assign(state,DEF(),{cats:new Set(["galop","trot"]),fA:true,sort:"w"})],
@@ -579,7 +579,7 @@ if(x.d) kv.push(["Département",x.d+" · "+(DEP[x.d]||"")]); if(DEPR[x.d]) kv.pu
 I.forEach(([k,v])=>{ if(!skip.has(k)) kv.push([k==="Région"?"Secteur (guide)":k,v]); });
 const links=[]; if(x.fg) links.push(["France Galop",x.fg]); if(x.lt) links.push(["LeTrot",x.lt]); if(x.w) links.push(["Site",/^https?:/.test(x.w)?x.w:"https://"+x.w]);
 const rel=(x.rel||[]).filter(r=>CM[r.c]);
-const prec = x.la==null ? "Pas d'adresse exploitable : fiche absente de la carte." : x.p==="département" ? "Position approximative : centre du département." :
+const prec = x.la==null ? "Pas d'adresse exploitable : fiche absente de la carte." : x.p==="département" ? "Position approximative : centre du département." : x.p==="res" ? "Position de l'installation d'après le recensement national des équipements sportifs." :
 (x.p||"").startsWith("via") ? `Position reprise de la fiche « ${esc(x.p.slice(4))} » (même e-mail ou portable).` : "Position approximative : fiches regroupées autour du centre de la commune.";
 const pos=listed.findIndex(r=>r.id===id);
 sh.innerHTML = `<div class="sh-top"><div class="sh-band"></div>
