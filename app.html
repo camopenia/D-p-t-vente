@@ -262,7 +262,7 @@ main:not([data-tab="liste"]) section.list{display:none}
 .gate form{width:min(420px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:28px 24px;display:grid;gap:14px}
 .gate h1{font-family:var(--f-display);font-size:30px;line-height:1;margin:0;letter-spacing:.01em;text-transform:uppercase}
 .gate p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
-.gate input{font:500 18px/1.2 var(--f-mono,monospace);letter-spacing:.12em;text-transform:uppercase;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--sunk);color:var(--ink);width:100%;box-sizing:border-box}
+.gate input:not([type=checkbox]){font:500 18px/1.2 var(--f-mono,monospace);letter-spacing:.12em;text-transform:uppercase;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--sunk);color:var(--ink);width:100%;box-sizing:border-box}
 .gate input:focus{outline:2px solid var(--focus);outline-offset:1px}
 .gate .err{color:#B42318;font-size:14px;min-height:1.2em}
 .gate label.rem{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
