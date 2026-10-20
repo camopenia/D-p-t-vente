@@ -368,6 +368,14 @@ button.st[aria-pressed="true"] span,button.st[aria-pressed="true"] svg{color:inh
 .hadd svg{width:15px;height:15px}
 html.th-custom .hadd{background:var(--accent2,var(--accent));border-color:var(--accent2,var(--accent));color:#fff}
 @keyframes amUp{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.m-steps{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:var(--accent-2);border-radius:12px;padding:12px 14px;font-size:14px;display:grid;gap:8px;margin-top:12px}
+.m-steps ol{margin:0;padding-left:20px;display:grid;gap:8px}
+.m-steps li span{color:var(--muted)}
+.m-steps code{font-family:var(--f-mono,ui-monospace,monospace);font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:2px 6px;word-break:break-all}
+.m-steps .mini{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:3px 9px;font-size:12px;font-weight:600;margin-left:4px;cursor:pointer}
+.m-steps a{color:var(--accent);font-weight:600}
+.m-steps kbd{font-size:11px}
+.m-ok{margin:0}.m-note{margin:0;font-size:12px;color:var(--muted)}
 .mailbtn{background:var(--accent2,var(--accent))!important;border-color:var(--accent2,var(--accent))!important;color:#fff!important}
 .mpv{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
 .mpv-h{padding:8px 12px;border-bottom:1px solid #e5e5e5;font-size:12.5px;color:#555;background:#fafafa;display:flex;justify-content:space-between;gap:8px}
@@ -670,12 +678,22 @@ dialog.addm[open]{animation:amUp .26s cubic-bezier(.2,.8,.2,1)}
 <div class="mpv" id="mPvBox"><div class="mpv-h"><span>Aperçu, tel que le destinataire le recevra</span><span id="mPvSt"></span></div><iframe id="mPvF" sandbox="allow-popups" title="Aperçu du mail"></iframe></div>
 </fieldset>
 <fieldset class="am-s priv"><legend><i>2</i>Mon suivi<em>privé à votre espace</em></legend>
-<label class="switch"><span><b>Marquer comme contacté</b><em>Avec la date du jour</em></span><input type="checkbox" id="mCont" checked></label>
+<label class="switch"><span><b>Marquer comme contacté</b><em>Avec la date du jour, dès la copie du mail</em></span><input type="checkbox" id="mCont" checked></label>
 <label class="fl"><span>Contacté par</span><select id="mPar"></select></label>
 </fieldset>
-<div id="mOff" class="m-off" hidden>L'envoi n'est pas encore activé par l'administratrice : le bouton Envoyer sera disponible dès que ce sera fait.</div>
+<div id="mOff" hidden></div>
+<div id="mSteps" class="m-steps" hidden aria-live="polite">
+<p class="m-ok"><b>Mail copié.</b> Il reste à l'envoyer depuis votre messagerie :</p>
+<ol>
+<li><a href="https://mail.orange.fr/" target="_blank" rel="noopener">Ouvrez Mail Orange</a> et cliquez sur « Écrire ».</li>
+<li><span>À :</span> <code id="sTo"></code> <button type="button" class="mini" data-cp="to">Copier</button></li>
+<li><span>Objet :</span> <code id="sObj"></code> <button type="button" class="mini" data-cp="obj">Copier</button></li>
+<li>Cliquez dans le message, collez (<kbd>Ctrl</kbd>+<kbd>V</kbd>, ou <kbd>⌘</kbd>+<kbd>V</kbd> sur Mac), puis envoyez.</li>
+</ol>
+<p class="m-note">Si vous avez copié l'adresse ou l'objet entre-temps, cliquez de nouveau sur « Copier le mail » avant de coller le message.</p>
 </div>
-<footer class="am-f"><div class="err" id="mErr" role="alert"></div><button class="btn" type="button" id="mCancel">Annuler</button><button class="btn primary" type="submit" id="mSend">Envoyer</button></footer>
+</div>
+<footer class="am-f"><div class="err" id="mErr" role="alert"></div><button class="btn" type="button" id="mCancel">Annuler</button><button class="btn primary" type="submit" id="mSend">Copier le mail</button></footer>
 </form>
 </dialog>
 <div class="toast" id="toast" hidden></div>
@@ -986,7 +1004,7 @@ sh.innerHTML = `<div class="sh-top"><div class="sh-band"></div>
 ${x.c==="proprio"&&x.s?`<div class="sh-sub">${esc(x.s)}</div>`:""}
 <div class="qa">
 ${x.t?`<button class="btn primary" type="button" data-copy="${esc(x.t[0])}">${svg("phone")}${esc(x.t[0])}</button>`:""}
-${x.e&&MAIL&&MAIL.modeles&&MAIL.modeles.length?`<button class="btn primary mailbtn" type="button" data-act="mail">${svg("mail")}Envoyer un mail</button>`:""}
+${x.e&&MAIL&&MAIL.modeles&&MAIL.modeles.length?`<button class="btn primary mailbtn" type="button" data-act="mail">${svg("mail")}Mail type</button>`:""}
 ${x.e?`<button class="btn" type="button" data-copy="${esc(x.e[0])}">${svg("mail")}Copier l'e-mail</button>`:""}
 ${x.la!=null?`<button class="btn" type="button" data-act="center">${svg("pin")}Voir sur la carte</button>`:""}
 ${links.map(([l,u])=>`<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${svg("ext")}${esc(l)}</a>`).join("")}
@@ -1217,34 +1235,43 @@ $("#aSPedit").addEventListener("click",()=>{ closeAdd(true); if(matchMedia("(max
 $("#aDup").addEventListener("click",e=>{ const bt=e.target.closest("[data-id]"); if(!bt) return; closeAdd(true); if(matchMedia("(max-width:980px)").matches) setTab("liste"); openSheet(+bt.dataset.id,true); });
 
 // ---------- envoi de mail ----------
-let MD={id:null,seq:0};
-async function loadMailPv(){ const my=++MD.seq; const box=$("#mPvBox"); box.classList.add("ld"); $("#mPvSt").textContent="Chargement…"; $("#mErr").textContent="";
+let MD={id:null,seq:0,html:""};
+async function loadMailPv(){ const my=++MD.seq; const box=$("#mPvBox"); box.classList.add("ld"); $("#mPvSt").textContent="Chargement…"; $("#mErr").textContent=""; $("#mSteps").hidden=true;
   try{ const j=await api({action:"mail_modele",fiche_id:MD.id,modele_id:$("#mMod").value}); if(my!==MD.seq) return;
-    $("#mObj").value=j.sujet; $("#mPvF").srcdoc=j.html; MAIL.actif=j.actif;
+    $("#mObj").value=j.sujet; MD.html=j.html; $("#mPvF").srcdoc=j.html;
     const keep=$("#mDest").value; $("#mDest").innerHTML=j.destinataires.map(e=>`<option value="${esc(e)}">${esc(e)}</option>`).join(""); if(j.destinataires.includes(keep)) $("#mDest").value=keep;
-    const dj=(j.deja||[])[0]; $("#mDeja").hidden=!dj; if(dj){ const nm=(MAIL.modeles.find(m=>m.id===dj.modele_id)||{}).nom||"un mail"; $("#mDeja").innerHTML=`<b>Déjà envoyé</b> le ${new Date(dj.at).toLocaleDateString("fr-FR")} à ${esc(dj.destinataire)} (${esc(nm)}). Vous pouvez quand même renvoyer.`; }
-    $("#mOff").hidden=!!j.actif; $("#mSend").disabled=!j.actif || !j.destinataires.length; $("#mPvSt").textContent="";
+    const dj=(j.deja||[])[0]; $("#mDeja").hidden=!dj; if(dj){ const nm=(MAIL.modeles.find(m=>m.id===dj.modele_id)||{}).nom||"un mail"; $("#mDeja").innerHTML=`<b>Déjà envoyé</b> le ${new Date(dj.at).toLocaleDateString("fr-FR")} à ${esc(dj.destinataire)} (${esc(nm)}).`; }
+    const S=SUIVI.get(MD.id); if(!dj && S && S.c){ $("#mDeja").hidden=false; $("#mDeja").innerHTML=`<b>Déjà contacté</b>${S.d?" le "+fdate(S.d):""}${S.p?" par "+esc(S.p):""}.`; }
+    $("#mSend").disabled=!j.destinataires.length; $("#mPvSt").textContent="";
   }catch(e){ if(my===MD.seq){ $("#mErr").textContent=e.message; $("#mPvSt").textContent=""; $("#mSend").disabled=true; } }
   finally{ if(my===MD.seq) box.classList.remove("ld"); } }
-function openMailDlg(id){ const x=R[id]; if(!x||!MAIL) return; MD.id=id;
+function openMailDlg(id){ const x=R[id]; if(!x||!MAIL) return; MD.id=id; MD.html="";
   $("#mailTo").textContent=x.n+(x.v?" · "+x.v:""); $("#mMod").innerHTML=MAIL.modeles.map(m=>`<option value="${esc(m.id)}">${esc(m.nom)}</option>`).join("");
   let lp=null; try{lp=localStorage.getItem("ach-par")}catch(_){} const S=SUIVI.get(id)||{};
   $("#mPar").innerHTML='<option value="">—</option>'+CONTACTS.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(""); $("#mPar").value=S.p&&CONTACTS.includes(S.p)?S.p:(lp&&CONTACTS.includes(lp)?lp:"");
-  $("#mCont").checked=true; $("#mErr").textContent=""; $("#mDest").innerHTML=""; $("#mObj").value=""; $("#mPvF").srcdoc=""; $("#mDeja").hidden=true; $("#mOff").hidden=true;
-  const b=$("#mSend"); b.disabled=true; b.textContent="Envoyer"; $("#mBody").scrollTop=0; $("#mailDlg").showModal(); loadMailPv(); }
-async function sendMail(e){ e.preventDefault(); const b=$("#mSend"); if(b.disabled) return; const to=$("#mDest").value; if(!to){ $("#mErr").textContent="Aucune adresse e-mail sur cette fiche."; return; }
-  if(b.dataset.ok!=="1"){ b.dataset.ok="1"; b.textContent="Confirmer l'envoi à "+to; setTimeout(()=>{ if(b.dataset.ok==="1"){ b.dataset.ok=""; b.textContent="Envoyer"; } },5000); return; }
-  b.dataset.ok=""; b.disabled=true; b.textContent="Envoi…"; $("#mErr").textContent="";
-  try{ const par=$("#mPar").value; const j=await api({action:"mail_send",fiche_id:MD.id,modele_id:$("#mMod").value,to,sujet:$("#mObj").value.trim(),contacte:$("#mCont").checked,par});
-    if(par){ try{localStorage.setItem("ach-par",par)}catch(_){} }
-    if(j.suivi){ SUIVI.set(MD.id,j.suivi); const box=document.querySelector(`.suivi-sec[data-sid="${MD.id}"]`); if(box) box.outerHTML=suiviBox(MD.id); fillPar(); apply(false); }
-    $("#mailDlg").close(); toast("Mail envoyé à "+to);
-  }catch(ex){ $("#mErr").textContent=ex.message; b.disabled=false; b.textContent="Envoyer"; } }
+  $("#mCont").checked=true; $("#mErr").textContent=""; $("#mDest").innerHTML=""; $("#mObj").value=""; $("#mPvF").srcdoc=""; $("#mDeja").hidden=true; $("#mSteps").hidden=true;
+  const b=$("#mSend"); b.disabled=true; b.textContent="Copier le mail"; $("#mBody").scrollTop=0; $("#mailDlg").showModal(); loadMailPv(); }
+function mailBodyHtml(h){ const m=h.match(/<body[^>]*>([\s\S]*)<\/body>/i); return (m?m[1]:h).replace(/<!--[\s\S]*?-->/g,""); }
+function mailText(h){ const d=document.createElement("div"); d.innerHTML=mailBodyHtml(h).replace(/<br\s*\/?>/gi,"\n").replace(/<\/(p|tr|li)>/gi,"\n"); return d.textContent.replace(/[ \t]+/g," ").replace(/\n\s*\n\s*\n+/g,"\n\n").trim(); }
+async function copyRich(html){ const body=mailBodyHtml(html);
+  try{ if(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){ await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([body],{type:"text/html"}),"text/plain":new Blob([mailText(html)],{type:"text/plain"})})]); return true; } }catch(_){}
+  const d=document.createElement("div"); d.contentEditable="true"; d.style.cssText="position:fixed;left:-9999px;top:0;width:640px;background:#fff;color:#000"; d.innerHTML=body; $("#mailDlg").appendChild(d);
+  const r=document.createRange(); r.selectNodeContents(d); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); let ok=false; try{ ok=document.execCommand("copy"); }catch(_){} sel.removeAllRanges(); d.remove(); return ok; }
+async function copyPlain(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(_){ const ta=document.createElement("textarea"); ta.value=t; ta.style.cssText="position:fixed;left:-9999px"; $("#mailDlg").appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand("copy"); }catch(_){} ta.remove(); return ok; } }
+async function sendMail(e){ e.preventDefault(); const b=$("#mSend"); if(b.disabled||!MD.html) return; const to=$("#mDest").value; if(!to){ $("#mErr").textContent="Aucune adresse e-mail sur cette fiche."; return; }
+  $("#mErr").textContent=""; const ok=await copyRich(MD.html);
+  if(!ok){ $("#mErr").textContent="Copie refusée par le navigateur. Sélectionnez le mail dans l'aperçu (Ctrl+A) puis copiez-le (Ctrl+C)."; return; }
+  $("#sTo").textContent=to; $("#sObj").textContent=$("#mObj").value.trim(); $("#mSteps").hidden=false; b.textContent="Copier à nouveau";
+  setTimeout(()=>$("#mSteps").scrollIntoView({block:"nearest",behavior:"smooth"}),50);
+  if($("#mCont").checked){ const par=$("#mPar").value; if(par){ try{localStorage.setItem("ach-par",par)}catch(_){} }
+    const S=SUIVI.get(MD.id)||{}; const d=new Date().toISOString().slice(0,10);
+    try{ const j=await api({action:"suivi_set",id:MD.id,c:true,j:S.j||null,d,p:par||S.p||null}); SUIVI.set(MD.id,{id:MD.id,c:true,j:S.j||null,d,p:par||S.p||null,maj:j.maj}); const box=document.querySelector(`.suivi-sec[data-sid="${MD.id}"]`); if(box) box.outerHTML=suiviBox(MD.id); fillPar(); apply(false); }catch(ex){ $("#mErr").textContent="Mail copié, mais le suivi n'a pas été enregistré : "+ex.message; } }
+  toast("Mail copié : collez-le dans Mail Orange"); }
 $("#mMod").addEventListener("change",loadMailPv);
 $("#mClose").addEventListener("click",()=>$("#mailDlg").close()); $("#mCancel").addEventListener("click",()=>$("#mailDlg").close());
 $("#mailDlg").addEventListener("click",e=>{ if(e.target===$("#mailDlg")) $("#mailDlg").close(); });
 $("#mailForm").addEventListener("submit",sendMail);
-$("#mDest").addEventListener("change",()=>{ const b=$("#mSend"); if(b.dataset.ok==="1"){ b.dataset.ok=""; b.textContent="Envoyer"; } });
+$("#mSteps").addEventListener("click",async e=>{ const c=e.target.closest("[data-cp]"); if(!c) return; const t=c.dataset.cp==="to"?$("#sTo").textContent:$("#sObj").textContent; if(await copyPlain(t)){ c.textContent="Copié"; setTimeout(()=>c.textContent="Copier",1500); } });
 // ---------- événements ----------
 $("#kEb").addEventListener("click",()=>$("#fE").click()); $("#kTb").addEventListener("click",()=>$("#fT").click());
 $("#kMb").addEventListener("click",()=>{ if(matchMedia("(max-width:980px)").matches) setTab("carte"); setTimeout(fitSel,80); });
