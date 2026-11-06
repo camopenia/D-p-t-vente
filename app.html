@@ -384,6 +384,23 @@ html.th-custom .hadd{background:var(--accent2,var(--accent));border-color:var(--
 .m-deja{border:1px solid #E0A400;background:color-mix(in srgb,#E0A400 12%,var(--surface));border-radius:10px;padding:9px 12px;font-size:13px}
 .m-off{border:1px solid var(--line);background:var(--sunk);border-radius:10px;padding:9px 12px;font-size:13px;color:var(--muted)}
 @media (max-width:640px){.mpv iframe{height:52vh}}
+.vtabs{display:flex;gap:2px;padding:3px;border-radius:12px;background:var(--t-chip);border:1px solid var(--t-line);flex:none}
+.vtabs button{height:36px;padding:0 14px;border:0;border-radius:9px;background:none;color:var(--t-ink);font:inherit;font-size:13px;font-weight:700;letter-spacing:.02em;cursor:pointer;white-space:nowrap}
+.vtabs button:hover{background:color-mix(in srgb,var(--t-ink) 9%,transparent)}
+.vtabs button[aria-current="page"]{background:var(--accent2,var(--accent));color:#fff}
+.acct-pages{display:grid;gap:6px}
+.acct-pages button{display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--sunk);color:var(--ink);font:inherit;font-weight:600;cursor:pointer;text-align:left}
+.acct-pages button:hover{border-color:var(--accent)}
+.pview{position:fixed;left:0;right:0;bottom:0;top:var(--ptop,64px);z-index:1050;background:var(--bg);display:flex;flex-direction:column}
+.pview-bar{display:none;align-items:center;gap:12px;padding:8px max(12px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);background:var(--surface)}
+.pview-bar .btn{height:36px;gap:6px;padding:0 12px}.pview-bar svg{width:14px;height:14px}
+.pview iframe{flex:1;width:100%;border:0;background:#fff}
+.pview-ld{position:absolute;inset:60px 0 auto;text-align:center;color:var(--muted)}
+@media (max-width:1600px){.vtabs button{padding:0 10px;font-size:12.5px}}
+@media (max-width:1500px){#kMb{display:none}.top{gap:10px}.hadd span{display:none}.hadd{padding:0 12px}}
+@media (max-width:1380px){.top .brand small{display:none}.pchip span{display:none}.pchip{padding:0 10px}}
+@media (min-width:981px) and (max-width:1240px){.top .brand>div:last-child{display:none}}
+@media (max-width:980px){.vtabs{display:none!important}.pview{top:0;z-index:1200}.pview-bar{display:flex;padding-top:calc(8px + env(safe-area-inset-top,0px))}}
 .addbtn{display:none!important}
 .acct{position:relative;flex:none;margin-left:auto}
 .acct-b{display:flex;align-items:center;gap:9px;height:46px;padding:0 10px 0 4px;border-radius:999px;border:1px solid var(--t-line);background:var(--t-chip);color:var(--t-ink);font:inherit;cursor:pointer;max-width:230px}
@@ -543,6 +560,7 @@ dialog.addm[open]{animation:amUp .26s cubic-bezier(.2,.8,.2,1)}
 <div class="app">
 <header class="top">
 <div class="brand"><div class="logo" aria-hidden="true"></div><div><h1>Annuaire des courses</h1><small>Galop · Trot · Élevage · Propriétaires</small></div></div>
+<nav class="vtabs" id="vtabs" aria-label="Vues" hidden><button type="button" data-v="" aria-current="page">Annuaire</button></nav>
 <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
 <input id="q" type="search" placeholder="Nom, haras, ville, entraîneur…" autocomplete="off" aria-label="Rechercher">
 <kbd id="kbd">/</kbd><button class="clear" id="qclear" type="button" aria-label="Effacer la recherche" hidden><svg width="12" height="12"><use href="#i-x"/></svg></button></label>
@@ -559,6 +577,7 @@ dialog.addm[open]{animation:amUp .26s cubic-bezier(.2,.8,.2,1)}
 <div class="acct-m" id="acctMenu" hidden>
 <p class="acct-h">Accès de <b id="whoN2"></b></p>
 <div class="qbox"><div class="qrow"><span>Fiches ouvertes aujourd'hui</span><b><span id="qUsed">0</span> / <span id="qMax">0</span></b></div><div class="qbar"><i id="qFill"></i></div><small>Le compteur repart à zéro à minuit (heure UTC). Rouvrir une fiche déjà vue aujourd'hui ne compte pas.</small></div>
+<div class="acct-pages" id="acctPages" hidden></div>
 <div class="acct-l"><span><b id="mNotes">0</b> notes</span><span><b id="mSuivi">0</b> fiches suivies</span></div>
 <button type="button" class="acct-out" id="logout">Se déconnecter</button>
 </div>
@@ -696,6 +715,7 @@ dialog.addm[open]{animation:amUp .26s cubic-bezier(.2,.8,.2,1)}
 <footer class="am-f"><div class="err" id="mErr" role="alert"></div><button class="btn" type="button" id="mCancel">Annuler</button><button class="btn primary" type="submit" id="mSend">Copier le mail</button></footer>
 </form>
 </dialog>
+<section class="pview" id="pView" hidden aria-label="Page"><div class="pview-bar"><button type="button" class="btn" id="pBack"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>Annuaire</button><b id="pTitle"></b></div><div class="pview-ld" id="pLd">Chargement…</div><iframe id="pFrame" title="Page" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe></section>
 <div class="toast" id="toast" hidden></div>
 <div class="gate" id="gate" hidden>
 <form id="gateForm" autocomplete="off">
@@ -767,7 +787,7 @@ function applyBrand(ch){ const c=(ch&&ch.config)||{}; const h=document.querySele
   const ok=c.logo&&/^data:image\//.test(c.logo); if(lg){ lg.innerHTML=ok?`<img src="${c.logo.replace(/"/g,"")}" alt="">`:""; lg.classList.toggle("img",!!ok); } }
 function setCharte(ch){ applyCharte(ch); applyBrand(ch); try{ ch?localStorage.setItem("ach-charte",JSON.stringify(ch)):localStorage.removeItem("ach-charte"); }catch(_){} }
 try{ const c0=JSON.parse(localStorage.getItem("ach-charte")||"null"); if(c0){ applyCharte(c0); applyBrand(c0); } }catch(_){}
-let CODE=null, ME=null, QUOTA=null, MAIL=null;
+let CODE=null, ME=null, QUOTA=null, MAIL=null, PAGES=[];
 const sess={get(){try{return localStorage.getItem("ach-code")||sessionStorage.getItem("ach-code")}catch(e){return null}},
 set(c,rem){try{(rem?localStorage:sessionStorage).setItem("ach-code",c)}catch(e){}},
 clear(){try{localStorage.removeItem("ach-code");sessionStorage.removeItem("ach-code")}catch(e){}}};
@@ -1103,7 +1123,7 @@ return JSON.parse(new TextDecoder().decode(all));
 }
 async function login(code, rem){
 CODE=code.trim().toUpperCase();
-const j=await api({action:"login"}); ME=j.nom; MAIL=j.mail||null; sess.set(CODE,rem); setCharte(j.charte||null);
+const j=await api({action:"login"}); ME=j.nom; MAIL=j.mail||null; PAGES=j.pages||[]; initPages(); sess.set(CODE,rem); setCharte(j.charte||null);
 $("#whoN").textContent=ME; $("#whoN2").textContent=ME; $("#acctIni").textContent=initials(ME); $("#who").hidden=false; setQuota(j.quota); $("#gate").hidden=true;
 }
 async function init(){
@@ -1272,6 +1292,27 @@ $("#mClose").addEventListener("click",()=>$("#mailDlg").close()); $("#mCancel").
 $("#mailDlg").addEventListener("click",e=>{ if(e.target===$("#mailDlg")) $("#mailDlg").close(); });
 $("#mailForm").addEventListener("submit",sendMail);
 $("#mSteps").addEventListener("click",async e=>{ const c=e.target.closest("[data-cp]"); if(!c) return; const t=c.dataset.cp==="to"?$("#sTo").textContent:$("#sObj").textContent; if(await copyPlain(t)){ c.textContent="Copié"; setTimeout(()=>c.textContent="Copier",1500); } });
+
+// ---------- pages internes (onglets) ----------
+const PCACHE=new Map(); let PCUR="";
+function initPages(){ const nav=$("#vtabs"), ap=$("#acctPages");
+  nav.querySelectorAll("[data-v]:not([data-v=''])").forEach(b=>b.remove()); ap.innerHTML="";
+  for(const p of PAGES){ const b=document.createElement("button"); b.type="button"; b.dataset.v=p.id; b.textContent=p.titre; nav.appendChild(b);
+    const m=document.createElement("button"); m.type="button"; m.dataset.v=p.id; m.innerHTML=`<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>${esc(p.titre)}`; ap.appendChild(m); }
+  nav.hidden=!PAGES.length; ap.hidden=!PAGES.length; }
+function placePView(){ const h=document.querySelector(".top"); if(h) $("#pView").style.setProperty("--ptop",Math.round(h.getBoundingClientRect().bottom)+"px"); }
+async function showPage(id){ PCUR=id||""; document.querySelectorAll("#vtabs [data-v]").forEach(b=>b.setAttribute("aria-current",b.dataset.v===PCUR?"page":"false"));
+  const v=$("#pView"); if(!PCUR){ v.hidden=true; return; }
+  const p=PAGES.find(x=>x.id===PCUR); $("#pTitle").textContent=p?p.titre:""; placePView(); v.hidden=false; acctToggle(false);
+  if(PCACHE.has(PCUR)){ if($("#pFrame").dataset.id!==PCUR){ $("#pFrame").srcdoc=PCACHE.get(PCUR); $("#pFrame").dataset.id=PCUR; } return; }
+  $("#pLd").hidden=false; $("#pFrame").srcdoc="";
+  try{ const j=await api({action:"page",id:PCUR}); let h=j.html; h=/<head[^>]*>/i.test(h)?h.replace(/<head([^>]*)>/i,'<head$1><base target="_blank">'):'<base target="_blank">'+h; PCACHE.set(PCUR,h); if(PCUR===j.id){ $("#pFrame").srcdoc=h; $("#pFrame").dataset.id=j.id; } }
+  catch(e){ $("#pFrame").srcdoc=`<p style="font:15px system-ui;padding:24px;color:#b42318">${esc(e.message)}</p>`; }
+  finally{ $("#pLd").hidden=true; } }
+$("#vtabs").addEventListener("click",e=>{ const b=e.target.closest("[data-v]"); if(b) showPage(b.dataset.v); });
+$("#acctPages").addEventListener("click",e=>{ const b=e.target.closest("[data-v]"); if(b) showPage(b.dataset.v); });
+$("#pBack").addEventListener("click",()=>showPage(""));
+addEventListener("resize",()=>{ if(!$("#pView").hidden) placePView(); });
 // ---------- événements ----------
 $("#kEb").addEventListener("click",()=>$("#fE").click()); $("#kTb").addEventListener("click",()=>$("#fT").click());
 $("#kMb").addEventListener("click",()=>{ if(matchMedia("(max-width:980px)").matches) setTab("carte"); setTimeout(fitSel,80); });
